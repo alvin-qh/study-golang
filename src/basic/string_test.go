@@ -2,18 +2,16 @@ package basic
 
 import (
 	"testing"
-	"fmt"
+	"github.com/stretchr/testify/assert"
 )
 
-func Test(t *testing.T) {
-	var s = "Hello, 你好"
+func TestCharAt(t *testing.T) {
+	const s = "Hello, 世界"
 
+	var c = CharAt(s, 0)
+	assert.Equal(t, rune(72), c)
+	assert.Equal(t, "H", string(c))
 
-	fmt.Println(s[7])
-
-	//var c = []rune(s)
-	//fmt.Print(string(c[7]))
-
-
-	fmt.Println(s[7:9])
+	c = CharAt(s, 7)
+	assert.Equal(t, "世", string(c))
 }

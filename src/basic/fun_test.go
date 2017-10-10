@@ -16,8 +16,11 @@ func TestArguments(t *testing.T) {
 	assert.Equal(t, c, 30, "expect c == 30")
 }
 
-func TestReturnMore(t *testing.T) {
-	x, y := ReturnMore(10, 20, "Hello")
-	assert.Equal(t, "Hello:10", x, `expect x == "Hello:10"`)
-	assert.Equal(t, "Hello:20", y, `expect x == "Hello:20"`)
+func TestExchange(t *testing.T) {
+	var x, y interface{} = 1, 2
+
+	x, y = ExchangeByReturn(x, y)
+
+	assert.Equal(t, 2, x, `expect x == 2`)
+	assert.Equal(t, 1, y, `expect y == 1`)
 }
