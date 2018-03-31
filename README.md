@@ -24,7 +24,7 @@ export GOPATH=dir1:dir2:dir3	# all go project path
 #### macOS
 
 ```sh
-$ brew install golide
+$ brew install glide
 ```
 
 
