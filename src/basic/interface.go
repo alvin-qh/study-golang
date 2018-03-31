@@ -1,5 +1,5 @@
 package basic
 
-type Person interface {
+type People interface {
 	
 }
