@@ -1,5 +1,6 @@
-package: .
-import:
+package: basic
+import: []
+testImport:
 - package: github.com/stretchr/testify
   subpackages:
   - assert
