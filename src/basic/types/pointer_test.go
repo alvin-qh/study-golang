@@ -41,3 +41,11 @@ func TestChangeSize(t *testing.T) {
 	assert.Equal(t, size.Width, 100)
 	assert.Equal(t, size.Height, 200)
 }
+
+func TestCreatePoint(t *testing.T) {
+	var pa *int = nil
+	CreatePoint(&pa)
+
+	assert.NotEqual(t, pa, nil)
+	assert.Equal(t, *pa, 100)
+}

@@ -19,3 +19,8 @@ func (i *Size) Change(newWidth int, newHeight int) {
 	i.Width = newWidth
 	i.Height = newHeight
 }
+
+func CreatePoint(pv **int) {
+	*pv = new(int)
+	**pv = 100
+}
