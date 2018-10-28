@@ -19,3 +19,8 @@ type FuncType func(a interface{}, b interface{}) interface{}
 func ArgumentAsFunction(a interface{}, b interface{}, callback FuncType) interface{} {
 	return callback(a, b)
 }
+
+func NamedReturnValue(sIn string) (sOut string) {
+	sOut = sIn
+	return
+}

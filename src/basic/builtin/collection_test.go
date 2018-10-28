@@ -21,23 +21,29 @@ func TestCreateIntArray(t *testing.T) {
 	array2 := [...]int{1, 2, 3}
 	assert.Equal(t, len(array2), 3)
 
-	type Any interface{}
-	array3 := [...]Any{"Hello", 1, false}
-	assert.Equal(t, len(array3), 3)
-	assert.Equal(t, array3[0], "Hello")
-	assert.Equal(t, array3[2], false)
-
-	array4 := [9][9]int{}
-	assert.Equal(t, len(array4), 9)
-	assert.Equal(t, len(array4[0]), 9)
+	array3 := [9][9]int{}
+	assert.Equal(t, len(array3), 9)
+	assert.Equal(t, len(array3[0]), 9)
 
 	for i := 0; i < 9; i++ {
 		for j := 0; j < 9; j++ {
-			array4[i][j] = (i + 1) * (j + 1)
+			array3[i][j] = (i + 1) * (j + 1)
 		}
 	}
-	assert.Equal(t, array4[2][6], 21)
+	assert.Equal(t, array3[2][6], 21)
+}
 
-	pa := &array4
-	println((*pa)[0][0])
+type Any interface{}
+
+func TestAnyArray(t *testing.T) {
+	array := [...]Any{"Hello", 1, false}
+	assert.Equal(t, len(array), 3)
+	assert.Equal(t, array[0], "Hello")
+	assert.Equal(t, array[2], false)
+}
+
+func TestPointerOfArray(t *testing.T) {
+	array := [...]Any{"Hello", 1, false}
+	pa := &array // var pa *[3]Any = &array
+	assert.Equal(t, (*pa)[0], "Hello")
 }

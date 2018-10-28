@@ -33,3 +33,8 @@ func TestArgumentAsFunction(t *testing.T) {
 	result := ArgumentAsFunction(10, 20, f)
 	assert.Equal(t, result, 30)
 }
+
+func TestNamedReturnValue(t *testing.T) {
+	s := NamedReturnValue("Hello")
+	assert.Equal(t, s, "Hello")
+}
