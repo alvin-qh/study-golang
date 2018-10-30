@@ -47,3 +47,101 @@ func TestPointerOfArray(t *testing.T) {
 	pa := &array // var pa *[3]Any = &array
 	assert.Equal(t, (*pa)[0], "Hello")
 }
+
+func TestIntsFromArray(t *testing.T) {
+	array := [...]int{1, 2, 3, 4, 5}
+
+	ints := Ints(array[:])
+	assert.Equal(t, len(ints), len(array))
+
+	ints = Ints(array[0:])
+	assert.Equal(t, len(ints), len(array))
+
+	ints = Ints(array[1:2])
+	assert.Equal(t, len(ints), 1)
+	assert.Equal(t, ints[0], 2)
+
+	ints = Ints(array[1:3])
+	assert.Equal(t, len(ints), 2)
+	assert.Equal(t, ints[0], 2)
+	assert.Equal(t, ints[1], 3)
+
+	ints = Ints(array[:3])
+	assert.Equal(t, len(ints), 3)
+	assert.Equal(t, ints[0], 1)
+	assert.Equal(t, ints[1], 2)
+	assert.Equal(t, ints[2], 3)
+}
+
+func TestSliceGrowUp(t *testing.T) {
+	var ints []int
+	assert.Equal(t, len(ints), 0)
+	assert.Equal(t, cap(ints), 0)
+
+	c := 1
+	for i := 0; i < 20; i++ {
+		if len(ints) > 0 && len(ints) == cap(ints) {
+			c = len(ints) * 2
+		}
+
+		ints = append(ints, i)
+		assert.Equal(t, len(ints), i+1)
+		assert.Equal(t, cap(ints), c)
+	}
+}
+
+func TestSliceShare(t *testing.T) {
+	a := []int{1, 2, 3}
+	b := a
+	assert.Equal(t, &a, &b)
+
+	a[1] = 100
+	assert.Equal(t, &a, &b)
+	assert.Equal(t, b[1], 100)
+
+	a = append(a, 200)
+	assert.NotEqual(t, &a, &b)
+}
+
+func TestNewInts(t *testing.T) {
+	ints := NewInts(10, 100)
+	assert.Equal(t, len(ints), 10)
+	assert.Equal(t, cap(ints), 100)
+}
+
+func TestInts_Append(t *testing.T) {
+	ints := Ints{1, 2, 3, 4}
+	ints.Append(5)
+	assert.Equal(t, ints[4], 5)
+	assert.Equal(t, len(ints), 5)
+}
+
+func TestInts_Remove(t *testing.T) {
+	ints := Ints{1, 2, 3, 4}
+	ints.Remove(2)
+	assert.Equal(t, ints[2], 4)
+	assert.Equal(t, len(ints), 3)
+
+	ints.Remove(0)
+	assert.Equal(t, ints[1], 4)
+	assert.Equal(t, len(ints), 2)
+
+	ints.Remove(len(ints) - 1)
+	assert.Equal(t, ints[0], 2)
+	assert.Equal(t, len(ints), 1)
+}
+
+func TestInts_Clear(t *testing.T) {
+	ints := Ints{1, 2, 3, 4}
+	ints.Clear()
+
+	assert.Equal(t, len(ints), 0)
+}
+
+func TestInts_Size(t *testing.T) {
+	ints := Ints{1, 2, 3, 4}
+	assert.Equal(t, ints.Size(), 4)
+
+	ints.Clear()
+	assert.Equal(t, ints.Size(), 0)
+}

@@ -8,8 +8,6 @@
 $ brew install go
 ```
 
-
-
 ### Setup GOROOT and GOPATH
 
 Open profile file (like `.bash_profile` on macOS)
@@ -27,9 +25,13 @@ export GOPATH=dir1:dir2:dir3	# all go project path
 $ brew install glide
 ```
 
+### Install xcode-select to enable debug
 
+```bash
+$ xcode-select --install
+```
 
-## Create go project
+## Create GO project
 
 In each GOPATH, create necessary dirs
 
