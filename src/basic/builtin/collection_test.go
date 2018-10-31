@@ -1,6 +1,8 @@
 package builtin
 
 import (
+	"container/list"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -32,8 +34,6 @@ func TestCreateIntArray(t *testing.T) {
 	}
 	assert.Equal(t, array3[2][6], 21)
 }
-
-type Any interface{}
 
 func TestAnyArray(t *testing.T) {
 	array := [...]Any{"Hello", 1, false}
@@ -144,4 +144,44 @@ func TestInts_Size(t *testing.T) {
 
 	ints.Clear()
 	assert.Equal(t, ints.Size(), 0)
+}
+
+func TestList(t *testing.T) {
+	lst := list.New()
+	lst.PushBack(1)
+	assert.Equal(t, lst.Len(), 1)
+
+	lst.PushBack("Hello")
+	assert.Equal(t, lst.Len(), 2)
+
+	type Any interface{}
+
+	array := make([]Any, lst.Len())
+	for iter, i := lst.Front(), 0; iter != nil; iter, i = iter.Next(), i+1 {
+		array[i] = iter.Value
+	}
+	assert.Equal(t, len(array), 2)
+}
+
+func TestListAt(t *testing.T) {
+	lst := ListAssign(1, 2, 3, "Hello")
+	assert.Equal(t, ListAt(lst, 0), 1)
+	assert.Equal(t, ListAt(lst, 1), 2)
+	assert.Equal(t, ListAt(lst, 3), "Hello")
+
+	fn := func() {
+		if err := recover(); err != nil {
+			fmt.Println(err)
+		}
+	}
+
+	defer fn()
+	ListAt(lst, 4)
+}
+
+func TestListToSlice(t *testing.T) {
+	lst := ListAssign(1, 2, 3, "Hello")
+	array := ListToSlice(lst)
+	assert.Equal(t, len(array), 4)
+	assert.ElementsMatch(t, array, []Any{1, 2, 3, "Hello"})
 }
