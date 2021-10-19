@@ -2,6 +2,7 @@ package oop
 
 import "basic/types"
 
+// Interface 定义 interface
 type Comparable interface {
 	Compare(other Comparable) int
 }

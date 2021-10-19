@@ -1,3 +1,6 @@
+// GO 语言集合操作：
+//
+
 package builtin
 
 import (
@@ -5,25 +8,29 @@ import (
 	"fmt"
 )
 
-type Ints []int
+// 定义 IntArray 类型，为整数数组的别名
+type IntArray []int
 
-func NewInts(len int, cap int) Ints {
-	return make(Ints, len, cap) // make([]int, len, cap)
+// 创建一个新 整型 数组
+// 	len: 数组的初始长度
+//	cap: 数组的最大长度
+func NewInts(len int, cap int) IntArray {
+	return make(IntArray, len, cap) // make([]int, len, cap)
 }
 
-func (i *Ints) Append(n int) {
+func (i *IntArray) Append(n int) {
 	*i = append(*i, n)
 }
 
-func (i *Ints) Remove(n int) {
+func (i *IntArray) Remove(n int) {
 	*i = append((*i)[:n], (*i)[n+1:]...)
 }
 
-func (i *Ints) Clear() {
-	*i = make(Ints, 0)
+func (i *IntArray) Clear() {
+	*i = make(IntArray, 0)
 }
 
-func (i Ints) Size() int {
+func (i IntArray) Size() int {
 	return len(i)
 }
 
