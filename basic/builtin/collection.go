@@ -1,5 +1,4 @@
 // GO 语言集合操作：
-//
 
 package builtin
 
