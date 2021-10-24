@@ -22,15 +22,37 @@ func TestRune(t *testing.T) {
 	s := string(rs)
 	assert.Equal(t, "ABC", s)
 
-    // 将字符串和 utf-8 字节进行转换
-	bs := []byte("Hello,大家好")
-    s = string(bs)
-    assert.Equal(t, "Hello,大家好", s)
-    assert.Equal(t, []byte(s), bs)
+	// 将字符串和 utf-8 字节进行转换
+	bs := []byte("Hello,大家好") // 字符串转为 byte 数组（utf8编码）
+	s = string(bs)            // byte 数组转换为 字符串
+	assert.Equal(t, "Hello,大家好", s)
+	assert.Equal(t, []byte(s), bs)
 
-    r = '好'
-    bs = []bu
-    utf8.EncodeRune()
+	// 字符和 byte 类型转换
+	// 一个 rune 类型可能会转换为 1~4 个 byte 类型（utf8编码）
+	// 实际情况中，需要从 byte 数组中解码指定的字符，或将指定的字符编码为 byte 数组
+	r = '好'
+	bs = make([]byte, utf8.RuneLen(r)) // 获取 rune 类型值转为 byte 数组所需的空间大小，依据此大小生成 byte 数组作为缓存
+	size := utf8.EncodeRune(bs, r)     // 将 rune 编码为 byte 数组，返回编码长度，该长度和 utf8.RuneLen 返回的值一致
+	assert.Equal(t, 3, size)           // 汉字编码为 byte 数组需 3 个字节
+	assert.Equal(t, size, utf8.RuneLen(r))
+
+	r, size = utf8.DecodeRune(bs) // 从 byte 数组解码出第一个字符，并返回解码了多少个字节
+	assert.Equal(t, 3, size)      // 解码了 3 个字节
+	assert.Equal(t, '好', r)       // 解码的第一个字符
+
+	s = "好"
+	r, size = utf8.DecodeRuneInString(s) // 从字符串解码出第一个字符，并返回解码了多少个字节
+	assert.Equal(t, 3, size)             // 解码了 3 个字节
+	assert.Equal(t, '好', r)              // 解码的第一个字符
+
+	r, size = utf8.DecodeLastRune(bs) // 从 byte 数组解码出最后一个字符，并返回解码了多少个字节
+	assert.Equal(t, '好', r)
+	assert.Equal(t, 3, size)
+
+	r, size = utf8.DecodeLastRuneInString(s) // 从 byte 数组解码出最后一个字符，并返回解码了多少个字节
+	assert.Equal(t, '好', r)
+	assert.Equal(t, 3, size)
 }
 
 // 测试求字符串长度
