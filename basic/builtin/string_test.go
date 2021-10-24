@@ -1,6 +1,7 @@
 package builtin
 
 import (
+	"reflect"
 	"strconv"
 	"strings"
 	"testing"
@@ -8,6 +9,29 @@ import (
 
 	"github.com/stretchr/testify/assert"
 )
+
+// 字符类型
+func TestRune(t *testing.T) {
+	// 定义字符类型
+	r := 'H'
+	assert.Equal(t, "int32", reflect.TypeOf(r).Name()) // 字符类型的值实际上是 int32 类型
+	assert.Equal(t, int32(72), r)                      // 字符类型的值是 utf8 编码的 72
+
+	// 将 rune 数组生成字符串
+	rs := []rune{'A', 'B', 'C'}
+	s := string(rs)
+	assert.Equal(t, "ABC", s)
+
+    // 将字符串和 utf-8 字节进行转换
+	bs := []byte("Hello,大家好")
+    s = string(bs)
+    assert.Equal(t, "Hello,大家好", s)
+    assert.Equal(t, []byte(s), bs)
+
+    r = '好'
+    bs = []bu
+    utf8.EncodeRune()
+}
 
 // 测试求字符串长度
 // 字符串在内存中默认是以 UTF-8 编码存储的 byte 集合
@@ -129,6 +153,12 @@ func TestStringCompare(t *testing.T) {
 
 // 对子字符串的操作，是通过 strings 包下面的
 // strings.Contains
+// strings.Index, strings.LastIndex, strings.IndexAny, strings.LastIndexAny, strings.IndexByte, strings.LastIndexByte, strings.IndexFunc, strings.LastIndexFunc
+// strings.HasPrefix, strings.HasSuffix
+// strings.Count
+// strings.Replace, strings.ReplaceAll
+// strings.Trim, strings.TrimSpace, strings.TrimLeft, strings.TrimRight, strings.TrimLeftFunc, strings.TrimRightFunc, strings.TrimPrefix, strings.TrimSuffix
+//
 func TestSubString(t *testing.T) {
 	s := "Hello, 大家好"
 
@@ -140,85 +170,134 @@ func TestSubString(t *testing.T) {
 	n := strings.Index(s, "家好") // 查找子字符串在字符串中第一次出现的位置
 	assert.Equal(t, 10, n)      // 在位置 10 找到子字符串
 
+	n = strings.LastIndex(s, "家好") // 从字符串末尾开始查找
+	assert.Equal(t, 10, n)         // 在位置 10 找到 '家' 字符
+
+	// 查找一组字符中任意字符在字符串中首次出现的位置
 	n = strings.IndexAny(s, "o好") // 查找所给字符中任意字符在字符串中第一次出现的位置
-	assert.Equal(t, 4, n)         // 在位置 2 找到子字符串
+	assert.Equal(t, 4, n)         // 在位置 4 找到子字符串
+
+	n = strings.LastIndexAny(s, "o好") // 从字符串末尾开始查找
+	assert.Equal(t, 13, n)            // 在位置 13 找到 'o' 字符
+
+	// 查找一个 byte 值在字符串中第一次出现的位置
+	n = strings.IndexByte(s, 'l') // 在字符串中查找一个 byte 第一次出现的位置
+	assert.Equal(t, 2, n)         // 在位置 2 找到 byte 'o'
+
+	n = strings.LastIndexByte(s, 'l') // 在字符串中查找一个 byte 第一次出现的位置
+	assert.Equal(t, 3, n)             // 在位置 3 找到 byte 'o'
+
+	// 通过逐字符回调指定函数，查找符合结果的内容第一次出现的位置
+	n = strings.IndexFunc(s, func(r rune) bool {
+		return r == ',' // 判断当前字符是否 ',' 字符
+	})
+	assert.Equal(t, 5, n)
+
+	n = strings.LastIndexFunc(s, func(r rune) bool {
+		return r == ',' // 判断当前字符是否 ',' 字符
+	})
+	assert.Equal(t, 5, n)
+
+	// 判断字符串是否以指定的子字符串开头（或结束）
+	b := strings.HasPrefix(s, "Hello") // 字符串是否以指定的子字符串开头
+	assert.True(t, b)
+
+	b = strings.HasSuffix(s, "家好") // 字符串是否以指定的子字符串结束
+	assert.True(t, b)
+
+	// 计算子字符串出现的次数
+	n = strings.Count(s, "l")
+	assert.Equal(t, 2, n) // 指定的子字符串在源字符串中出现了 2 次
+
+	n = strings.Count(s, "")                        // 计算空字符串出现的次数
+	assert.Equal(t, utf8.RuneCountInString(s), n-1) // 空字符串出现的此时相当于字符串长度+1
+
+	// 子字符串替换
+	sr := strings.Replace(s, "l", "L", 1) // 将子字符串替换为指定的字符串, 共替换 1 次
+	assert.Equal(t, "HeLlo, 大家好", sr)
+
+	sr = strings.Replace(s, "l", "L", 2) // 将子字符串替换为指定的字符串, 共替换 2 次
+	assert.Equal(t, "HeLLo, 大家好", sr)
+
+	sr = strings.Replace(s, "l", "L", -1) // 将子字符串替换为指定的字符串, 共替换 任意 次
+	assert.Equal(t, "HeLLo, 大家好", sr)
+
+	sr = strings.ReplaceAll(s, "l", "L") // 替换所有的指定子字符串，相当于 strings.Replace(s, "l", "L", -1)
+	assert.Equal(t, "HeLLo, 大家好", sr)
+
+	// 去除字符串前后的指定内容
+	sr = strings.Trim(s, "He好") // 删除字符串前后的指定字符，字符集合中的内容会被全部删除
+	assert.Equal(t, "llo, 大家", sr)
+
+	sr = strings.TrimSpace(" \r" + s + "\t\n") // 去除字符串前后的空白字符，相当于 strings.Trim(s, " \r\n\t")
+	assert.Equal(t, s, sr)
+
+	sr = strings.TrimLeft(s, "He好") // 删除字符串开始位置的指定字符
+	assert.Equal(t, "llo, 大家好", sr)
+
+	sr = strings.TrimLeftFunc(s, func(r rune) bool { // 根据函数的返回值决定是否要去掉指定字符
+		return utf8.RuneLen(r) == 1 // 去除所有 byte 长度 大于 1 的字符
+	})
+	assert.Equal(t, "大家好", sr)
+
+	sr = strings.TrimRight(s, "He好") // 删除字符串结束位置的指定字符
+	assert.Equal(t, "Hello, 大家", sr)
+
+	sr = strings.TrimRightFunc(s, func(r rune) bool { // 根据函数的返回值决定是否要去掉指定字符
+		return utf8.RuneLen(r) > 1 // 去除所有 byte 长度 等于 1 的字符
+	})
+	assert.Equal(t, "Hello, ", sr)
+
+	sr = strings.TrimPrefix(s, "Hel") // 删除字符串开始位置的指定子字符串，需要匹配整个子字符串
+	assert.Equal(t, "lo, 大家好", sr)
+
+	sr = strings.TrimSuffix(s, "家好") // 删除字符串结束位置的指定子字符串，需要匹配整个子字符串
+	assert.Equal(t, "Hello, 大", sr)
+
+	// 将字符串分隔成若干子字符串
+	ss := strings.Split(s, ", ")                  // 通过 ',' 将字符串分割
+	assert.Equal(t, []string{"Hello", "大家好"}, ss) // 分割为两个子字符串
+
+	ss = strings.SplitN(s, ", ", 1)             // 指定分割结果的数量，至多将字符串分割为 1 个部分
+	assert.Equal(t, []string{"Hello, 大家好"}, ss) // 分隔为 1 个子字符串，相当于不做分割
+
+	ss = strings.SplitN(s, ", ", 2)               // 指定分割结果的数量，至多将字符串分割为 2 个部分
+	assert.Equal(t, []string{"Hello", "大家好"}, ss) // 分隔为 2 个子字符串
+
+	ss = strings.SplitN(s, ", ", -1)              // 分割为任意部分，相当于 strings.Split(s)
+	assert.Equal(t, []string{"Hello", "大家好"}, ss) // 分割为 2 个子字符串
+
+	ss = strings.SplitAfter(s, ", ")                // 分割结果中包含用于分割的字符串本身
+	assert.Equal(t, []string{"Hello, ", "大家好"}, ss) // 用于分隔的字符串和前一个分割结果合并在一起
+
+	ss = strings.SplitAfterN(s, ", ", 1)        // 分割结果中至多包含 1 个子字符串
+	assert.Equal(t, []string{"Hello, 大家好"}, ss) // 分隔为 1 个子字符串，相当于不做分割
+
+	ss = strings.SplitAfterN(s, ", ", 2)            // 分割结果中至多包含 2 个子字符串
+	assert.Equal(t, []string{"Hello, ", "大家好"}, ss) // 分隔为 2 个子字符串
+
+	ss = strings.SplitAfterN(s, ", ", -1)       // 分割为任意部分，相当于 strings.SplitAfter(s)
+	assert.Equal(t, []string{"Hello, 大家好"}, ss) // 分割为 2 个子字符串
 }
 
-func TestString_Index(t *testing.T) {
-	assert.Equal(t, String("abcde").Index("cde"), 2)
-	assert.Equal(t, String("abcde").LastIndex("cde"), 2)
-}
+// 字符串连接，将若干个子字符串连接成一个完整的字符
+// '+'
+// strings.Join
+// strings.Repeat
+func TestStringConcat(t *testing.T) {
+	s := "Hello"
 
-func TestString_Count(t *testing.T) {
-	s := String("abababc")
-	assert.Equal(t, s.Count("ab"), 3)
-	assert.Equal(t, s.Count(""), s.Len()+1)
-}
+	// 字符串连接，通过 '+' 可以连接两个字符串
+	sc := s + ", World"
+	assert.Equal(t, "Hello, World", sc)
 
-func TestRepeat(t *testing.T) {
-	s := Repeat("abc", 3)
-	assert.Equal(t, s.Len(), 9)
-	assert.Equal(t, s.Count("abc"), 3)
-}
+	// 字符串连接，将字符串数组（切片）通过连接符进行连接
+	sc = strings.Join([]string{s, "World"}, " ")
+	assert.Equal(t, "Helloc World", sc)
 
-func TestString_Replace(t *testing.T) {
-	s := String("Hello")
-
-	s = s.Replace("l", "L", 0) // do nothing replace
-	assert.Equal(t, string(s), "Hello")
-
-	s = s.Replace("l", "L", 1)
-	assert.Equal(t, string(s), "HeLlo")
-
-	s = String("Hello")
-	s = s.Replace("l", "L", 2)
-	assert.Equal(t, string(s), "HeLLo")
-
-	s = String("Hello")
-	s = s.Replace("ello", "ELLO", -1)
-	assert.Equal(t, string(s), "HELLO")
-
-	s = String("Hello")
-	s.ReplaceSelf("ello", "ELLO", -1)
-	assert.Equal(t, string(s), "HELLO")
-}
-
-func TestString_Trim(t *testing.T) {
-	s := String("   Hello   ")
-	assert.Equal(t, string(s.Trim()), "Hello")
-}
-
-func TestString_TrimWith(t *testing.T) {
-	s := String("*^%Hello^&*")
-	assert.Equal(t, string(s.TrimWith("*^%&")), "Hello")
-}
-
-func TestString_StartWith_And_EndWith(t *testing.T) {
-	s := String("http://www.google.com")
-	assert.True(t, s.StartWith("http://"))
-	assert.True(t, s.EndWith(".com"))
-
-	s = s.TrimStart("http://").TrimEnd(".com")
-	assert.Equal(t, string(s), "www.google")
-}
-
-func TestString_Split(t *testing.T) {
-	s := String("www.google.com")
-	rs := s.Split(".")
-	assert.Equal(t, len(rs), 3)
-	assert.Equal(t, string(rs[0]), "www")
-	assert.Equal(t, string(rs[1]), "google")
-	assert.Equal(t, string(rs[2]), "com")
-}
-
-func TestJoin(t *testing.T) {
-	parts := make([]string, 26)
-	for i := 'A'; i <= 'Z'; i++ {
-		parts[i-'A'] = string(i)
-	}
-
-	join := Join(",", parts...)
-	assert.Equal(t, string(join), "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z")
+	// 重复指定字符串若干次
+	sc = strings.Repeat(s, 2)
+	assert.Equal(t, "HelloHello", sc)
 }
 
 func TestStringBuilder(t *testing.T) {
