@@ -11,6 +11,8 @@ import (
 )
 
 // 字符类型
+// string([]byte), []byte(string), string([]rune), []rune(string)
+// utf8.EncodeRune, utf8.DecodeRune, utf8.RuneLen, utf8.DecodeRuneInString, utf8.DecodeLastRune, utf8.DecodeLastRuneInString
 func TestRune(t *testing.T) {
 	// 定义字符类型
 	r := 'H'
@@ -180,7 +182,7 @@ func TestStringCompare(t *testing.T) {
 // strings.Count
 // strings.Replace, strings.ReplaceAll
 // strings.Trim, strings.TrimSpace, strings.TrimLeft, strings.TrimRight, strings.TrimLeftFunc, strings.TrimRightFunc, strings.TrimPrefix, strings.TrimSuffix
-//
+// strings.Split, strings.SplitN, strings.SplitAfter, strings.SplitAfterN
 func TestSubString(t *testing.T) {
 	s := "Hello, 大家好"
 
