@@ -1,6 +1,7 @@
 package builtin
 
 import (
+	"bytes"
 	"reflect"
 	"strconv"
 	"strings"
@@ -324,24 +325,21 @@ func TestStringConcat(t *testing.T) {
 	assert.Equal(t, "HelloHello", sc)
 }
 
-func TestStringBuilder(t *testing.T) {
-	builder := new(StringBuilder)
+// 对于复杂的字符串拼接，使用 bytes.Buffer 可以获得更高的效率
+// buffer.WriteString, buffer.WriteRune, buffer.Write
+func TestStringBuffer(t *testing.T) {
+	buffer := bytes.Buffer{}
 
-	builder.Append("Hello")
-	builder.Append(" World")
+	buffer.WriteString("Hello ")
+	buffer.WriteString("World")
 
-	assert.Equal(t, builder.Size(), 11)
-	assert.Equal(t, builder.ToString(), "Hello World")
+	assert.Equal(t, 11, buffer.Len())
+	assert.Equal(t, "Hello World", buffer.String())
 
-	builder.AppendInt(123)
-	assert.Equal(t, builder.Size(), 14)
-	assert.Equal(t, builder.ToString(), "Hello World123")
+	buffer.WriteRune(' ')
+	buffer.Write([]byte("ABC"))
+	assert.Equal(t, "Hello World ABC", buffer.String())
 
-	builder.AppendFloat(0.1234567)
-	assert.Equal(t, builder.Size(), 23)
-	assert.Equal(t, builder.ToString(), "Hello World1230.1234567")
-
-	builder.Clear()
-	assert.Equal(t, builder.Size(), 0)
-	assert.Equal(t, builder.ToString(), "")
+	buffer.WriteString(strconv.FormatInt(123, 10))
+	assert.Equal(t, "Hello World ABC123", buffer.String())
 }
