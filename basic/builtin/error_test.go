@@ -1,31 +1,44 @@
 package builtin
 
 import (
-	"github.com/stretchr/testify/assert"
+	"errors"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func TestWithSafeError(t *testing.T) {
-	msg, err := WithSafeError("Alvin")
+func TestErrorFromReturnValue(t *testing.T) {
+	user, err := New(RandomString(20), "Alvin")
 	assert.NoError(t, err)
-	assert.Equal(t, msg, "Hello Alvin")
+	assert.Equal(t, "Alvin", user.name)
 
-	msg, err = WithSafeError("")
+	user, err = New("", "")
 	assert.Error(t, err)
-	assert.Equal(t, msg, "")
+	assert.Equal(t, "invalid name", err.Error())
+	assert.Nil(t, user)
 }
 
 func TestWithPanicError(t *testing.T) {
-	msg := WithPanicError("Alvin")
-	assert.Equal(t, msg, "Hello Alvin")
+	user := SafeNew(RandomString(20), "Alvin")
+	assert.Equal(t, "Alvin", user.name)
 
-	catch := func() {
-		if e, ok := recover().(error); e != nil && ok {
-			assert.Equal(t, e.Error(), "invalid name")
+	defer func() {
+		if err := recover().(error); err != nil {
+			assert.Equal(t, err.Error(), "invalid name")
 		}
-	}
-	defer catch()
+	}()
+	SafeNew("", "")
+	assert.Fail(t, "cannot be run here")
+}
 
-	msg = WithPanicError("")
-	assert.Fail(t, "Cannot run here")
+func TestErrorIsOrAs(t *testing.T) {
+	user := SafeNew("", "Alvin")
+	err := user.IsValid()
+	assert.True(t, errors.Is(err, ErrIdRequired))
+	assert.False(t, errors.Is(err, ErrIdLength))
+
+	user = SafeNew("12345", "Alvin")
+	err = user.IsValid()
+	assert.False(t, errors.Is(err, ErrIdRequired))
+	assert.True(t, errors.Is(err, ErrIdLength))
 }

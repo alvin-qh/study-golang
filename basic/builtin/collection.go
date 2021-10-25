@@ -35,7 +35,7 @@ type UserKey struct {
 
 // 定义结构体作为 map value
 type UserValue struct {
-	gender   Char
+	gender   rune
 	birthday string
 	address  string
 }
@@ -70,8 +70,7 @@ func (s *Set) Remove(values ...interface{}) {
 // 判断 元素 是否在 Set 集合中存在
 func (s *Set) Contains(values ...interface{}) bool {
 	for _, v := range values { // 遍历参数，从 map 中查找 参数所表示的 key 是否存在
-		_, ok := s.m[v]
-		if !ok {
+		if _, ok := s.m[v]; !ok {
 			return false
 		}
 	}
