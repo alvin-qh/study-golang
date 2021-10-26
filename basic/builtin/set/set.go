@@ -1,44 +1,6 @@
 // GO 语言集合操作：
 
-package builtin
-
-import (
-	"container/list"
-)
-
-// 将列表转化为切片
-func ToSlice(l *list.List) []interface{} {
-	// 生成一个 cap 为列表长度的空切片
-	slice := make([]interface{}, 0, l.Len())
-
-	// 遍历列表，将列表元素依次加入切片中
-	for iter := l.Front(); iter != nil; iter = iter.Next() {
-		slice = append(slice, iter.Value)
-	}
-	return slice
-}
-
-// 将列表元素反转，得到新列表
-func Reverse(l *list.List) *list.List {
-	rl := list.New()
-	for iter := l.Back(); iter != nil; iter = iter.Prev() {
-		rl.PushBack(iter.Value)
-	}
-	return rl
-}
-
-// 定义结构体作为 map key
-type UserKey struct {
-	id   int
-	name string
-}
-
-// 定义结构体作为 map value
-type UserValue struct {
-	gender   rune
-	birthday string
-	address  string
-}
+package set
 
 // 定义 Set 集合结构体
 type Set struct {
@@ -48,7 +10,7 @@ type Set struct {
 
 // 创建并初始化 Set 集合对象
 //  cap: Set 集合初始容积
-func NewSet(cap int) *Set {
+func New(cap int) *Set {
 	s := Set{m: make(map[interface{}]struct{}, cap), cap: cap}
 	return &s
 }

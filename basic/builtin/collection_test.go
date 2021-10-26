@@ -4,6 +4,7 @@ package builtin
 // GO 集合包括：数组、切片和列表
 
 import (
+	"basic/builtin/set"
 	"container/list"
 	"fmt"
 	"reflect"
@@ -215,6 +216,19 @@ func TestSliceCapGrowUp(t *testing.T) {
 	}
 }
 
+// 定义结构体作为 map key
+type UserKey struct {
+	id   int
+	name string
+}
+
+// 定义结构体作为 map value
+type UserValue struct {
+	gender   rune
+	birthday string
+	address  string
+}
+
 // 测试 map 数据结构
 // map 即 hash map，是通过 hash 运算存储 key 和 value 键值对的结构
 func TestMap(t *testing.T) {
@@ -357,6 +371,27 @@ func TestSyncMap(t *testing.T) {
 	assert.Contains(t, values, "1")
 }
 
+// 将列表转化为切片
+func ToSlice(l *list.List) []interface{} {
+	// 生成一个 cap 为列表长度的空切片
+	slice := make([]interface{}, 0, l.Len())
+
+	// 遍历列表，将列表元素依次加入切片中
+	for iter := l.Front(); iter != nil; iter = iter.Next() {
+		slice = append(slice, iter.Value)
+	}
+	return slice
+}
+
+// 将列表元素反转，得到新列表
+func Reverse(l *list.List) *list.List {
+	rl := list.New()
+	for iter := l.Back(); iter != nil; iter = iter.Prev() {
+		rl.PushBack(iter.Value)
+	}
+	return rl
+}
+
 // go 语言的 list 实际上是双向链表，适合一些需要插入或删除中间节点的集合操作
 // list 也能作为队列或栈来使用
 // 参考: builtin.ToSlice, builtin.Reverse
@@ -413,7 +448,7 @@ func TestList(t *testing.T) {
 // 测试 Set 集合
 func TestSet(t *testing.T) {
 	// 初始化并添加元素
-	s1 := NewSet(100)            // 初始化
+	s1 := set.New(100)           // 初始化
 	s1.Add(1, 2, 3, 4, 2)        // 批量添加元素
 	assert.Equal(t, 4, s1.Len()) // 实际添加了 4 个元素，重复的 2 只存在 1 份
 
@@ -428,7 +463,7 @@ func TestSet(t *testing.T) {
 	assert.False(t, ok)
 
 	// 集合相等判断
-	s2 := NewSet(10) // 产生一个元素相同的集合
+	s2 := set.New(10) // 产生一个元素相同的集合
 	s2.Add(1, 2, 3, 4)
 
 	ok = s2.Equal(s1) // 两个集合元素是否相同

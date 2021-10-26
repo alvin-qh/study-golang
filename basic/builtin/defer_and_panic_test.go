@@ -17,6 +17,6 @@ func TestPanicFunc(t *testing.T) {
 	assert.Equal(t, s, "Hello")
 
 	defer func() { assert.Equal(t, recover().(string), "Empty") }()
-	s = PanicFunc("")
+	PanicFunc("")
 	assert.Fail(t, "Cannot run here")
 }
