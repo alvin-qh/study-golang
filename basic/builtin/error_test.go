@@ -131,3 +131,25 @@ func TestErrorIsOrAs(t *testing.T) {
 	err = errors.Unwrap(err) // 手动调用错误的 Unwrap 函数，获取前一个错误
 	assert.IsType(t, &EmptyError{}, err)
 }
+
+// 抛出异常的函数
+func PanicError() {
+	panic(ErrName) // 抛出异常，panic 调用会终止当前函数调用，即 panic 之后的代码不会被调用
+	// 调用终止后，代码执行会跳转到调用方的 defer 调用上，如果该 defer 调用具备 recover 捕获
+	// 则会捕获该异常，并结束调用方函数，否则异常会继续上更上一级的调用者抛出
+}
+
+func TestDeferAndPanicError(t *testing.T) {
+	defer func() { // 当异常发生后，该 defer 调用会被执行
+		r := recover()                    // 捕获异常
+		if err := r.(error); err != nil { // 判断异常类型
+			// 处理异常
+			assert.ErrorIs(t, err, ErrName)
+		}
+
+		// 异常处理完毕，TestDeferAndPanicError 函数随之结束
+	}()
+
+	PanicError() // 调用函数并抛出异常
+	assert.Fail(t, "Cannot be run here")
+}
