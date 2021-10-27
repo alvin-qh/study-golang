@@ -372,7 +372,7 @@ func TestSyncMap(t *testing.T) {
 }
 
 // 将列表转化为切片
-func ToSlice(l *list.List) []interface{} {
+func toSlice(l *list.List) []interface{} {
 	// 生成一个 cap 为列表长度的空切片
 	slice := make([]interface{}, 0, l.Len())
 
@@ -384,7 +384,7 @@ func ToSlice(l *list.List) []interface{} {
 }
 
 // 将列表元素反转，得到新列表
-func Reverse(l *list.List) *list.List {
+func reverse(l *list.List) *list.List {
 	rl := list.New()
 	for iter := l.Back(); iter != nil; iter = iter.Prev() {
 		rl.PushBack(iter.Value)
@@ -394,7 +394,6 @@ func Reverse(l *list.List) *list.List {
 
 // go 语言的 list 实际上是双向链表，适合一些需要插入或删除中间节点的集合操作
 // list 也能作为队列或栈来使用
-// 参考: builtin.ToSlice, builtin.Reverse
 func TestList(t *testing.T) {
 	// 通过 New 创建一个空列表
 	lst := list.New()
@@ -403,11 +402,11 @@ func TestList(t *testing.T) {
 	// 添加元素
 	// 返回值是一个 Element 指针，表示链表的节点
 	elem := lst.PushBack(1) // 在列表末尾添加一个元素
-	assert.Equal(t, []interface{}{1}, ToSlice(lst))
+	assert.Equal(t, []interface{}{1}, toSlice(lst))
 	assert.Equal(t, elem.Value, 1) // 返回的 Element 即为刚添加元素的节点
 
 	elem = lst.PushFront("Hello") // 在列表开头添加一个元素
-	assert.Equal(t, []interface{}{"Hello", 1}, ToSlice(lst))
+	assert.Equal(t, []interface{}{"Hello", 1}, toSlice(lst))
 	assert.Equal(t, elem.Value, "Hello")
 
 	// 插入元素
@@ -416,13 +415,13 @@ func TestList(t *testing.T) {
 	assert.Equal(t, "Hello", elem.Value)
 
 	lst.InsertAfter("OK", elem) // 在节点前插入
-	assert.Equal(t, []interface{}{"Hello", "OK", 1}, ToSlice(lst))
+	assert.Equal(t, []interface{}{"Hello", "OK", 1}, toSlice(lst))
 
 	elem = lst.Front().Next()
 	assert.Equal(t, "OK", elem.Value)
 
 	lst.InsertAfter("Bye", elem)
-	assert.Equal(t, []interface{}{"Hello", "OK", "Bye", 1}, ToSlice(lst))
+	assert.Equal(t, []interface{}{"Hello", "OK", "Bye", 1}, toSlice(lst))
 
 	// 删除元素
 	// 删除元素依赖被删除元素的节点对象，所以要先找到这个节点
@@ -431,14 +430,14 @@ func TestList(t *testing.T) {
 
 	value := lst.Remove(elem) // 删除节点，返回节点的 Value
 	assert.Equal(t, "Bye", value)
-	assert.Equal(t, []interface{}{"Hello", "OK", 1}, ToSlice(lst))
+	assert.Equal(t, []interface{}{"Hello", "OK", 1}, toSlice(lst))
 
 	// 连接两个列表
-	lst.PushBackList(Reverse(lst)) // 在列表后连接列表
-	assert.Equal(t, []interface{}{"Hello", "OK", 1, 1, "OK", "Hello"}, ToSlice(lst))
+	lst.PushBackList(reverse(lst)) // 在列表后连接列表
+	assert.Equal(t, []interface{}{"Hello", "OK", 1, 1, "OK", "Hello"}, toSlice(lst))
 
-	lst.PushFrontList(Reverse(lst)) // 在列表前连接列表
-	assert.Equal(t, []interface{}{"Hello", "OK", 1, 1, "OK", "Hello", "Hello", "OK", 1, 1, "OK", "Hello"}, ToSlice(lst))
+	lst.PushFrontList(reverse(lst)) // 在列表前连接列表
+	assert.Equal(t, []interface{}{"Hello", "OK", 1, 1, "OK", "Hello", "Hello", "OK", 1, 1, "OK", "Hello"}, toSlice(lst))
 
 	// 重新初始化列表（清空）
 	lst.Init()

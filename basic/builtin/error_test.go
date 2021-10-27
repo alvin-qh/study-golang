@@ -24,7 +24,7 @@ func TestMakeError(t *testing.T) {
 // 定义具有 Wrap(error) 函数的接口类型
 // Wrap 函数的作用是存入另一个 error 对象，表示当前的错误是由另一个错误引发
 type Wrapable interface {
-	Wrap(caused error)
+	wrap(caused error)
 }
 
 // 定义错误类型结构体
@@ -45,7 +45,7 @@ func (e *LengthError) Unwrap() error {
 }
 
 // 为 LengthError 实现 Wrapable 接口，传入引发当前错误的另一个错误
-func (e *LengthError) Wrap(caused error) {
+func (e *LengthError) wrap(caused error) {
 	e.caused = caused
 }
 
@@ -124,7 +124,7 @@ func TestErrorIsOrAs(t *testing.T) {
 
 	var targetErr2 *EmptyError
 	err = &LengthError{length: 10, expected: 20}            // 定义 err 变量引用到 LengthError 类型
-	err.(Wrapable).Wrap(&EmptyError{name: "name"})          // 手动调用 Wrap 函数，为 LengthError 类型的错误传入另一个错误，相当于 LengthError -> EmptyError 的链
+	err.(Wrapable).wrap(&EmptyError{name: "name"})          // 手动调用 Wrap 函数，为 LengthError 类型的错误传入另一个错误，相当于 LengthError -> EmptyError 的链
 	assert.True(t, errors.As(err, &targetErr2))             // 确认 err 的链上具有 EmptyError 类型的错误值，并传递该错误值引用到 targetErr2 变量
 	assert.Equal(t, "name is required", targetErr2.Error()) // 确认 targetErr2 是引用到 EmptyError 类型的变量
 
