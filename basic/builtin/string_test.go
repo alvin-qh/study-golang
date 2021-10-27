@@ -2,6 +2,7 @@ package builtin
 
 import (
 	"bytes"
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -342,4 +343,21 @@ func TestStringBuffer(t *testing.T) {
 
 	buffer.WriteString(strconv.FormatInt(123, 10))
 	assert.Equal(t, "Hello World ABC123", buffer.String())
+}
+
+// 字符串格式化
+// 通过 fmt.Sprint, fmt.Sprintf, fmt.Sprintln 函数，可以将一组参数组成一个字符串
+// 其中，fmt.Sprintf 函数可以按所给的字符串格式以及参数，产生格式化后的字符串
+func TestStringFormat(t *testing.T) {
+	// 将一组参数组成字符串
+	s := fmt.Sprint("Hello", "World", 123)
+	assert.Equal(t, "HelloWorld123", s)
+
+	// 将一组参数组成字符串，参数间用 空格 分隔，末尾增加换行符
+	s = fmt.Sprintln("Hello", "World", 123)
+	assert.Equal(t, "Hello World 123\n", s)
+
+	// 根据所给的字符串格式，生成格式化后的字符串
+	s = fmt.Sprintf("%s %s %.2f", "Hello", "World", 123.456)
+	assert.Equal(t, "Hello World 123.46", s)
 }
