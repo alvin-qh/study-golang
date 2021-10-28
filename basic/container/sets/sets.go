@@ -1,6 +1,6 @@
 // GO 语言集合操作：
 
-package set
+package sets
 
 // 定义 Set 集合结构体
 type Set struct {
