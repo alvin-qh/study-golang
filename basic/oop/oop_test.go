@@ -4,7 +4,7 @@ import (
 	"basic/oop/long"
 	"basic/oop/size"
 	"basic/oop/size3d"
-	"basic/oop/typedef"
+	"basic/oop/types"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -52,15 +52,15 @@ func TestSizeStruct(t *testing.T) {
 	assert.Equal(t, 20.0, height)
 
 	// 通过 typedef.Comparable 接口进行对象比较
-	eq := s1.Compare(s1) // 比较同一个对象
-	assert.Zero(t, eq)   // s1 == s1
+	cmp := s1.Compare(s1) // 比较同一个对象
+	assert.Zero(t, cmp)   // s1 == s1
 
 	s2 := size.New(20, 30)
-	eq = s1.Compare(s2)   // 比较 s1 和 s2 大小
-	assert.Less(t, eq, 0) // s1 < s2
+	cmp = s1.Compare(s2)   // 比较 s1 和 s2 大小
+	assert.Less(t, cmp, 0) // s1 < s2
 
-	eq = s2.Compare(s1)      // 比较 s2 和 s1 的大小
-	assert.Greater(t, eq, 0) // s2 > s1
+	cmp = s2.Compare(s1)      // 比较 s2 和 s1 的大小
+	assert.Greater(t, cmp, 0) // s2 > s1
 }
 
 // 测试 size.Size3D 类
@@ -77,39 +77,39 @@ func TestSize3DStruct(t *testing.T) {
 	assert.Equal(t, 30.0, depth)
 
 	// 通过 typedef.Comparable 接口进行对象比较
-	eq := s1.Compare(s1) // 比较同一个对象
-	assert.Zero(t, eq)   // s1 == s1
+	cmp := s1.Compare(s1) // 比较同一个对象
+	assert.Zero(t, cmp)   // s1 == s1
 
 	s2 := size3d.New(20, 30, 40)
-	eq = s1.Compare(s2)   // 比较 s1 和 s2 大小
-	assert.Less(t, eq, 0) // s1 < s2
+	cmp = s1.Compare(s2)   // 比较 s1 和 s2 大小
+	assert.Less(t, cmp, 0) // s1 < s2
 
-	eq = s2.Compare(s1)      // 比较 s2 和 s1 的大小
-	assert.Greater(t, eq, 0) // s2 > s1
+	cmp = s2.Compare(s1)      // 比较 s2 和 s1 的大小
+	assert.Greater(t, cmp, 0) // s2 > s1
 }
 
 // 定义一组通过 typedef.Comparable 接口对对象进行比较的函数
-func eq(left, right typedef.Comparable) bool {
+func eq(left, right types.Comparable) bool {
 	return left.Compare(right) == 0
 }
 
-func ne(left, right typedef.Comparable) bool {
+func ne(left, right types.Comparable) bool {
 	return left.Compare(right) != 0
 }
 
-func gt(left, right typedef.Comparable) bool {
+func gt(left, right types.Comparable) bool {
 	return left.Compare(right) > 0
 }
 
-func lt(left, right typedef.Comparable) bool {
+func lt(left, right types.Comparable) bool {
 	return left.Compare(right) < 0
 }
 
-func ge(left, right typedef.Comparable) bool {
+func ge(left, right types.Comparable) bool {
 	return left.Compare(right) >= 0
 }
 
-func le(left, right typedef.Comparable) bool {
+func le(left, right types.Comparable) bool {
 	return left.Compare(right) <= 0
 }
 
@@ -141,7 +141,7 @@ func TestInterface(t *testing.T) {
 	// 测试比较不同类型对象时，出现的 panic 异常
 	defer func() {
 		err := recover().(error)
-		assert.ErrorIs(t, err, typedef.ErrType)
+		assert.ErrorIs(t, err, types.ErrType)
 	}()
 
 	ss1 := size3d.New(10, 20, 30)

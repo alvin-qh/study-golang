@@ -1,7 +1,7 @@
 package size
 
 import (
-	"basic/oop/typedef"
+	"basic/oop/types"
 	"fmt"
 )
 
@@ -31,7 +31,7 @@ func (s *Size) Area() float64 { return s.width * s.height }
 func (s *Size) Compare(other interface{}) int {
 	v, ok := other.(*Size)
 	if !ok {
-		panic(typedef.ErrType)
+		panic(types.ErrType)
 	}
 	if s == v {
 		return 0

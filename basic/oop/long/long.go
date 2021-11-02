@@ -1,7 +1,7 @@
 package long
 
 import (
-	"basic/oop/typedef"
+	"basic/oop/types"
 	"strconv"
 )
 
@@ -13,7 +13,7 @@ type Long int64
 func (i Long) Compare(other interface{}) int {
 	val, ok := other.(Long)
 	if !ok {
-		panic(typedef.ErrType)
+		panic(types.ErrType)
 	}
 	return int(i - val)
 }

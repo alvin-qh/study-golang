@@ -1,6 +1,7 @@
 package builtin
 
 import (
+	"basic/builtin/types"
 	"reflect"
 	"testing"
 	"unsafe"
@@ -8,46 +9,40 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type User struct {
-	id     int
-	name   string
-	gender rune
-}
-
 func TestStructType(t *testing.T) {
 	// 定义结构体变量并进行初始化
-	var user User = User{id: 1, name: "Alvin", gender: 'M'}
-	assert.Equal(t, "User", reflect.TypeOf(user).Name()) // 查看变量类型
-	assert.Equal(t, 1, user.id)
-	assert.Equal(t, "Alvin", user.name)
-	assert.Equal(t, 'M', user.gender)
+	var u1 types.User = types.User{Id: 1, Name: "Alvin", Gender: 'M'}
+	assert.Equal(t, "User", reflect.TypeOf(u1).Name()) // 查看变量类型
+	assert.Equal(t, 1, u1.Id)
+	assert.Equal(t, "Alvin", u1.Name)
+	assert.Equal(t, 'M', u1.Gender)
 
 	// 定义结构体并跳过初始化
-	user = User{}
-	user.id = 2 // 为结构体字段赋值
-	user.name = "Emma"
-	user.gender = 'F'
-	assert.Equal(t, 2, user.id)
-	assert.Equal(t, "Emma", user.name)
-	assert.Equal(t, 'F', user.gender)
+	u1 = types.User{}
+	u1.Id = 2 // 为结构体字段赋值
+	u1.Name = "Emma"
+	u1.Gender = 'F'
+	assert.Equal(t, 2, u1.Id)
+	assert.Equal(t, "Emma", u1.Name)
+	assert.Equal(t, 'F', u1.Gender)
 
 	// 通过 new 操作符产生 User 类型的指针变量
-	pUser := new(User)
-	(*pUser) = user // 为指针指向的结构体赋值
-	assert.Equal(t, 2, pUser.id)
-	assert.Equal(t, "Emma", pUser.name)
-	assert.Equal(t, 'F', pUser.gender)
+	pu1 := new(types.User)
+	(*pu1) = u1 // 为指针指向的结构体赋值
+	assert.Equal(t, 2, pu1.Id)
+	assert.Equal(t, "Emma", pu1.Name)
+	assert.Equal(t, 'F', pu1.Gender)
 
 	// 赋值语句可以 copy 结构体
-	userCopy := user
-	userCopy.id = 3
-	assert.Equal(t, 2, user.id) // userCopy 和 user 两个变量表示两个不同的 User 对象
-	assert.Equal(t, 3, userCopy.id)
+	u2 := u1
+	u2.Id = 3
+	assert.Equal(t, 2, u1.Id) // userCopy 和 user 两个变量表示两个不同的 User 对象
+	assert.Equal(t, 3, u2.Id)
 
-	pUser = &user // 指针指向 user 变量结构体
-	pUser.id = 3
-	assert.Equal(t, 3, user.id) // pUser 指向 user 结构体
-	assert.Equal(t, 3, pUser.id)
+	pu1 = &u1 // 指针指向 user 变量结构体
+	pu1.Id = 3
+	assert.Equal(t, 3, u1.Id) // pUser 指向 user 结构体
+	assert.Equal(t, 3, pu1.Id)
 }
 
 // go 语言的类型转化基于非常简单个规则：值类型转换
@@ -103,11 +98,11 @@ func TestTypeConvert(t *testing.T) {
 func TestPointerCalculation(t *testing.T) {
 	slice := []int{1, 2, 3, 4, 5}
 
-    // 获取 切片 第 1 个元素的地址，即整个切片的地址
+	// 获取 切片 第 1 个元素的地址，即整个切片的地址
 	pn := &slice[0]
 	assert.Equal(t, 1, *pn)
 
-    // 将指针移动一个 int 大小，指针指向切片第 2 个元素的地址
+	// 将指针移动一个 int 大小，指针指向切片第 2 个元素的地址
 	pn = (*int)(unsafe.Pointer(uintptr(unsafe.Pointer(&slice[0])) + unsafe.Sizeof(slice[0])))
 	assert.Equal(t, 2, *pn)
 }

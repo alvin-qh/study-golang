@@ -2,7 +2,7 @@ package size3d
 
 import (
 	"basic/oop/size"
-	"basic/oop/typedef"
+	"basic/oop/types"
 	"fmt"
 )
 
@@ -45,7 +45,7 @@ func (s *Size3D) ToString() string {
 func (s *Size3D) Compare(other interface{}) int {
 	v, ok := other.(*Size3D)
 	if !ok {
-		panic(typedef.ErrType)
+		panic(types.ErrType)
 	}
 	if s == v {
 		return 0

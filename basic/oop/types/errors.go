@@ -1,4 +1,4 @@
-package typedef
+package types
 
 import "errors"
 

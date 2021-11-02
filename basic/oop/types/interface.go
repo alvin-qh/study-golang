@@ -1,4 +1,4 @@
-package typedef
+package types
 
 // 定义接口，用于比较两个对象
 type Comparable interface {
