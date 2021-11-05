@@ -279,3 +279,45 @@ func TestSetStructFieldByReflect(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 'F', u.Gender)
 }
+
+// Tag 是标记在结构体字段上的文本标记
+// 通过 Tag 可以在结构体字段上添加一些“元数据”，帮助框架在解读结构体时给予一些信息
+func TestStructFieldTag(t *testing.T) {
+	var obj interface{} = types.User{Id: 1, Name: "Alvin", Gender: 'M'}
+
+	tv := reflect.ValueOf(obj) // 获取结构体反射值对象
+	tp := reflect.TypeOf(obj)  // 获取结构体类型对象
+
+	// 遍历结构体所有字段
+	for i := 0; i < tv.NumField(); i++ {
+		fv := tv.Field(i).Interface() // 获取结构体字段值
+		ft := tp.Field(i).Tag         // 获取结构体字段 Tag
+
+		// 根据结构体字段名称，分别处理各个字段
+		switch tp.Field(i).Name {
+		case "Id": // Id 字段
+			assert.Equal(t, 1, fv.(int)) // 获取字段值
+
+			t1, ok := ft.Lookup("primaryKey") // 获取 primaryKey 标记，Lookup 函数返回 2 个返回值，Tag 值以及 Tag 是否存在
+			assert.True(t, ok)                // Tag 是否存在
+			assert.Equal(t, "true", t1)       // Tag 值
+
+			t2 := ft.Get("null")         // 获取 null 标记，Get 函数只返回一个字段，如果没找到则返回 空字符串
+			assert.Equal(t, "false", t2) // Tag 值
+		case "Name": // Name 字段
+			assert.Equal(t, "Alvin", fv.(string))
+
+			tag := ft.Get("default")
+			assert.Equal(t, "Alvin", tag)
+		case "Gender": // Gender 字段
+			assert.Equal(t, 'M', fv.(rune))
+			_, ok := ft.Lookup("required")
+			assert.False(t, ok)
+
+			tag := ft.Get("required")
+			assert.Equal(t, "", tag) // 返回空字符串
+		default:
+			assert.Fail(t, "Can not run here")
+		}
+	}
+}
