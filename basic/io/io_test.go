@@ -3,6 +3,7 @@ package io
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/gob"
 	"io"
 	"os"
 	"strings"
@@ -205,10 +206,11 @@ func TestFileIO(t *testing.T) {
 		assert.NoError(t, err)
 	}()
 
+	// 获取文件长度
 	fileLen := func(file *os.File) int {
-		fi, err := os.Stat(file.Name())
+		fi, err := os.Stat(file.Name()) // 获取文件属性
 		assert.NoError(t, err)
-		return int(fi.Size())
+		return int(fi.Size()) // 从文件属性中获取文件实际长度
 	}
 
 	count, err := file.Write([]byte(`Hello World`))
@@ -237,6 +239,8 @@ func TestFileIO(t *testing.T) {
 	assert.Equal(t, 49, fileLen(file))                 // 共写入 49 字节，增加 uvarint = 3 字节
 
 	file.Truncate(int64(fileLen(file)))
+
+	file.Close()
 
 	// 以只读方式打开文件，文件必须存在
 	file, err = os.OpenFile(path, os.O_RDONLY, 0666)
@@ -283,4 +287,45 @@ func TestFileIO(t *testing.T) {
 	un, count := binary.Uvarint(data) // 从 bytes 中获取 uvarint 值，返回 uvarint 实际长度 3 字节
 	assert.Equal(t, uint64(123456), un)
 	assert.Equal(t, 3, count)
+}
+
+// 使用 GoB（Group Of Block）操作 io
+// gob.Encoder 对象和 gob.Decoder 对象可以对值（数值、字符串、切片等）进行编解码，编码的结果直接写入 io.Writer 对象，解码则是直接通过 io.Reader 进行
+// gob 方式可以极大的简化各类数据写入和读取操作
+func TestGobDatabase(t *testing.T) {
+	file, err := os.Create("./gob.data") // os.Create(name) 函数是 os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666) 函数的简写，打开一个读写文件
+	assert.NoError(t, err)
+
+	// 函数结束后，关闭并删除文件
+	defer func() {
+		file.Close()
+		os.Remove(file.Name())
+	}()
+
+	s := "Hello, World!"
+
+	// 通过编码器将各类数据写入 io.Writer 对象
+	enc := gob.NewEncoder(file) // 创建 编码器 对象，参数为一个 io.Writer 对象
+
+	err = enc.Encode(len(s)) // 写入 int 类型数值
+	assert.NoError(t, err)
+
+	err = enc.Encode(s) // 写入字符串类型数据
+	assert.NoError(t, err)
+
+	file.Close()
+
+	file, err = os.Open("./gob.data") // os.Open(name) 函数是 os.OpenFile(name, os.O_RDONLY, 0) 函数的简写，打开一个只读文件
+	assert.NoError(t, err)
+	dec := gob.NewDecoder(file) // 创建 解码器 对象，参数为一个 io.Reader 对象
+
+	var n int
+	err = dec.Decode(&n) // 解码一个整数
+	assert.NoError(t, err)
+	assert.Equal(t, len(s), n)
+
+	var rs string
+	err = dec.Decode(&rs) // 解码一个字符串
+	assert.NoError(t, err)
+	assert.Equal(t, s, rs)
 }
