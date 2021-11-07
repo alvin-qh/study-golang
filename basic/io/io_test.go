@@ -1,6 +1,7 @@
 package io
 
 import (
+	"basic/io/user"
 	"bytes"
 	"encoding/binary"
 	"encoding/gob"
@@ -313,6 +314,11 @@ func TestGobDatabase(t *testing.T) {
 	err = enc.Encode(s) // 写入字符串类型数据
 	assert.NoError(t, err)
 
+	pu := user.New(1, "Alvin", "alvin@fake.com", []string{"13999912345", "13000056789"}) // 初始化 user.User 对象并返回指针
+
+	err = enc.Encode(pu) // 将结构体变量进行编码
+	assert.NoError(t, err)
+
 	file.Close()
 
 	file, err = os.Open("./gob.data") // os.Open(name) 函数是 os.OpenFile(name, os.O_RDONLY, 0) 函数的简写，打开一个只读文件
@@ -328,4 +334,9 @@ func TestGobDatabase(t *testing.T) {
 	err = dec.Decode(&rs) // 解码一个字符串
 	assert.NoError(t, err)
 	assert.Equal(t, s, rs)
+
+	var ru user.User
+	err = dec.Decode(&ru) // 解码结构体对象
+	assert.NoError(t, err)
+	assert.Equal(t, *pu, ru)
 }
