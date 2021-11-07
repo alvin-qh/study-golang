@@ -293,6 +293,7 @@ func TestFileIO(t *testing.T) {
 // 使用 GoB（Group Of Block）操作 io
 // gob.Encoder 对象和 gob.Decoder 对象可以对值（数值、字符串、切片等）进行编解码，编码的结果直接写入 io.Writer 对象，解码则是直接通过 io.Reader 进行
 // gob 方式可以极大的简化各类数据写入和读取操作
+// 另外，gob.Encoder 的 EncoderValue 以及 gob.Decoder 的 DecoderValue 可以对 reflect.Value 对象进行操作，通过反射处理 io
 func TestGobDatabase(t *testing.T) {
 	file, err := os.Create("./gob.data") // os.Create(name) 函数是 os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666) 函数的简写，打开一个读写文件
 	assert.NoError(t, err)
