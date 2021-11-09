@@ -2,11 +2,31 @@
 
 ## Install GO
 
+> See: [Download and install - The Go Programming Language (golang.org)](https://golang.org/doc/install)
+
 ### macOS
 
 ```sh
 $ brew install go
 ```
+
+### Linux
+
+Download install file from https://golang.org/dl/go1.17.3.linux-amd64.tar.gz
+
+Install:
+
+```bash
+$ rm -rf /usr/local/go && tar -C /usr/local -xzf go1.17.3.linux-amd64.tar.gz
+```
+
+Set environment variable:
+
+```bash
+export PATH=$PATH:/usr/local/go/bin
+```
+
+
 
 ## Setup GOROOT and GOPATH
 
