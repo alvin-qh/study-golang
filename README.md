@@ -37,7 +37,7 @@ export GOROOT=dir				# each of golang binary installed path
 export GOPATH=dir1:dir2:dir3	# all go project path
 ```
 
-## Install glide
+## ~~Install glide~~
 
 ### macOS
 
@@ -51,7 +51,7 @@ $ brew install glide
 $ xcode-select --install
 ```
 
-## Create GO project
+## ~~Create GO project~~
 
 In each GOPATH, create necessary dirs
 
@@ -103,7 +103,7 @@ $ export GO111MODULE=on
 
 ```bash
 $ mkdir demo-work
-$ cat demo-work
+$ cd demo-work
 $ go mod init demo-work
 ```
 
