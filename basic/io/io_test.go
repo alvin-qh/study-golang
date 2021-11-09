@@ -2,6 +2,7 @@ package io
 
 import (
 	"basic/io/user"
+	"bufio"
 	"bytes"
 	"encoding/binary"
 	"encoding/gob"
@@ -16,7 +17,7 @@ import (
 
 // io 包中和读取相关的接口
 //  io.Reader：基本的读取操作，从流中读取一系列 bytes
-//  io.ReaderAt：随机读取操作，读取流中任意起始位置的一系列 bytes
+//  io.ReaderAt：随机读取操作，读取流中任意起始位置 bytes
 //  io.ByteReader：读取 1 个 byte
 //  io.ByteScanner：获取剩余未读取的 bytes
 //  io.RuneReader：读取 1 个 rune
@@ -26,13 +27,14 @@ import (
 //  io.Closer：关闭当前 Reader 对象
 //
 // io 包中和写入相关的接口
-//  io.Writer：基本的写操作，把 bytes 集合写入对象
+//  io.Writer：基本的写操作，在流中顺序写入 bytes
+//  io.WriterAt：随机写操作，在流的任意位置写入 bytes
 //  io.StringWriter：写入字符串操作
 //  io.ReadFrom：从另一个 io.Reader 对象中读取内容写入当前对象中
 
 // 测试 strings.Reader
 // strings.Reader 接收一个字符串参数，返回一个 Reader 对象，该对象实现了如下接口：
-// io.Reader, io.ReaderAt, io.ByteReader, io.ByteScanner, io.RuneReader, io.RuneScanner, io.Seeker, io.WriterTo
+//  io.Reader, io.ReaderAt, io.ByteReader, io.ByteScanner, io.RuneReader, io.RuneScanner, io.Seeker, io.WriterTo
 func TestStringIO(t *testing.T) {
 	// 实例化一个新的 Reader 对象，用于对字符串内容进行读取操作
 	reader := strings.NewReader(`<html>
@@ -107,7 +109,7 @@ func TestStringIO(t *testing.T) {
 // 测试 byte 类型数据的读写操作
 // 数据读写依赖 bytes.Buffer 类型，其实现了 io.Reader 和 io.Writer 接口，可以同时进行读写操作
 // 字符串类型通过编码为 utf8 编码，进行读取和写入
-// int, float, bool, rune, slice 等类型，需要借助 binary 包，转换为 byte 类型后进行读写
+// 对于 int, float, bool, rune, slice 等类型，需要借助 binary 包，转换为 byte 类型后进行读写
 func TestBytesBuffer(t *testing.T) {
 	// 写入 bytes.Buffer 对象
 	buf := bytes.NewBuffer([]byte{}) // 产生一个初始长度为 0 的 Buffer 对象进行写入
@@ -189,8 +191,9 @@ func TestBytesBuffer(t *testing.T) {
 }
 
 // 文本文件的读取和写入
-// File 对象实现了如下接口
-//  io.Write, io.WriteString
+// os.File 对象实现了如下接口
+//  io.Writer, io.WriterString, io.ReadFrom, io.Reader, io.ReaderAt, io.WriterTo
+// 一般情况下，不直接使用 os.File 对象，而是通过 bufio.Writer, bufio.Reader 以及 gob.Encoder, gob.Decoder 来进行操作
 func TestFileIO(t *testing.T) {
 	path := "./test.dat"
 
@@ -214,7 +217,7 @@ func TestFileIO(t *testing.T) {
 		return int(fi.Size()) // 从文件属性中获取文件实际长度
 	}
 
-	count, err := file.Write([]byte(`Hello World`))
+	count, err := file.WriteString(`Hello World`)
 	assert.NoError(t, err)
 	assert.Equal(t, 11, count)
 	assert.Equal(t, 11, fileLen(file)) // 写入 11 字节
@@ -290,7 +293,7 @@ func TestFileIO(t *testing.T) {
 	assert.Equal(t, 3, count)
 }
 
-// 使用 GoB（Group Of Block）操作 io
+// 使用 GoB（Go Binary）操作 io
 // gob.Encoder 对象和 gob.Decoder 对象可以对值（数值、字符串、切片等）进行编解码，编码的结果直接写入 io.Writer 对象，解码则是直接通过 io.Reader 进行
 // gob 方式可以极大的简化各类数据写入和读取操作
 // 另外，gob.Encoder 的 EncoderValue 以及 gob.Decoder 的 DecoderValue 可以对 reflect.Value 对象进行操作，通过反射处理 io
@@ -340,4 +343,101 @@ func TestGobDatabase(t *testing.T) {
 	err = dec.Decode(&ru) // 解码结构体对象
 	assert.NoError(t, err)
 	assert.Equal(t, *pu, ru)
+}
+
+// 通过缓冲进行 IO 操作
+// bufio.Writer 实现了 io.Writer, io.ByteWriter, io.StringWriter 以及 io.RuneWriter 接口，用于包装另一个 io.Writer 对象，为其增加缓存支持
+// bufio.Reader 实现了 io.Reader, io.ByteReader, io.StringWriter 以及 io.RuneWriter 接口，用于包装另一个 io.Reader 对象，为其增加缓存支持
+// bufio.ReadWriter 同时包装了一个 io.Writer 和一个 io.Reader 对象，实现了同时读写的操作
+func TestBufferedIO(t *testing.T) {
+	fileName := "buffered.dat"
+
+	// 利用缓冲流写入文件
+	file, err := os.Create(fileName) // 打开用于写入的文件
+	assert.NoError(t, err)
+
+	// 函数结束后关闭并删除文件
+	defer func() {
+		file.Close()
+		os.Remove(file.Name())
+	}()
+
+	bufW := bufio.NewWriterSize(file, 256) // 创建缓存大小 256 字节的 bufio.Writer 对象，用于对文件进行写操作. 另外，bufio.NewWriter(file) 用于创建一个缓冲区大小为 4096 的 bufio.Writer 对象
+	assert.Equal(t, 256, bufW.Size())      // 已缓存数据大小
+	assert.Equal(t, 256, bufW.Available()) // 缓存总大小
+	assert.Equal(t, 0, bufW.Buffered())    // 已缓存数据大小
+
+	bufW.WriteString("Hello\n")            // 写入字符串
+	assert.Equal(t, 250, bufW.Available()) // 缓存剩余大小
+	assert.Equal(t, 6, bufW.Buffered())    // 写入数据后，已缓存数据大小
+
+	pu := user.New(1, "Alvin", "alvin@fake.com", []string{"13999912345", "13000056789"})
+
+	enc := gob.NewEncoder(bufW)            // 在 bufio.Writer 对象的基础上，包装一个 gob.Encoder 对象
+	enc.Encode(pu)                         // 将对象编码后写入 bufio.Writer 对象
+	assert.Equal(t, 116, bufW.Available()) // 缓存剩余大小
+	assert.Equal(t, 140, bufW.Buffered())  // 写入数据后，已缓存数据大小，共 140 字节
+
+	err = bufW.Flush() // 将缓存的内容写入文件
+	assert.NoError(t, err)
+	assert.Equal(t, 256, bufW.Available()) // 缓存剩余大小
+	assert.Equal(t, 0, bufW.Buffered())    // 缓存数据已经全部写入文件
+
+	file.Close() // 关闭文件
+
+	// 利用缓冲流读文件
+	file, err = os.Open(fileName) // 打开文件用于读
+	assert.NoError(t, err)
+
+	bufR := bufio.NewReaderSize(file, 256) // 创建缓存大小 256 字节的 bufio.Reader 对象，用于对文件进行读操作. 另外，bufio.NewReader(file) 用于创建一个缓冲区大小为 4096 的 bufio.Reader 对象
+	assert.Equal(t, 0, bufR.Buffered())    // 已缓存数据 0 字节（尚未开始读取）
+
+	line, prefix, err := bufR.ReadLine() // 读取一行字符串（以 \n 结尾的一行数据）
+	assert.NoError(t, err)
+	assert.Equal(t, "Hello", string(line)) // 读取 1 行的内容
+	assert.False(t, prefix)                // prefix 返回 false，表示以读完一行，否则表示一行尚未读完，需要再次调用 ReadLine 函数，直到读完一行
+	assert.Equal(t, 134, bufR.Buffered())  // 缓冲区使用 134 字节。具体情况为：当第一次读取时，先读入缓存 140 字节，读走 1 行 6 字节后，剩余 134 字节
+
+	u := user.User{}
+	dec := gob.NewDecoder(bufR) // 在 bufio.Reader 对象基础上创建 gob.Decoder 对象
+
+	err = dec.Decode(&u) // 从文件中解码一个 user.User 对象
+	assert.NoError(t, err)
+	assert.Equal(t, *pu, u)
+	assert.Equal(t, 0, bufR.Buffered()) // 缓冲区已读完
+
+	// 测试同时读写
+	fw, err := os.Create(fileName) // 创建用于写的 os.File 对象
+	assert.NoError(t, err)
+
+	fr, err := os.Open(fileName) // 创建用于读的 os.File 对象
+	assert.NoError(t, err)
+
+	// 函数结束后关闭并删除文件
+	defer func() {
+		fw.Close()
+		fr.Close()
+		os.Remove(fileName)
+	}()
+
+	bufRW := bufio.NewReadWriter(bufio.NewReader(fr), bufio.NewWriter(fw)) // 通过一对 bufio.Reader 和 bufio.Writer 对象，创建同时进行读写的 bufio.ReaderWriter 对象
+
+	bufRW.WriteString("Hello\n") // 写入字符串
+
+	pu = user.New(1, "Alvin", "alvin@fake.com", []string{"13999912345", "13000056789"}) // 通过 gob.Encoder 写入结构体
+	enc = gob.NewEncoder(bufRW)
+	enc.Encode(pu)
+
+	bufRW.Flush() // 将缓冲区内容写入文件
+
+	line, prefix, err = bufRW.ReadLine() // 读取一行字符串
+	assert.NoError(t, err)
+	assert.Equal(t, "Hello", string(line))
+	assert.False(t, prefix)
+
+	u = user.User{}
+
+	dec = gob.NewDecoder(bufRW) // 通过 gob.Decoder 读取结构体
+	dec.Decode(&u)
+	assert.Equal(t, *pu, u)
 }

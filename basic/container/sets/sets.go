@@ -1,5 +1,3 @@
-// GO 语言集合操作：
-
 package sets
 
 // 定义 Set 集合结构体

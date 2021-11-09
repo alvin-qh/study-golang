@@ -1,7 +1,6 @@
-package container
+package sets
 
 import (
-	"basic/container/sets"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,7 +9,7 @@ import (
 // 测试 Set 集合
 func TestSet(t *testing.T) {
 	// 初始化并添加元素
-	s1 := sets.New(100)          // 初始化
+	s1 := New(100)               // 初始化
 	s1.Add(1, 2, 3, 4, 2)        // 批量添加元素
 	assert.Equal(t, 4, s1.Len()) // 实际添加了 4 个元素，重复的 2 只存在 1 份
 
@@ -25,7 +24,7 @@ func TestSet(t *testing.T) {
 	assert.False(t, ok)
 
 	// 集合相等判断
-	s2 := sets.New(10) // 产生一个元素相同的集合
+	s2 := New(10) // 产生一个元素相同的集合
 	s2.Add(1, 2, 3, 4)
 
 	ok = s2.Equal(s1) // 两个集合元素是否相同

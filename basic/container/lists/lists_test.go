@@ -1,7 +1,6 @@
-package container
+package lists
 
 import (
-	"basic/container/lists"
 	"container/list"
 	"testing"
 
@@ -18,11 +17,11 @@ func TestList(t *testing.T) {
 	// 添加元素
 	// 返回值是一个 Element 指针，表示链表的节点
 	elem := lst.PushBack(1) // 在列表末尾添加一个元素
-	assert.Equal(t, []interface{}{1}, lists.ToSlice(lst))
+	assert.Equal(t, []interface{}{1}, ToSlice(lst))
 	assert.Equal(t, elem.Value, 1) // 返回的 Element 即为刚添加元素的节点
 
 	elem = lst.PushFront("Hello") // 在列表开头添加一个元素
-	assert.Equal(t, []interface{}{"Hello", 1}, lists.ToSlice(lst))
+	assert.Equal(t, []interface{}{"Hello", 1}, ToSlice(lst))
 	assert.Equal(t, elem.Value, "Hello")
 
 	// 插入元素
@@ -31,13 +30,13 @@ func TestList(t *testing.T) {
 	assert.Equal(t, "Hello", elem.Value)
 
 	lst.InsertAfter("OK", elem) // 在节点前插入
-	assert.Equal(t, []interface{}{"Hello", "OK", 1}, lists.ToSlice(lst))
+	assert.Equal(t, []interface{}{"Hello", "OK", 1}, ToSlice(lst))
 
 	elem = lst.Front().Next()
 	assert.Equal(t, "OK", elem.Value)
 
 	lst.InsertAfter("Bye", elem)
-	assert.Equal(t, []interface{}{"Hello", "OK", "Bye", 1}, lists.ToSlice(lst))
+	assert.Equal(t, []interface{}{"Hello", "OK", "Bye", 1}, ToSlice(lst))
 
 	// 删除元素
 	// 删除元素依赖被删除元素的节点对象，所以要先找到这个节点
@@ -46,14 +45,14 @@ func TestList(t *testing.T) {
 
 	value := lst.Remove(elem) // 删除节点，返回节点的 Value
 	assert.Equal(t, "Bye", value)
-	assert.Equal(t, []interface{}{"Hello", "OK", 1}, lists.ToSlice(lst))
+	assert.Equal(t, []interface{}{"Hello", "OK", 1}, ToSlice(lst))
 
 	// 连接两个列表
-	lst.PushBackList(lists.Reverse(lst)) // 在列表后连接列表
-	assert.Equal(t, []interface{}{"Hello", "OK", 1, 1, "OK", "Hello"}, lists.ToSlice(lst))
+	lst.PushBackList(Reverse(lst)) // 在列表后连接列表
+	assert.Equal(t, []interface{}{"Hello", "OK", 1, 1, "OK", "Hello"}, ToSlice(lst))
 
-	lst.PushFrontList(lists.Reverse(lst)) // 在列表前连接列表
-	assert.Equal(t, []interface{}{"Hello", "OK", 1, 1, "OK", "Hello", "Hello", "OK", 1, 1, "OK", "Hello"}, lists.ToSlice(lst))
+	lst.PushFrontList(Reverse(lst)) // 在列表前连接列表
+	assert.Equal(t, []interface{}{"Hello", "OK", 1, 1, "OK", "Hello", "Hello", "OK", 1, 1, "OK", "Hello"}, ToSlice(lst))
 
 	// 重新初始化列表（清空）
 	lst.Init()
