@@ -22,7 +22,7 @@ func (s *Size) Init(width, height float64) *Size {
 }
 
 // 将结构体转为 字符串
-func (s *Size) ToString() string { return fmt.Sprintf("<Size width=%v height=%v>", s.width, s.height) }
+func (s *Size) String() string { return fmt.Sprintf("<Size width=%v height=%v>", s.width, s.height) }
 
 // 获取面积值
 func (s *Size) Area() float64 { return s.width * s.height }

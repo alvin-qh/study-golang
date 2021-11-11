@@ -16,8 +16,8 @@ import (
 func TestLongType(t *testing.T) {
 	// 生成 long.Long 类型对象
 	var l1 long.Long = long.Long(100)
-	assert.Equal(t, 100, int(l1))         // 通过类型转化，可以将 long.Long 转为 int 类型
-	assert.Equal(t, "100", l1.ToString()) //
+	assert.Equal(t, 100, int(l1)) // 通过类型转化，可以将 long.Long 转为 int 类型
+	assert.Equal(t, "100", l1.String())
 
 	// 同类型之间可以直接赋值，对当前对象进行 copy
 	l2 := l1
@@ -44,7 +44,7 @@ func TestSizeStruct(t *testing.T) {
 	// 构造 size.Size 类型的对象
 	var s1 *size.Size = size.New(10, 20)
 	assert.Equal(t, 200.0, s1.Area())
-	assert.Equal(t, "<Size width=10 height=20>", s1.ToString())
+	assert.Equal(t, "<Size width=10 height=20>", s1.String())
 
 	// 获取对象属性值
 	width, height := s1.Width(), s1.Height()
@@ -66,8 +66,9 @@ func TestSizeStruct(t *testing.T) {
 // 测试 size.Size3D 类
 func TestSize3DStruct(t *testing.T) {
 	var s1 *size3d.Size3D = size3d.New(10, 20, 30)
-	assert.Equal(t, 2200.0, s1.Area())
-	assert.Equal(t, "<Size3D width=10 height=20 depth=30>", s1.ToString())
+	assert.Equal(t, 200.0, s1.Area())         // 继承自 Size 类型
+	assert.Equal(t, 2200.0, s1.SurfaceArea()) // Size3D 自由函数
+	assert.Equal(t, "<Size3D width=10 height=20 depth=30>", s1.String())
 
 	// 获取 size3d.Size3D 的属性值
 	// 其中 Width(), Height() 两个函数是从 size.Size 类继承的，Depth() 函数是由 size3d.Size3D 提供

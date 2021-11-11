@@ -19,6 +19,6 @@ func (i Long) Compare(other interface{}) int {
 }
 
 // ToString 方法，将值转为 字符串
-func (i Long) ToString() string {
+func (i Long) String() string {
 	return strconv.FormatInt(int64(i), 10)
 }

@@ -27,7 +27,7 @@ func (s *Size3D) Init(width, height, depth float64) *Size3D {
 func (s *Size3D) Depth() float64 { return s.depth }
 
 // 求 Size3D 表面积
-func (s *Size3D) Area() float64 {
+func (s *Size3D) SurfaceArea() float64 {
 	width, height := s.Size.Width(), s.Size.Height()
 	return (s.Size.Area() + width*s.depth + height*s.depth) * 2
 }
@@ -36,7 +36,7 @@ func (s *Size3D) Area() float64 {
 func (s *Size3D) Volume() float64 { return s.Size.Area() * s.depth }
 
 // 结构体转为 字符串
-func (s *Size3D) ToString() string {
+func (s *Size3D) String() string {
 	width, height, depth := s.Size.Width(), s.Size.Height(), s.depth
 	return fmt.Sprintf("<Size3D width=%v height=%v depth=%v>", width, height, depth)
 }
