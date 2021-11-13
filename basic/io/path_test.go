@@ -1,6 +1,7 @@
 package io
 
 import (
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -93,24 +94,29 @@ func TestRelativePaths(t *testing.T) {
 	assert.Equal(t, `../../c`, s)
 }
 
+// 将多个部分的路径连接为一个完整的路径
 func TestJoinPath(t *testing.T) {
+	// 空字符串将被忽略
 	s := filepath.Join(`/a`, `b`, ``, `c.txt`)
 	assert.Equal(t, `/a/b/c.txt`, s)
 
+	// `..` 会退回上一级目录
 	s = filepath.Join(`/a`, `b`, `c`, `..`, `d.txt`)
 	assert.Equal(t, `/a/b/d.txt`, s)
-
-	s = filepath.Join(`a`, `b`, `c`, `d.txt`)
-	assert.Equal(t, `a/b/c/d.txt`, s)
 
 	s = filepath.Join(`a`, `b`, `c.txt`)
 	assert.Equal(t, `a/b/c.txt`, s)
 
+	// `/` 或者 `//` 等路径分隔符会被忽略
 	s = filepath.Join(`a`, `/b`, `//c`, `d.txt`)
 	assert.Equal(t, `a/b/c/d.txt`, s)
 }
 
-// 移除路径中的无效路径字符
+// 删除多余的路径分隔符，遵循的规则为：
+//  1. 将连续的多个路径分隔符替换为单个路径分隔符
+//  2. 剔除每一个 `.` 路径名元素（代表当前目录）
+//  3. 剔除每一个路径内的 `..` 路径名元素（代表父目录）和它前面的非 `..` 路径名元素
+//  4. 剔除开始一个根路径的 `..` 路径名元素，即将路径开始处的 `/..` 替换为 `/`（假设路径分隔符是 `/`）
 func TestCleanPath(t *testing.T) {
 	// 将路径中的 `..`, `/` 字符移除，避免错误的路径字符影响路径
 	s := filepath.Clean(`/a/./b/.//c/..///d.txt///`)
@@ -156,4 +162,74 @@ func TestSplitToPathList(t *testing.T) {
 	s := `a:b/c:d/e::/f/g`
 	l := filepath.SplitList(s)
 	assert.Equal(t, []string{"a", "b/c", "d/e", "", "/f/g"}, l)
+}
+
+// 判断所给的路径是否和指定的 Pattern 匹配
+//
+// pattern:
+// 		{ term }
+// term:
+// 		'*'                                  匹配0或多个非路径分隔符的字符
+// 		'?'                                  匹配1个非路径分隔符的字符
+// 		'[' [ '^' ] { character-range } ']'  字符组（必须非空）
+// 		c                                    匹配字符c（c != '*', '?', '\\', '['）
+// 		'\\' c                               匹配字符c
+// character-range:
+// 		c           匹配字符c（c != '\\', '-', ']'）
+// 		'\\' c      匹配字符c
+// 		lo '-' hi   匹配区间[lo, hi]内的字符
+func TestPathMatched(t *testing.T) {
+	// 判断路径是否和 模式 匹配
+	m, err := filepath.Match("*/*.go", "abc/d.go")
+	assert.NoError(t, err)
+	assert.True(t, m)
+}
+
+// 通过给定的模式查找路径
+//
+// pattern:
+// 		{ term }
+// term:
+// 		'*'                                  匹配0或多个非路径分隔符的字符
+// 		'?'                                  匹配1个非路径分隔符的字符
+// 		'[' [ '^' ] { character-range } ']'  字符组（必须非空）
+// 		c                                    匹配字符c（c != '*', '?', '\\', '['）
+// 		'\\' c                               匹配字符c
+// character-range:
+// 		c           匹配字符c（c != '\\', '-', ']'）
+// 		'\\' c      匹配字符c
+// 		lo '-' hi   匹配区间[lo, hi]内的字符
+func TestFindPathFile(t *testing.T) {
+	files, err := filepath.Glob("./*/*.go")
+	assert.NoError(t, err)
+	assert.Equal(t, []string{"user/user.go", "user/user_test.go"}, files)
+}
+
+// 遍历指定路径下的所有文件和子目录
+// 遍历是通过一个 回调函数 进行的，没到一个目录下，就会将该目录下的所有文件和子目录作为参数逐一交给回调函数处理
+// 一个目录下的所有内容被处理完毕后，会进入到其中一个子目录下，重复进行处理
+// 直到所有的目录都被处理完毕
+func TestWalk(t *testing.T) {
+	files := make([]string, 0, 100)
+	dirs := make([]string, 0, 100)
+
+	// 回调文件，用于处理遍历到的路径或文件
+	walkFun := func(path string, info os.FileInfo, err error) error {
+		if err != nil { // 判断遍历过程中是否有错误
+			return err
+		}
+		if info.IsDir() { // 判断路径还是文件
+			dirs = append(dirs, path)
+		} else {
+			files = append(files, path)
+		}
+		return nil
+	}
+
+	// 从当前路径开始遍历
+	err := filepath.Walk(".", walkFun)
+	assert.NoError(t, err)
+
+	assert.Equal(t, []string{"file_test.go", "io_test.go", "json_test.go", "path_test.go", "user/user.go", "user/user_test.go"}, files)
+	assert.Equal(t, []string{".", "user"}, dirs)
 }
