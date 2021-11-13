@@ -8,6 +8,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// 将 map 对象转为 json，即将 map 的 key 作为 json 的字段名，value 作为 json 的字段值
+
+// 将 结构体 编码为 json，或者从 json 中还原 结构体 的字段值
+// 要求：结构体必须为公开，且结构体字段为公开，私有的结构体字段会被忽略
+// 如果需要对 json 字段做进一步描述，需要在结构体中使用 tag 进行标注，参考 user.User 结构体
+
 // 序列化：从 map 对象生成 json 字符串
 func TestJsonMarshalFromMap(t *testing.T) {
 	// 产生一个 map 对象，key 为 string，value 任意
@@ -77,7 +83,7 @@ func TestJsonUnMarshalToMap(t *testing.T) {
 
 	// 定义 convert 函数，对 interface{} 类型值进行类型转换
 	interfaceToStringSlice := func(input interface{}) (output []string) {
-        inputSlice := input.([]interface{})
+		inputSlice := input.([]interface{})
 		output = make([]string, len(inputSlice))
 		for i, v := range inputSlice {
 			output[i] = v.(string)

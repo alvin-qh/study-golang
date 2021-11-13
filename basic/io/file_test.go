@@ -2,6 +2,7 @@ package io
 
 import (
 	"bufio"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -45,7 +46,7 @@ func TestLookupExecutableFile(t *testing.T) {
 }
 
 // 获取文件（或路径）的属性
-// 共有两种方法：1. 通过 os.Stat(`<file or path>`) 函数，或者打开 文件或路径 的 os.File 对象，通过 os.File::Stat() 函数获取
+// 共有两种方法：1. 通过 os.Stat(`<file or path>`) 函数；2. 打开 文件或路径 的 os.File 对象，通过 os.File::Stat() 函数获取
 func TestFileStat(t *testing.T) {
 	defer os.RemoveAll(`d`)
 
@@ -53,6 +54,7 @@ func TestFileStat(t *testing.T) {
 	err := os.Mkdir(`d`, 0755)
 	assert.NoError(t, err)
 
+	// 方法 1： 通过 os.Stat 函数获取文件属性
 	// 获取目录 `d` 的属性对象
 	stat, err := os.Stat(`d`)
 	assert.NoError(t, err)
@@ -65,10 +67,15 @@ func TestFileStat(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, `d`, file.Name()) // 获取路径名称
 
+	defer file.Close()
+
 	stat2, err := file.Stat() // 通过 os.File 对象获取文件属性
 	assert.NoError(t, err)
 	assert.Equal(t, stat, stat2) // 两种方式获取的文件属性完全一致
 
+	file.Close()
+
+	// 方法 2： 通过 os.File 对象的 Stat 函数获取文件属性
 	// 创建一个文件
 	file, err = os.Create(`d/e.txt`)
 	assert.NoError(t, err)
@@ -98,9 +105,9 @@ func TestReadDir(t *testing.T) {
 	infos, err := dir.Readdir(0)
 	assert.NoError(t, err)
 
-	assert.Len(t, infos, 5)
+	assert.Len(t, infos, 6)
 
-	expected := []string{"io_test.go", "file_test.go", "json_test.go", "user", "path_test.go"}
+	expected := []string{"io_test.go", "file_test.go", "json_test.go", "user", "path_test.go", "xml_test.go"}
 	for n, info := range infos {
 		assert.Equal(t, expected[n], info.Name())
 		if strings.HasSuffix(info.Name(), ".go") {
@@ -122,9 +129,9 @@ func TestReadDirnames(t *testing.T) {
 	names, err := dir.Readdirnames(0)
 	assert.NoError(t, err)
 
-	assert.Len(t, names, 5)
+	assert.Len(t, names, 6)
 
-	expected := []string{"io_test.go", "file_test.go", "json_test.go", "user", "path_test.go"}
+	expected := []string{"io_test.go", "file_test.go", "json_test.go", "user", "path_test.go", "xml_test.go"}
 	for n, name := range names {
 		assert.Equal(t, expected[n], name)
 	}
@@ -164,4 +171,55 @@ func TestPipe(t *testing.T) {
 	assert.NoError(t, err)
 	assert.False(t, prefix)
 	assert.Equal(t, "Hello world!", string(s))
+}
+
+// 截取文件，即将文件截断为指定长度，多余的部分将被丢弃
+// go 提供了两种截取文件的方法：1. 通过 os.File 对象的 Truncate 函数；2. 通过 os.Truncate 函数。前者需要打开文件，得到一个 os.File 对象
+func TestTuncateAttributes(t *testing.T) {
+	defer os.Remove(`d.txt`)
+
+	fileLength := func(file *os.File) int {
+		if stat, err := file.Stat(); err == nil {
+			return int(stat.Size())
+		}
+		return 0
+	}
+
+	// 方法 1: 通过 os.File 对象的 Truncate 函数截断文件
+	// 创建文件
+	file, err := os.Create(`d.txt`)
+	assert.NoError(t, err)
+
+	defer file.Close()
+
+	// 写入10个字符
+	count, err := file.WriteString("1234567890")
+	assert.NoError(t, err)
+	assert.Equal(t, 10, count)
+	assert.Equal(t, 10, fileLength(file)) // 此时文件长度为 10 字节
+
+	err = file.Truncate(5) // 截断文件，为原始长度的一半
+	assert.NoError(t, err)
+	assert.Equal(t, 5, fileLength(file)) // 此时文件长度为 5
+
+	_, err = file.Seek(0, io.SeekStart) // 指针移动到文件开头
+	assert.NoError(t, err)
+
+	// 读取全部文件内容，只剩下写入内容的一半
+	s, err := io.ReadAll(file)
+	assert.NoError(t, err)
+	assert.Equal(t, "12345", string(s))
+
+	file.Close()
+
+	// 方法 2: 通过 os.Truncate 函数对文件直接进行截断
+	os.Truncate(`d.txt`, 3) // 将文件进一步截取到剩余 3 字节
+
+	file, err = os.Open(`d.txt`) // 打开文件
+	assert.NoError(t, err)
+	assert.Equal(t, 3, fileLength(file)) // 文件长度只剩余 3 字节
+
+	s, err = io.ReadAll(file) // 读取文件内容，只剩余 3 个字符
+	assert.NoError(t, err)
+	assert.Equal(t, "123", string(s))
 }
