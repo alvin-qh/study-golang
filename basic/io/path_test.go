@@ -3,6 +3,7 @@ package io
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -232,4 +233,67 @@ func TestWalk(t *testing.T) {
 
 	assert.Equal(t, []string{"file_test.go", "io_test.go", "json_test.go", "path_test.go", "user/user.go", "user/user_test.go"}, files)
 	assert.Equal(t, []string{".", "user"}, dirs)
+}
+
+// 对于代码的跨平台兼容性方面，go 语言针对不同平台定义了不同的路径分隔符
+//   os.PathSeparator，os.PathListSeparator
+// go 语言对路径统一使用 `/` 和 `:` 进行处理，前者是路径分隔符，后者是路径列表分隔符，所以要想正确适应多平台，需要路径输入输出的时候做恰当的转换
+func TestSlashOperate(t *testing.T) {
+	sys := runtime.GOOS
+
+	if sys == "linux" || sys == "darwin" {
+
+		// 类 Unix 系统下，路径分隔符
+		assert.Equal(t, '/', os.PathSeparator)
+		assert.Equal(t, ':', os.PathListSeparator)
+
+		// 类 Unix 系统下，不做转换
+		rp := filepath.FromSlash("a/b/c.txt")
+		assert.Equal(t, "a/b/c.txt", rp)
+
+		// 类 Unix 系统下，不做转换
+		rp = filepath.ToSlash("a\\b\\c.txt")
+		assert.Equal(t, "a\\b\\c.txt", rp)
+
+	} else if sys == "windows" {
+
+		// Windows 系统下，路径分隔符
+		assert.Equal(t, '\\', os.PathSeparator)
+		assert.Equal(t, ';', os.PathListSeparator)
+
+		// Windows 系统下，路径中的 `/` 会被转为 `\\`
+		rp := filepath.FromSlash("a/b/c.txt")
+		assert.Equal(t, "a\\b\\c.txt", rp)
+
+		// Windows 系统下，路径中的 `\\` 会被转为 `/`
+		rp = filepath.ToSlash("a\\b\\c.txt")
+		assert.Equal(t, "a/b/c.txt", rp)
+
+	} else {
+		assert.Fail(t, "Not supported")
+	}
+}
+
+// 判断路径是否存在以及其链接的原始路径
+func TestFileSymlinks(t *testing.T) {
+	defer os.Remove("./path_test.go.1")
+
+	// 判断指定的路径是否存在
+	p, err := filepath.EvalSymlinks("./path_test.go")
+	assert.NoError(t, err)             // 未返回错误即路径存在
+	assert.Equal(t, "path_test.go", p) // 返回和所给路径一致
+
+	// 判断路径是否存在
+	_, err = filepath.EvalSymlinks("./path_test.go.1")
+	assert.Error(t, err) // 返回错误，表示路径不存在
+	assert.Equal(t, "lstat path_test.go.1: no such file or directory", err.Error())
+
+	// 创建软链接
+	err = os.Symlink("./path_test.go", "./path_test.go.1")
+	assert.NoError(t, err)
+
+	// 判断软链接是否存在
+	p, err = filepath.EvalSymlinks("./path_test.go.1")
+	assert.NoError(t, err)             // 未返回错误，即路径存在
+	assert.Equal(t, "path_test.go", p) // 返回软链接的源路径
 }
