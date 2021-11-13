@@ -297,3 +297,30 @@ func TestFileSymlinks(t *testing.T) {
 	assert.NoError(t, err)             // 未返回错误，即路径存在
 	assert.Equal(t, "path_test.go", p) // 返回软链接的源路径
 }
+
+// 创建和删除路径
+//  os.Mkdir，os.MkdirAll 分别可以创建子目录或多级子目录
+//  os.Remove, os.RemoveAll 分别可以删除一个空目录或删除路径并同时删除其中的所有内容
+func TestMakeAndRemoveDir(t *testing.T) {
+	// 删除路径以及路径下的所有内容
+	defer os.RemoveAll("./d")
+
+	// 创建路径
+	err := os.Mkdir("./d", 0755)
+	assert.NoError(t, err)
+
+	p, err := filepath.EvalSymlinks("./d") // 判断路径是否存在
+	assert.NoError(t, err)
+	assert.Equal(t, "d", p)
+
+	// 删除当前路径，要求路径必须为空，即内部不能有文件或子目录
+	os.Remove("./d")
+
+	// 创建多级路径
+	err = os.MkdirAll("./d/e/f", 0755)
+	assert.NoError(t, err)
+
+	p, err = filepath.EvalSymlinks("./d/e/f") // 判断路径是否存在
+	assert.NoError(t, err)
+	assert.Equal(t, "d/e/f", p)
+}
