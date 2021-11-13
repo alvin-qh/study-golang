@@ -1,5 +1,7 @@
 # Install and setup go environment
 
+![Logo](./assets/logo.jpg)
+
 ## Install GO
 
 > See: [Download and install - The Go Programming Language (golang.org)](https://golang.org/doc/install)

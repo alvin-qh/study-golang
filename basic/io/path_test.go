@@ -324,3 +324,20 @@ func TestMakeAndRemoveDir(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "d/e/f", p)
 }
+
+// 修改当前工作路径
+func TestChangeCurrentPath(t *testing.T) {
+	// 获取当前工作路径
+	dir, err := os.Getwd()
+	assert.NoError(t, err)
+	assert.True(t, strings.HasSuffix(dir, "study-golang/basic/io"))
+
+	// 修改当前工作路径（向上一级）
+	err = os.Chdir(filepath.Join(dir, ".."))
+	assert.NoError(t, err)
+
+	// 获取修改工作路径后，当前工作路径
+	dir, err = os.Getwd()
+	assert.NoError(t, err)
+	assert.True(t, strings.HasSuffix(dir, "study-golang/basic"))
+}
