@@ -1,6 +1,7 @@
 package io
 
 import (
+	"bufio"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -62,6 +63,7 @@ func TestFileStat(t *testing.T) {
 	// 打开目录 `d` 并获取其 os.File 对象
 	file, err := os.Open(`d`)
 	assert.NoError(t, err)
+	assert.Equal(t, `d`, file.Name()) // 获取路径名称
 
 	stat2, err := file.Stat() // 通过 os.File 对象获取文件属性
 	assert.NoError(t, err)
@@ -70,6 +72,7 @@ func TestFileStat(t *testing.T) {
 	// 创建一个文件
 	file, err = os.Create(`d/e.txt`)
 	assert.NoError(t, err)
+	assert.Equal(t, `d/e.txt`, file.Name()) // 获取文件名称
 
 	// 获取文件 `d/e.txt` 的属性对象
 	stat, err = os.Stat(`d/e.txt`)
@@ -84,12 +87,14 @@ func TestFileStat(t *testing.T) {
 	assert.Equal(t, stat, stat2) // 两种方式获取的文件属性对象一致
 }
 
+// 当打开的 os.File 对象表示一个 路径 时，可以读取其包括的所有文件（或子目录）的信息
 func TestReadDir(t *testing.T) {
 	// 打开路径为 os.File 对象
 	dir, err := os.Open(`.`)
 	assert.NoError(t, err)
 
 	// 读取路径下的信息，返回所有文件（包括路径）的 os.Stat 对象
+	// 参数 0 表示不限制返回结果的数量，否则按所给数量返回结果
 	infos, err := dir.Readdir(0)
 	assert.NoError(t, err)
 
@@ -104,4 +109,59 @@ func TestReadDir(t *testing.T) {
 			assert.True(t, info.IsDir())
 		}
 	}
+}
+
+// 当打开的 os.File 对象表示一个 路径 时，可以读取其包括的所有文件（或子目录）的名称
+func TestReadDirnames(t *testing.T) {
+	// 打开路径为 os.File 对象
+	dir, err := os.Open(`.`)
+	assert.NoError(t, err)
+
+	// 读取路径下的信息，返回所有文件（包括路径）的 os.Stat 对象
+	// 参数 0 表示不限制返回结果的数量，否则按所给数量返回结果
+	names, err := dir.Readdirnames(0)
+	assert.NoError(t, err)
+
+	assert.Len(t, names, 5)
+
+	expected := []string{"io_test.go", "file_test.go", "json_test.go", "user", "path_test.go"}
+	for n, name := range names {
+		assert.Equal(t, expected[n], name)
+	}
+}
+
+// 利用管道进行数据传输
+// 创建管道即得到一对 io.Reader 和 io.Writer 对象，对 io.Writer 对象进行写操作，则可随后从 io.Reader 读出所写的内容
+func TestPipe(t *testing.T) {
+	// 创建一个管道，得到一对 io.Reader 和 io.Writer 对象
+	r, w, err := os.Pipe()
+	defer func() { // 在函数结束后关闭 io.Reader 和 io.Writer 对象
+		r.Close()
+		w.Close()
+	}()
+
+	assert.NoError(t, err)
+	assert.Equal(t, "|0", r.Name()) // 管道创建的文件也具有名称
+	assert.Equal(t, "|1", w.Name())
+
+	rs, err := r.Stat() // 获取 io.Reader 对象的 文件属性
+	assert.NoError(t, err)
+	assert.False(t, rs.IsDir()) // 判断为文件对象
+
+	ws, err := r.Stat() // 获取 io.Writer 对象的 文件属性
+	assert.NoError(t, err)
+	assert.False(t, ws.IsDir()) // 判断为文件对象
+
+	br := bufio.NewReader(r) // 利用 bufio 给 io.Reader 和 io.Writer 增加缓存
+	bw := bufio.NewWriter(w)
+
+	// 通过 io.Writer 对象对管道进行写操作
+	bw.WriteString("Hello world!\n")
+	bw.Flush()
+
+	// 通过 io.Reader 对象从管道进行读操作
+	s, prefix, err := br.ReadLine()
+	assert.NoError(t, err)
+	assert.False(t, prefix)
+	assert.Equal(t, "Hello world!", string(s))
 }
