@@ -105,9 +105,17 @@ func TestReadDir(t *testing.T) {
 	infos, err := dir.Readdir(0)
 	assert.NoError(t, err)
 
-	assert.Len(t, infos, 6)
+	assert.Len(t, infos, 7)
 
-	expected := []string{"io_test.go", "file_test.go", "json_test.go", "user", "path_test.go", "xml_test.go"}
+	expected := []string{
+		"io_test.go",
+		"archive_test.go",
+		"file_test.go",
+		"json_test.go",
+		"user",
+		"path_test.go",
+		"xml_test.go",
+	}
 	for n, info := range infos {
 		assert.Equal(t, expected[n], info.Name())
 		if strings.HasSuffix(info.Name(), ".go") {
@@ -129,9 +137,17 @@ func TestReadDirnames(t *testing.T) {
 	names, err := dir.Readdirnames(0)
 	assert.NoError(t, err)
 
-	assert.Len(t, names, 6)
+	assert.Len(t, names, 7)
 
-	expected := []string{"io_test.go", "file_test.go", "json_test.go", "user", "path_test.go", "xml_test.go"}
+	expected := []string{
+		"io_test.go",
+		"archive_test.go",
+		"file_test.go",
+		"json_test.go",
+		"user",
+		"path_test.go",
+		"xml_test.go",
+	}
 	for n, name := range names {
 		assert.Equal(t, expected[n], name)
 	}

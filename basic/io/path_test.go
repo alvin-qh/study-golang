@@ -231,7 +231,16 @@ func TestWalk(t *testing.T) {
 	err := filepath.Walk(".", walkFun)
 	assert.NoError(t, err)
 
-	assert.Equal(t, []string{"file_test.go", "io_test.go", "json_test.go", "path_test.go", "user/user.go", "user/user_test.go", "xml_test.go"}, files)
+	assert.Equal(t, []string{
+		"archive_test.go",
+		"file_test.go",
+		"io_test.go",
+		"json_test.go",
+		"path_test.go",
+		"user/user.go",
+		"user/user_test.go",
+		"xml_test.go",
+	}, files)
 	assert.Equal(t, []string{".", "user"}, dirs)
 }
 

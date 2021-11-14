@@ -373,7 +373,6 @@ func TestBufferedIO(t *testing.T) {
 	assert.Equal(t, 6, bufW.Buffered())    // 写入数据后，已缓存数据大小
 
 	pu := user.New(1, "Alvin", "alvin@fake.com", []string{"13999912345", "13000056789"})
-
 	enc := gob.NewEncoder(bufW)           // 在 bufio.Writer 对象的基础上，包装一个 gob.Encoder 对象
 	enc.Encode(pu)                        // 将对象编码后写入 bufio.Writer 对象
 	assert.Equal(t, 62, bufW.Available()) // 缓存剩余大小
