@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strings"
 	"testing"
 
@@ -203,7 +204,12 @@ func TestPathMatched(t *testing.T) {
 func TestFindPathFile(t *testing.T) {
 	files, err := filepath.Glob("./*/*.go")
 	assert.NoError(t, err)
-	assert.Equal(t, []string{"user/user.go", "user/user_test.go"}, files)
+
+	expected := []string{"filelock/file_lock.go", "filelock/file_lock_test.go", "user/user.go", "user/user_test.go"}
+	sort.Strings(expected)
+	sort.Strings(files)
+
+	assert.Equal(t, expected, files)
 }
 
 // 遍历指定路径下的所有文件和子目录
@@ -231,17 +237,25 @@ func TestWalk(t *testing.T) {
 	err := filepath.Walk(".", walkFun)
 	assert.NoError(t, err)
 
-	assert.Equal(t, []string{
+	filesExpected := []string{
 		"archive_test.go",
 		"file_test.go",
 		"io_test.go",
 		"json_test.go",
 		"path_test.go",
+		"xml_test.go",
 		"user/user.go",
 		"user/user_test.go",
-		"xml_test.go",
-	}, files)
-	assert.Equal(t, []string{".", "user"}, dirs)
+		"filelock/file_lock.go",
+		"filelock/file_lock_test.go",
+	}
+	sort.Strings(filesExpected)
+
+	dirsExpected := []string{".", "user", "filelock"}
+	sort.Strings(dirsExpected)
+
+	assert.Equal(t, filesExpected, files)
+	assert.Equal(t, dirsExpected, dirs)
 }
 
 // 对于代码的跨平台兼容性方面，go 语言针对不同平台定义了不同的路径分隔符

@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strings"
 	"testing"
 
@@ -105,25 +106,30 @@ func TestReadDir(t *testing.T) {
 	infos, err := dir.Readdir(0)
 	assert.NoError(t, err)
 
-	assert.Len(t, infos, 7)
-
-	expected := []string{
-		"io_test.go",
-		"archive_test.go",
-		"file_test.go",
-		"json_test.go",
-		"user",
-		"path_test.go",
-		"xml_test.go",
+	blank := struct{}{}
+	expected := map[string]struct{}{
+		"io_test.go":      blank,
+		"archive_test.go": blank,
+		"file_test.go":    blank,
+		"json_test.go":    blank,
+		"user":            blank,
+		"path_test.go":    blank,
+		"xml_test.go":     blank,
+		"filelock":        blank,
 	}
-	for n, info := range infos {
-		assert.Equal(t, expected[n], info.Name())
+	for _, info := range infos {
+		_, exist := expected[info.Name()]
+		assert.True(t, exist)
+
+		delete(expected, info.Name())
+
 		if strings.HasSuffix(info.Name(), ".go") {
 			assert.False(t, info.IsDir())
 		} else {
 			assert.True(t, info.IsDir())
 		}
 	}
+    assert.Len(t, expected, 0)
 }
 
 // 当打开的 os.File 对象表示一个 路径 时，可以读取其包括的所有文件（或子目录）的名称
@@ -137,20 +143,21 @@ func TestReadDirnames(t *testing.T) {
 	names, err := dir.Readdirnames(0)
 	assert.NoError(t, err)
 
-	assert.Len(t, names, 7)
-
 	expected := []string{
+		"filelock",
+		"user",
 		"io_test.go",
 		"archive_test.go",
 		"file_test.go",
 		"json_test.go",
-		"user",
 		"path_test.go",
 		"xml_test.go",
 	}
-	for n, name := range names {
-		assert.Equal(t, expected[n], name)
-	}
+
+	sort.Strings(names)
+	sort.Strings(expected)
+
+	assert.Equal(t, expected, names)
 }
 
 // 利用管道进行数据传输
