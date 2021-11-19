@@ -4,7 +4,12 @@
     "dictionaryDefinitions": [],
     "dictionaries": [],
     "words": [
+        "CFLAGS",
+        "clango",
+        "fflush",
+        "LDFLAGS",
         "nolint",
+        "strcpy",
         "stretchr",
         "unaddressable"
     ],
