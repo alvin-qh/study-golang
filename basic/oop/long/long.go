@@ -1,7 +1,7 @@
 package long
 
 import (
-	"basic/oop/types"
+	"basic/oop/errors"
 	"strconv"
 )
 
@@ -13,7 +13,7 @@ type Long int64
 func (i Long) Compare(other interface{}) int {
 	val, ok := other.(Long)
 	if !ok {
-		panic(types.ErrType)
+		panic(errors.ErrorType)
 	}
 	return int(i - val)
 }

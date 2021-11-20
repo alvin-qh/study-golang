@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// 测试 Size 结构体
 func TestSizeStruct(t *testing.T) {
 	s := New(10, 20)
 	assert.Equal(t, 10.0, s.Width())
@@ -16,6 +17,7 @@ func TestSizeStruct(t *testing.T) {
 	assert.Equal(t, 200.0, s.Height())
 }
 
+// 测试 Size 结构体计算面积
 func TestArea(t *testing.T) {
 	s := New(10, 20)
 	assert.Equal(t, 200.0, s.Area())
@@ -27,6 +29,7 @@ func TestArea(t *testing.T) {
 	assert.Equal(t, 0.0, s.Area())
 }
 
+// 测试 String 函数
 func TestToString(t *testing.T) {
 	var s Size
 	assert.Equal(t, "<Size width=0 height=0>", s.String())
@@ -35,6 +38,7 @@ func TestToString(t *testing.T) {
 	assert.Equal(t, "<Size width=10 height=20>", ps.String())
 }
 
+// 测试比较两个 Size 结构体对象
 func TestCompare(t *testing.T) {
 	s1 := New(10, 20)
 	assert.True(t, s1.Compare(s1) == 0)
