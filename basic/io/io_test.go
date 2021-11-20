@@ -8,103 +8,10 @@ import (
 	"encoding/gob"
 	"io"
 	"os"
-	"strings"
 	"testing"
-	"unicode/utf8"
 
 	"github.com/stretchr/testify/assert"
 )
-
-// io 包中和读取相关的接口
-//  io.Reader：基本的读取操作，从流中读取一系列 bytes
-//  io.ReaderAt：随机读取操作，读取流中任意起始位置 bytes
-//  io.ByteReader：读取 1 个 byte
-//  io.ByteScanner：获取剩余未读取的 bytes
-//  io.RuneReader：读取 1 个 rune
-//  io.RuneScanner：获取剩余未读取的 runes
-//  io.Seeker：随机移动读取指针
-//  io.WriterTo：将内容写入另一个 io.Writer 接口对象中
-//  io.Closer：关闭当前 Reader 对象
-//
-// io 包中和写入相关的接口
-//  io.Writer：基本的写操作，在流中顺序写入 bytes
-//  io.WriterAt：随机写操作，在流的任意位置写入 bytes
-//  io.StringWriter：写入字符串操作
-//  io.ReadFrom：从另一个 io.Reader 对象中读取内容写入当前对象中
-
-// 测试 strings.Reader
-// strings.Reader 接收一个字符串参数，返回一个 Reader 对象，该对象实现了如下接口：
-//  io.Reader, io.ReaderAt, io.ByteReader, io.ByteScanner, io.RuneReader, io.RuneScanner, io.Seeker, io.WriterTo
-func TestStringIO(t *testing.T) {
-	// 实例化一个新的 Reader 对象，用于对字符串内容进行读取操作
-	reader := strings.NewReader(`<html>
-    <body>
-        <div>Hello World</div>
-    </body>
-</html>`)
-
-	assert.Equal(t, 68, reader.Len()) // io.Reader 接口函数，共 68 字节可以读取
-
-	// 实例化一个 68 字节切片，用于接收读取内容
-	data := make([]byte, 68)
-
-	// 读取前 7 个字节（0~6）
-	n, err := reader.Read(data[:7]) // io.Reader 接口函数，读取指定长度的 byte 集合
-	assert.NoError(t, err)
-	assert.Equal(t, 7, n)
-	assert.Equal(t, "<html>\n", string(data[:7]))
-
-	// 跳过 7 个字节，读取接下来的 11 个字节（7~17）
-	n, err = reader.ReadAt(data[7:18], 7) // io.ReaderAt 接口函数，从流的任意位置开始，读取指定长度的 byte 集合，ReadAt 函数不会移动读取指针
-	assert.NoError(t, err)
-	assert.Equal(t, 11, n)
-	assert.Equal(t, "    <body>\n", string(data[7:18]))
-
-	// 移动读取指针
-	// 因为 io.ReaderAt 不会移动读取指针，指针停留在 6 的位置
-	// 从当前位置移动 11 个字节，指针到达 17 的位置
-	reader.Seek(11, io.SeekCurrent) // io.Seeker 接口函数，移动读取指针
-
-	// 读取接下来的 31 个 byte
-	for i := 0; i < 31; i++ {
-		data[18+i], err = reader.ReadByte() // io.ByteReader 接口函数，读取一个字节，读取指针后移 1
-		assert.NoError(t, err)
-	}
-	assert.Equal(t, "        <div>Hello World</div>\n", string(data[18:49]))
-
-	// rune 转为 []byte 方法
-	// 这里认为 rune 为 utf8 编码，一个 rune 可以转为 1~4 个 bytes
-	runeToBytes := func(r rune) []byte {
-		buf := make([]byte, 4)       // 可接受最长 utf8 编码的 bytes
-		n := utf8.EncodeRune(buf, r) // 将字符编码为 utf8 bytes
-		return buf[:n]               // 返回有效长度的 []byte 切片
-	}
-
-	len := 0
-	// 读取 19 个字符，并转为 byte 存入 data 切片
-	for i := 0; i < 19; i++ {
-		r, n, err := reader.ReadRune() // io.RuneReader 接口函数，读取一个 rune 字符
-		assert.NoError(t, err)
-		assert.Equal(t, 1, n)
-
-		for _, b := range runeToBytes(r) { // 将 rune 转为 bytes
-			data[49+len] = b // 存入 data 切片的后续位置
-			len++
-		}
-	}
-	assert.Equal(t, "    </body>\n</html>", string(data[49:]))
-
-	// 查看 Reader 中剩余未读取的数据
-	assert.Nil(t, reader.UnreadRune()) // io.RuneScanner 接口函数，获取尚未读取的 rune，该函数必须在 ReadRune() 之后执行，之间不能插入其它 Reader 操作
-	assert.Nil(t, reader.UnreadByte()) // io.ByteScanner 接口函数，获取尚未读取的 bytes
-
-	// 对比整个读取结果和源数据
-	assert.Equal(t, `<html>
-    <body>
-        <div>Hello World</div>
-    </body>
-</html>`, string(data))
-}
 
 // 测试 byte 类型数据的读写操作
 // 数据读写依赖 bytes.Buffer 类型，其实现了 io.Reader 和 io.Writer 接口，可以同时进行读写操作

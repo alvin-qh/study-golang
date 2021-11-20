@@ -34,6 +34,29 @@ func TestCreateBuffer(t *testing.T) {
 	assert.Equal(t, `Hello World!`, s)
 }
 
+// 测试 Buffer 大小
+func TestBufferSize(t *testing.T) {
+	// 初始化 Buffer 对象
+	buf := bytes.NewBuffer(make([]byte, 50, 100))
+	assert.Equal(t, 50, buf.Len())  // 初始长度 50
+	assert.Equal(t, 100, buf.Cap()) // 初始容积 100
+
+	// 截断操作
+	buf.Truncate(20)
+	assert.Equal(t, 20, buf.Len())  // 内容长度截断为 20
+	assert.Equal(t, 100, buf.Cap()) // 容积不变
+
+	// 重置操作
+	buf.Reset()
+	assert.Equal(t, 0, buf.Len())   // 内容被清空，长度为 0
+	assert.Equal(t, 100, buf.Cap()) // 容积不变
+
+	// 扩大容积
+	buf.Grow(200)
+	assert.Equal(t, 0, buf.Len())   // 内容不变
+	assert.Equal(t, 400, buf.Cap()) // 容积翻倍
+}
+
 // 测试 Buffer 的读写
 // 数据读写依赖 bytes.Buffer 类型，其实现了 io.Reader 和 io.Writer 接口，可以同时进行读写操作
 // 字符串类型通过编码为 utf8 编码，进行读取和写入

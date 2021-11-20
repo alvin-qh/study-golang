@@ -107,7 +107,12 @@ func TestReadDir(t *testing.T) {
 	assert.NoError(t, err)
 
 	blank := struct{}{}
-	expected := map[string]struct{}{"file_test.go": blank}
+	expected := map[string]struct{}{
+		"file_test.go": blank,
+		"fio_test.go":  blank,
+		"fio.go":       blank,
+	}
+
 	for _, info := range infos {
 		_, exist := expected[info.Name()]
 		assert.True(t, exist)
@@ -133,10 +138,9 @@ func TestReadDirnames(t *testing.T) {
 	// 参数 0 表示不限制返回结果的数量，否则按所给数量返回结果
 	names, err := dir.Readdirnames(0)
 	assert.NoError(t, err)
-
-	expected := []string{"file_test.go"}
-
 	sort.Strings(names)
+
+	expected := []string{"file_test.go", "fio_test.go", "fio.go"}
 	sort.Strings(expected)
 
 	assert.Equal(t, expected, names)
