@@ -29,3 +29,14 @@ func CloseAndRemoveFile(f *os.File) error {
 	}
 	return os.Remove(f.Name())
 }
+
+type User struct {
+	Id    int64
+	Name  string
+	Email string
+	Phone []string
+}
+
+func NewUser(id int64, name, email string, phone []string) *User {
+	return &User{Id: id, Name: name, Email: email, Phone: phone}
+}
