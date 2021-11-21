@@ -201,58 +201,6 @@ func TestFileIO(t *testing.T) {
 	assert.Equal(t, 3, count)
 }
 
-// 使用 GoB（Go Binary）操作 io
-// gob.Encoder 对象和 gob.Decoder 对象可以对值（数值、字符串、切片等）进行编解码，编码的结果直接写入 io.Writer 对象，解码则是直接通过 io.Reader 进行
-// gob 方式可以极大的简化各类数据写入和读取操作
-// 另外，gob.Encoder 的 EncoderValue 以及 gob.Decoder 的 DecoderValue 可以对 reflect.Value 对象进行操作，通过反射处理 io
-func TestGobDatabase(t *testing.T) {
-	file, err := os.Create("./gob.data") // os.Create(name) 函数是 os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666) 函数的简写，打开一个读写文件
-	assert.NoError(t, err)
-
-	// 函数结束后，关闭并删除文件
-	defer func() {
-		file.Close()
-		os.Remove(file.Name())
-	}()
-
-	s := "Hello, World!"
-
-	// 通过编码器将各类数据写入 io.Writer 对象
-	enc := gob.NewEncoder(file) // 创建 编码器 对象，参数为一个 io.Writer 对象
-
-	err = enc.Encode(len(s)) // 写入 int 类型数值
-	assert.NoError(t, err)
-
-	err = enc.Encode(s) // 写入字符串类型数据
-	assert.NoError(t, err)
-
-	pu := user.New(1, "Alvin", "alvin@fake.com", []string{"13999912345", "13000056789"}) // 初始化 user.User 对象并返回指针
-
-	err = enc.Encode(pu) // 将结构体变量进行编码
-	assert.NoError(t, err)
-
-	file.Close()
-
-	file, err = os.Open("./gob.data") // os.Open(name) 函数是 os.OpenFile(name, os.O_RDONLY, 0) 函数的简写，打开一个只读文件
-	assert.NoError(t, err)
-	dec := gob.NewDecoder(file) // 创建 解码器 对象，参数为一个 io.Reader 对象
-
-	var n int
-	err = dec.Decode(&n) // 解码一个整数
-	assert.NoError(t, err)
-	assert.Equal(t, len(s), n)
-
-	var rs string
-	err = dec.Decode(&rs) // 解码一个字符串
-	assert.NoError(t, err)
-	assert.Equal(t, s, rs)
-
-	var ru user.User
-	err = dec.Decode(&ru) // 解码结构体对象
-	assert.NoError(t, err)
-	assert.Equal(t, *pu, ru)
-}
-
 // 通过缓冲进行 IO 操作
 // bufio.Writer 实现了 io.Writer, io.ByteWriter, io.StringWriter 以及 io.RuneWriter 接口，用于包装另一个 io.Writer 对象，为其增加缓存支持
 // bufio.Reader 实现了 io.Reader, io.ByteReader, io.StringWriter 以及 io.RuneWriter 接口，用于包装另一个 io.Reader 对象，为其增加缓存支持

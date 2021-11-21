@@ -45,7 +45,7 @@ func (s *Size3D) String() string {
 func (s *Size3D) Compare(other interface{}) int {
 	v, ok := other.(*Size3D)
 	if !ok {
-		panic(errors.ErrorType)
+		panic(errors.ErrType)
 	}
 	if s == v {
 		return 0

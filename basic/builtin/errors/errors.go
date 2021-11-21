@@ -38,7 +38,7 @@ func (e *LengthError) Wrap(caused error) {
 // 创建一组错误值，用于传递和比较
 // 一般情况下，对于已知错误，都应该在集中位置，事先定义好错误值，这样的好处：1. 执行效率会高一些；2. 可以对得到的错误对象进行比较，以判断其错误原因
 var (
-	ErrorName = errors.New("invalid name")
+	ErrName = errors.New("invalid name")
 )
 
 // 自定义错误

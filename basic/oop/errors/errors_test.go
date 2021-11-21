@@ -8,5 +8,5 @@ import (
 )
 
 func TestErrorTypeError(t *testing.T) {
-	assert.Equal(t, ErrorType, errors.New("invalid type"))
+	assert.Equal(t, ErrType, errors.New("invalid type"))
 }

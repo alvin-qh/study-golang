@@ -13,7 +13,7 @@ type Long int64
 func (i Long) Compare(other interface{}) int {
 	val, ok := other.(Long)
 	if !ok {
-		panic(errors.ErrorType)
+		panic(errors.ErrType)
 	}
 	return int(i - val)
 }

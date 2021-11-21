@@ -37,7 +37,7 @@ func TestInterface(t *testing.T) {
 	// 测试比较不同类型对象时，出现的 panic 异常
 	defer func() {
 		err := recover().(error)
-		assert.ErrorIs(t, err, errors.ErrorType)
+		assert.ErrorIs(t, err, errors.ErrType)
 	}()
 
 	ss1 := size3d.New(10, 20, 30)

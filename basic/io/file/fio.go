@@ -1,6 +1,9 @@
 package file
 
-import "os"
+import (
+	"errors"
+	"os"
+)
 
 // 获取文件长度
 func FileLength(file *os.File) int {
@@ -8,4 +11,21 @@ func FileLength(file *os.File) int {
 		return int(s.Size()) // 从文件属性中获取文件实际长度
 	}
 	return 0
+}
+
+// 获取文件指针位置
+func GetFileCursor(file *os.File) int64 {
+	cur, err := file.Seek(0, os.SEEK_CUR)
+	if err != nil {
+		return 0
+	}
+	return cur
+}
+
+// 关闭并删除文件
+func CloseAndRemoveFile(f *os.File) error {
+	if err := f.Close(); err != nil && !errors.Is(err, os.ErrClosed) {
+		return err
+	}
+	return os.Remove(f.Name())
 }

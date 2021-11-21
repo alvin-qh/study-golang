@@ -21,7 +21,7 @@ func TestSqrt(t *testing.T) {
 	assert.Equal(t, 4.0, r)
 
 	r, err = Sqrt(-16)
-	assert.ErrorIs(t, err, ErrorInvalidNumber)
+	assert.ErrorIs(t, err, ErrInvalidNumber)
 	assert.Equal(t, 0.0, r)
 }
 

@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	ErrorInvalidNumber = errors.New("invalid number")
+	ErrInvalidNumber = errors.New("invalid number")
 )
 
 // 定义具备单一返回值的函数
@@ -17,7 +17,7 @@ func Pow(n int) float64 {
 // 定义同时返回两个值的函数
 func Sqrt(n int) (float64, error) {
 	if n <= 0 {
-		return 0, ErrorInvalidNumber // 返回 0 和错误值
+		return 0, ErrInvalidNumber // 返回 0 和错误值
 	}
 	return math.Sqrt(float64(n)), nil // 返回结果和无错误
 }

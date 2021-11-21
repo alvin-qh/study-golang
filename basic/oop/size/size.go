@@ -31,7 +31,7 @@ func (s *Size) Area() float64 { return s.width * s.height }
 func (s *Size) Compare(other interface{}) int {
 	v, ok := other.(*Size)
 	if !ok {
-		panic(errors.ErrorType)
+		panic(errors.ErrType)
 	}
 	if s == v {
 		return 0

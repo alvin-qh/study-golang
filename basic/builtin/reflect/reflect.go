@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	ErrorInvalidPtr = errors.New("ptr must an address")
+	ErrInvalidPtr = errors.New("ptr must an address")
 )
 
 // 表示用户的结构体
@@ -35,7 +35,7 @@ func SetValueByReflect(ptr interface{}, newVal interface{}) (err error) {
 	// ptr 参数转为 Value 类型
 	tv := reflect.ValueOf(ptr)
 	if tv.Kind() != reflect.Ptr { // 判断 ptr 参数是否为指针类型
-		return ErrorInvalidPtr
+		return ErrInvalidPtr
 	}
 
 	// 通过 Elem() 函数解引指针类型，获取 ptr 指向的变量，并设置新的值
@@ -52,7 +52,7 @@ func SetStructFieldByReflect(ptr interface{}, field string, newVal interface{}) 
 	// ptr 参数转为 Value 类型
 	tv := reflect.ValueOf(ptr)
 	if tv.Kind() != reflect.Ptr { // 判断 ptr 参数是否为指针类型
-		return ErrorInvalidPtr
+		return ErrInvalidPtr
 	}
 
 	// 通过 Elem() 函数解引指针类型，获取 ptr 指向的结构体对象

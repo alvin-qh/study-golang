@@ -52,16 +52,16 @@ func TestCustomErrorType(t *testing.T) {
 // error.As 方法也会通过调用错误的 Unwrap 函数，不断回溯错误链，直到找到类型匹配的项，否则返回 false
 func TestErrorIsOrAs(t *testing.T) {
 	// 测试错误值比较
-	var err error = ErrorName                 // 产生一个错误对象
-	assert.True(t, errors.Is(err, ErrorName)) // 判断错误值是否等于 ErrName
-	assert.ErrorIs(t, err, ErrorName)         // errors.Is 的断言
+	var err error = ErrName                 // 产生一个错误对象
+	assert.True(t, errors.Is(err, ErrName)) // 判断错误值是否等于 ErrName
+	assert.ErrorIs(t, err, ErrName)         // errors.Is 的断言
 
 	// 测试沿错误链表回溯并比较
 	// 这是产生错误链的简单方式，即无需额外定义错误类型，直接进行 Wrap 操作即可
-	err = fmt.Errorf("%w, name is: %s", ErrorName, "alvin") // 产生一个错误，并包装 ErrName 错误，相当于 err -> ErrName 的链
-	assert.True(t, errors.Is(err, ErrorName))               // 判断错误值是否等于或包含 ErrName 错误，即通过 Unwrap 不断回溯比较
-	assert.ErrorIs(t, err, ErrorName)                       // errors.Is 的断言
-	assert.Equal(t, ErrorName, errors.Unwrap(err))          // 显示调用 errors.Unwrap 函数，获取错误
+	err = fmt.Errorf("%w, name is: %s", ErrName, "alvin") // 产生一个错误，并包装 ErrName 错误，相当于 err -> ErrName 的链
+	assert.True(t, errors.Is(err, ErrName))               // 判断错误值是否等于或包含 ErrName 错误，即通过 Unwrap 不断回溯比较
+	assert.ErrorIs(t, err, ErrName)                       // errors.Is 的断言
+	assert.Equal(t, ErrName, errors.Unwrap(err))          // 显示调用 errors.Unwrap 函数，获取错误
 
 	// 判断错误类型
 	var targetErr1 *LengthError
@@ -90,7 +90,7 @@ func TestErrorIsOrAs(t *testing.T) {
 
 // 抛出异常的函数
 func PanicError() {
-	panic(ErrorName) // 抛出异常，panic 调用会终止当前函数调用，即 panic 之后的代码不会被调用
+	panic(ErrName) // 抛出异常，panic 调用会终止当前函数调用，即 panic 之后的代码不会被调用
 	// 调用终止后，代码执行会跳转到调用方的 defer 调用上，如果该 defer 调用具备 recover 捕获
 	// 则会捕获该异常，并结束调用方函数，否则异常会继续上更上一级的调用者抛出
 }
@@ -100,7 +100,7 @@ func TestDeferAndPanicError(t *testing.T) {
 		r := recover()                    // 捕获异常
 		if err := r.(error); err != nil { // 判断异常类型
 			// 处理异常
-			assert.ErrorIs(t, err, ErrorName)
+			assert.ErrorIs(t, err, ErrName)
 		}
 
 		// 异常处理完毕，TestDeferAndPanicError 函数随之结束
