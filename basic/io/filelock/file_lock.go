@@ -3,7 +3,9 @@ package filelock
 import (
 	"os"
 	"runtime"
+	"sync"
 	"syscall"
+	"time"
 )
 
 // 和文件锁相关的常量包括：
@@ -69,4 +71,24 @@ func (fl *FileLock) Unlock() error {
 
 	// 解锁
 	return syscall.Flock(int(fl.f.Fd()), syscall.LOCK_UN)
+}
+
+// 具备超时规则的等待组等待
+// 返回是否等待成功
+func WaitTimeout(wg *sync.WaitGroup, timeout time.Duration) bool {
+	c := make(chan struct{}) // 定义一个 channel 对象
+
+	// 在另一个 go 线程中进行等待
+	go func() {
+		defer close(c) // 等待结束后关闭 channel
+		wg.Wait()      // 等待组计数
+	}()
+
+	// 等待 channel 结果
+	select {
+	case <-c: // channel 被关闭，表示等待成功
+		return true
+	case <-time.After(timeout): // 等待到时间到达
+		return false
+	}
 }

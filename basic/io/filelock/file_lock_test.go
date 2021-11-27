@@ -9,26 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// 具备超时规则的等待组等待
-// 返回是否等待成功
-func waitTimeout(wg *sync.WaitGroup, timeout time.Duration) bool {
-	c := make(chan struct{}) // 定义一个 channel 对象
-
-	// 在另一个 go 线程中进行等待
-	go func() {
-		defer close(c) // 等待结束后关闭 channel
-		wg.Wait()      // 等待组计数
-	}()
-
-	// 等待 channel 结果
-	select {
-	case <-c: // channel 被关闭，表示等待成功
-		return true
-	case <-time.After(timeout): // 等待到时间到达
-		return false
-	}
-}
-
 const LOCK_FILE = "./.lock"
 
 // 测试互斥文件锁
@@ -71,7 +51,7 @@ func TestFileXLockAndUnlock(t *testing.T) {
 	go task("task1") // 启动异步任务
 	go task("task2")
 
-	ok := waitTimeout(wg, time.Second*2) // 先尝试对等待组等待 2 秒，无法成功，表示任务都无法结束
+	ok := WaitTimeout(wg, time.Second*2) // 先尝试对等待组等待 2 秒，无法成功，表示任务都无法结束
 	assert.False(t, ok)
 
 	err = fl.Unlock() // 解锁操作，此时异步任务可以继续执行
