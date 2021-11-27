@@ -9,6 +9,7 @@
         "fflush",
         "LDFLAGS",
         "nolint",
+        "semap",
         "strcpy",
         "stretchr",
         "unaddressable"

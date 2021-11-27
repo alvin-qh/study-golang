@@ -61,8 +61,8 @@ func TestThroughMap(t *testing.T) {
 		vs = append(vs, v)
 	}
 
-	assert.Equal(t, []string{"a", "b", "c"}, ks)
-	assert.Equal(t, []interface{}{100, "B", []int{1, 2, 3}}, vs)
+	assert.ElementsMatch(t, []string{"a", "b", "c"}, ks)
+	assert.ElementsMatch(t, []interface{}{100, "B", []int{1, 2, 3}}, vs)
 
 	// 遍历所有 key
 	ks = make([]string, 0, len(m))
@@ -70,7 +70,7 @@ func TestThroughMap(t *testing.T) {
 	for k := range m {
 		ks = append(ks, k)
 	}
-	assert.Equal(t, []string{"a", "b", "c"}, ks)
+	assert.ElementsMatch(t, []string{"a", "b", "c"}, ks)
 
 	vs = make([]interface{}, 0, len(m))
 
@@ -78,7 +78,7 @@ func TestThroughMap(t *testing.T) {
 	for _, v := range m {
 		vs = append(vs, v)
 	}
-	assert.Equal(t, []interface{}{100, "B", []int{1, 2, 3}}, vs)
+	assert.ElementsMatch(t, []interface{}{100, "B", []int{1, 2, 3}}, vs)
 }
 
 func TestComflexMapKey(t *testing.T) {

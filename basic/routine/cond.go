@@ -10,11 +10,11 @@ import (
 )
 
 var (
-	readerIndex = int32(0) // 计算读协程 ID 的全局变量
+	condReaderIndex = int32(0) // 计算读协程 ID 的全局变量
 )
 
 const (
-	TIME_LAYOUT = "2006-01-02T15:04:05.000-07:00"
+	COND_TIME_LAYOUT = "2006-01-02T15:04:05.000-07:00"
 )
 
 // Cond 对象，表示一个带“条件”的锁（Condition Lock）
@@ -79,11 +79,11 @@ func (fc *FileCond) wait(name string) {
 	for !fc.done { // 判断读条件是否成立，如果不成立则进入等待
 		fmt.Printf("%v routine begin waiting\n", name)
 		fc.cond.Wait()
-		fmt.Printf("%v routine wait succeed at %v\n", name, time.Now().Format(TIME_LAYOUT))
+		fmt.Printf("%v routine wait succeed at %v\n", name, time.Now().Format(COND_TIME_LAYOUT))
 	}
 }
 
-// 向文件中写入内容，写入完毕后
+// 向文件中写入内容，写入完毕后发送通知
 func (fc *FileCond) Write(data []byte) error {
 	const name = "[Write]"
 	fmt.Printf("%v routine started\n", name)
@@ -108,7 +108,7 @@ func (fc *FileCond) Write(data []byte) error {
 
 // 从文件中读取内容，前提是文件写入结束
 func (fc *FileCond) Read() ([]byte, error) {
-	name := fmt.Sprintf("[Read(%v)]", atomic.AddInt32(&readerIndex, 1))
+	name := fmt.Sprintf("[Read(%v)]", atomic.AddInt32(&condReaderIndex, 1))
 	fmt.Printf("%v routine started\n", name)
 
 	fc.lock(name)         // 加锁
