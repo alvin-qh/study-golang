@@ -65,7 +65,7 @@ func TestRWMutex(t *testing.T) {
 
 	num := 0
 
-	// 协程函数，用于增加公共变量（表示写）
+	// 协程函数，用于增加公共变量的值（表示写）
 	increment := func() {
 		mut.Lock() // 加 X 锁，进入临界区
 
@@ -75,7 +75,7 @@ func TestRWMutex(t *testing.T) {
 		num += 1
 	}
 
-	// 协程函数，用于减少公共变量（表示读）
+	// 协程函数，用于减少公共变量的值（表示读）
 	read := func() {
 		mut.RLock() // 加 S 锁，读锁只对写锁做阻塞处理，对同为读锁不做处理，所以在读多写少的环境下，读锁的并发性更好
 
