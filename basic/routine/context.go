@@ -7,6 +7,15 @@ import (
 	"time"
 )
 
+// context.Context 对象作为参数，传入协程函数，用于对协程进行控制，包括：设置超时时间，取消协程等
+//
+// Deadline: 返回 context.Context 被取消的时间，也就是完成工作的截止日期;
+// Done: 返回一个 Channel，这个 Channel 会在当前工作完成或者上下文被取消后关闭，多次调用 Done 方法会返回同一个 Channel;
+// Err: 返回 context.Context 结束的原因，它只会在 Done 方法对应的 Channel 关闭时返回非空的值:
+//      如果 context.Context 被取消，会返回 Canceled 错误;
+//      如果 context.Context 超时，会返回 DeadlineExceeded 错误;
+// Value: 从 context.Context 中获取键对应的值，对于同一个上下文来说，多次调用 Value 并传入相同的 Key 会返回相同的结果，该方法可以用来传递请求特定的数据.
+
 // 在使用 Value Context 时，Key 的类型推荐使用自定义类型
 type ContextKey string
 
@@ -15,23 +24,27 @@ var (
 )
 
 // 创建一个 Value Context
+// 可以通过 context.Context 携带所需的值（以 Key/Value）形式，传递到下层的 goroutine 协程中
 func CreateContext() (context.Context, chan string) {
 	ch := make(chan string)                                                    // 创建一个 chan 对象
 	return context.WithValue(context.Background(), ContextKey("chan"), ch), ch // 创建一个 Value Context，包含 chan 对象
 }
 
 // 创建一个 Cancel Context
+// 可以通过 context.Context 的 Done 函数判断是否已被标志为已取消，所有下层的 goroutine 协程都会被取消
 func CreateCancelContext() (context.Context, context.CancelFunc, chan string) {
 	ctx, ch := CreateContext()
-	ctx, fn := context.WithCancel(ctx)
-	return ctx, fn, ch
+	ctx, cancel := context.WithCancel(ctx) // 创建 Cancel Context，返回 Context 对象和 cancel 函数
+	return ctx, cancel, ch
 }
 
 // 创建一个 Timeout Context
+// 可以通过 context.Context 的 Done 函数判断是否已被标志为已取消或超时，所有下层的 goroutine 协程都会被取消
+// Timeout Context 同时具备 Cancel Context 和超时取消的特性
 func CreateTimeoutContext(timeout time.Duration) (context.Context, context.CancelFunc, chan string) {
 	ctx, ch := CreateContext()
-	ctx, fn := context.WithTimeout(ctx, timeout)
-	return ctx, fn, ch
+	ctx, cancel := context.WithTimeout(ctx, timeout) // 创建 Timeout Context，返回 Context 对象和 cancel 函数
+	return ctx, cancel, ch
 }
 
 // 测试 Cancel Context
