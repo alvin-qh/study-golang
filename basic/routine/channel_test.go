@@ -172,26 +172,100 @@ func TestCachedChannel(t *testing.T) {
 	assert.LessOrEqual(t, d, time.Millisecond) // 代码执行时间短暂
 }
 
+// 测试 Lock
 func TestChanLock(t *testing.T) {
 	wg := sync.WaitGroup{}
 	wg.Add(3)
 
-	ctx := context.TODO()
+	ctx := context.TODO() // 初始化空 context 对象
 
-	l := NewLock()
+	l := NewLock() // 产生锁对象
+
+	start := time.Now()
 
 	for i := 0; i < 3; i++ {
+		// 启动协程，由于所得关系，所以三个协程按顺序执行
+		// 总执行时间是三个协程执行时间之和
 		go func() {
 			defer wg.Done()
 
-			locked := l.Lock(ctx)
-			assert.True(t, locked)
+			locked := l.Lock(ctx)  // 锁定
+			assert.True(t, locked) // 判断是否锁定成功
 			if locked {
-				defer l.Unlock()
-				time.Sleep(time.Second)
+				defer l.Unlock()        // 结束后解锁
+				time.Sleep(time.Second) // 等待一段时间
 			}
 		}()
 	}
 
 	wg.Wait()
+
+	d := time.Since(start)
+	assert.GreaterOrEqual(t, d, time.Second*3) // 总体执行时间超过 3 秒
+}
+
+// 测试锁超时
+func TestChanLockTimeout(t *testing.T) {
+	l := NewLock() // 产生锁对象
+
+	locked := l.Lock(context.TODO()) // 锁定
+	defer l.Unlock()                 // 函数退出时解锁
+	assert.True(t, locked)           // 锁定成功
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2) // 创建 2 秒超时的 context 对象
+	defer cancel()
+
+	start := time.Now()
+
+	locked = l.Lock(ctx)    // 再次锁定，因为没有解锁，所以无法进入锁
+	assert.False(t, locked) // 锁定失败
+
+	d := time.Since(start)
+	assert.GreaterOrEqual(t, d, time.Second*2) // 执行时间超过 2 秒
+}
+
+// 测试加锁解锁
+func TestChanLockAndUnlock(t *testing.T) {
+	l := NewLock() // 产生锁对象
+	defer l.Unlock()
+
+	ctx := context.TODO()
+
+	n := 0
+
+	start := time.Now()
+
+	wg := sync.WaitGroup{}
+	wg.Add(200)
+
+	for i := 0; i < 100; i++ {
+		// 读协程
+		go func() {
+			defer wg.Done()
+
+			l.Lock(ctx)
+			defer l.Unlock()
+
+			n--
+			time.Sleep(time.Millisecond * 10)
+		}()
+
+		// 写协程
+		go func() {
+			defer wg.Done()
+
+			l.Lock(ctx)
+			defer l.Unlock()
+
+			n++
+			time.Sleep(time.Millisecond * 10)
+		}()
+	}
+
+	wg.Wait()
+
+	d := time.Since(start)
+	assert.GreaterOrEqual(t, d, time.Second*2)
+
+	assert.Equal(t, 0, n)
 }

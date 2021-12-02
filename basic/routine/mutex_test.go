@@ -4,6 +4,7 @@ import (
 	"runtime"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -24,22 +25,26 @@ func TestMutex(t *testing.T) {
 
 	// 协程函数，用于增加公共变量（表示写）
 	increment := func() {
-		mut.Lock() // 加锁，进入临界区
-
 		defer wg.Done()
+
+		mut.Lock()         // 加锁，进入临界区
 		defer mut.Unlock() // 解锁，退出临界区
 
 		num += 1 // 操作公共变量
+
+		time.Sleep(time.Millisecond * 10)
 	}
 
 	// 协程函数，用于减少公共变量（表示读）
 	read := func() {
-		mut.Lock()
-
 		defer wg.Done()
+
+		mut.Lock()
 		defer mut.Unlock() // 解锁，退出临界区
 
 		num -= 1 // 操作公共变量
+
+		time.Sleep(time.Millisecond * 10)
 	}
 
 	// 执行 100 次写操作和读操作
