@@ -2,6 +2,8 @@ package routine
 
 import (
 	"context"
+	"errors"
+	"runtime"
 	"sync"
 	"sync/atomic"
 )
@@ -69,4 +71,52 @@ func (l *Lock) swapChannel(newOne chan struct{}) chan struct{} {
 	oldOne := l.ch
 	l.ch = newOne // 设置新的 channel 对象
 	return oldOne // 返回旧的 channel 对象
+}
+
+// 生成器错误集合
+var (
+	ErrChanClosed = errors.New("channel was closed")
+)
+
+// 定义生成器结构体
+type Generator struct {
+	ch chan interface{}
+}
+
+// 定义数据生成函数
+type GeneratorFunc func(ch chan interface{}) interface{}
+
+// 产生一个新的生成器对象
+func NewGenerator(gen GeneratorFunc) *Generator {
+	g := &Generator{ch: make(chan interface{})}
+	runtime.SetFinalizer(g, func(g *Generator) { g.Close() }) // 析构函数，关闭生成器对象
+
+	go func() {
+		defer recover()
+		gen(g.ch) // 在协程中异步生成数据
+	}()
+
+	return g
+}
+
+// 关闭生成器对象
+func (g *Generator) Close() {
+	if g.ch != nil {
+		close(g.ch)
+		g.ch = nil
+	}
+}
+
+// 获取生成器下一个数据
+func (g *Generator) Next() (interface{}, error) {
+	if g.ch == nil {
+		return nil, ErrChanClosed
+	}
+
+	// 从 channel 中接收下一个数据
+	v, ok := <-g.ch
+	if !ok {
+		return nil, ErrChanClosed
+	}
+	return v, nil
 }

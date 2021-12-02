@@ -269,3 +269,26 @@ func TestChanLockAndUnlock(t *testing.T) {
 
 	assert.Equal(t, 0, n)
 }
+
+// 测试通过 channel 创建的生成器
+func TestChanGenerator(t *testing.T) {
+	// 创建生成器对象
+	g := NewGenerator(func(ch chan interface{}) interface{} { // 传入生成函数作为参数
+		n := 0
+		for {
+			ch <- n
+			n++
+		}
+	})
+	defer g.Close()
+
+	x := 0
+
+	// 生成 100 个数据
+	for n, err := g.Next(); err == nil && n.(int) < 100; n, err = g.Next() { // 获取生成器下一个数据
+		assert.NoError(t, err)
+		assert.Equal(t, x, n.(int)) // 检查生成数据
+		x++
+	}
+	assert.Equal(t, 100, x)
+}
