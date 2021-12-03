@@ -284,11 +284,23 @@ func TestChanGenerator(t *testing.T) {
 
 	x := 0
 
-	// 生成 100 个数据
+	// 通过生成器生成 100 个数据
+	// 通过 Next 函数，返回生成器生成出的数据
 	for n, err := g.Next(); err == nil && n.(int) < 100; n, err = g.Next() { // 获取生成器下一个数据
 		assert.NoError(t, err)
 		assert.Equal(t, x, n.(int)) // 检查生成数据
 		x++
 	}
 	assert.Equal(t, 100, x)
+	x++
+
+	// 继续生成 100 个数据
+	// 通过 Range 函数，返回一个 channel，通过对其进行 range 操作进行生成
+	for n := range g.Range() {
+		assert.Equal(t, x, n.(int)) // 检查生成数据
+		if x > 100 {
+			break
+		}
+		x++
+	}
 }

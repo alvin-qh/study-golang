@@ -120,3 +120,10 @@ func (g *Generator) Next() (interface{}, error) {
 	}
 	return v, nil
 }
+
+func (g *Generator) Range() <-chan interface{} {
+	if g.ch == nil {
+		panic(ErrChanClosed)
+	}
+	return g.ch
+}
