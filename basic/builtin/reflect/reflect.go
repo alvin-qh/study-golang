@@ -17,6 +17,18 @@ type User struct {
 	Gender rune
 }
 
+// 用于测试反射的 User 对象行为
+// 该函数的主体是 *User
+func (u *User) String() string {
+	return fmt.Sprintf("%v(%v)-%v", u.Name, u.Id, string(u.Gender))
+}
+
+// 用于测试反射的 User 对象行为
+// 该函数的主体是 User
+func (u User) AsString() string {
+	return fmt.Sprintf("%v(%v)-%v", u.Name, u.Id, string(u.Gender))
+}
+
 // 获取一个类型的完全限定名，由 <pkgPath>.<name>[<kind>] 组成
 // pkgPath 表示类型所在包的路径，系统内置类型为 ""
 // name 为类型名称，array, ptr, interface, slice, map 为空
@@ -59,4 +71,10 @@ func SetStructFieldByReflect(ptr interface{}, field string, newVal interface{}) 
 	// 通过名称反射字段，并设置新值
 	tv.Elem().FieldByName(field).Set(reflect.ValueOf(newVal))
 	return nil
+}
+
+// 测试函数反射的简单加法函数
+func Add(a, b int) (r int) {
+	r = a + b
+	return
 }

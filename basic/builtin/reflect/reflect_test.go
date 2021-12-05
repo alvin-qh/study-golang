@@ -282,3 +282,53 @@ func TestStructFieldTag(t *testing.T) {
 		}
 	}
 }
+
+// 测试函数调用的反射
+func TestReflectFunction(t *testing.T) {
+	// 将函数作为变量赋值给 interface{} 类型变量
+	var f interface{} = Add
+
+	// 获取函数变量类型
+	tp := reflect.TypeOf(f)
+	assert.Equal(t, ".[func]", GetFullTypeName(tp)) // PkgPath，Name 都为空，Kind 为 func
+
+	// 获取函数变量的反射值
+	tv := reflect.ValueOf(f)
+	args := []reflect.Value{reflect.ValueOf(10), reflect.ValueOf(20)} // 构建调用函数的参数列表
+	// 通过反射调用函数，获取返回值结果，是一个 reflect.Value 类型的 slice
+	r := tv.Call(args)
+
+	// 校验返回值结果
+	assert.Len(t, r, 1)
+	assert.Equal(t, 30, r[0].Interface().(int))
+}
+
+// 通过反射调用对象函数（即方法）
+func TestReflectMethod(t *testing.T) {
+	// 产生一个 User 对象
+	var u interface{} = &User{Id: 1, Name: "Alvin", Gender: 'M'}
+
+	// 通过反射调用 *User 类型的方法
+
+	tv := reflect.ValueOf(u)                              // 获取变量的反射值
+	assert.Equal(t, ".[ptr]", GetFullTypeName(tv.Type())) // 类型为 ptr 类型
+
+	f := tv.MethodByName("String")                        // 获取 String 方法的反射值
+	assert.Equal(t, ".[func]", GetFullTypeName(f.Type())) // 类型为 func 类型
+
+	r := f.Call([]reflect.Value{}) // 通过反射值调用其代表的 String 方法，参数为空
+	assert.Len(t, r, 1)            // 获取调用结果
+	assert.Equal(t, "Alvin(1)-M", r[0].String())
+
+	// 通过反射调用 User 类型的方法
+
+	tv = tv.Elem()                                                                    // 通过 ptr 解引获取反射值
+	assert.Equal(t, "basic/builtin/reflect.User[struct]", GetFullTypeName(tv.Type())) // 类型为 User 类型
+
+	f = tv.MethodByName("AsString")                       // 获取 AsString 方法的反射值
+	assert.Equal(t, ".[func]", GetFullTypeName(f.Type())) // 类型为 func 类型
+
+	r = f.Call([]reflect.Value{}) // 通过反射值调用函数
+	assert.Len(t, r, 1)           // 获取调用结果
+	assert.Equal(t, "Alvin(1)-M", r[0].String())
+}
