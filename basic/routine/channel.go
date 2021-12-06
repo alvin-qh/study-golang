@@ -92,7 +92,9 @@ func NewGenerator(gen GeneratorFunc) *Generator {
 	runtime.SetFinalizer(g, func(g *Generator) { g.Close() }) // 析构函数，关闭生成器对象
 
 	go func() {
-		defer recover()
+		defer func() {
+            recover()
+        }()
 		gen(g.ch) // 在协程中异步生成数据
 	}()
 

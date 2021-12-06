@@ -157,6 +157,8 @@ func TestCachedChannel(t *testing.T) {
 	go func() { // 异步函数，向 channel 中发送数据
 		start := time.Now()
 		defer func() {
+			recover()
+
 			d = time.Since(start)
 			wg.Done()
 		}()
