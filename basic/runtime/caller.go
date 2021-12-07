@@ -57,22 +57,25 @@ func GetCurrentGoFile() (string, error) {
 	return cs.FileName, nil
 }
 
+// 列举调用方的调用堆栈
 func ListStackInfo() []*CallerState {
-	pcs := make([]uintptr, 100)
+	pcs := make([]uintptr, 100) // 最高获取 100 层堆栈信息
 
-	//
-	n := runtime.Callers(2, pcs)
-	pcs = pcs[:n]
+	n := runtime.Callers(2, pcs) // 这里由于历史原因，skip 从 1 开始，而 runtime。Caller 中则是从 0 开始
+	pcs = pcs[:n]                // 截取正确长度
 
-	cs := make([](*CallerState), n)
+	cs := make([](*CallerState), n) // 保持结果的 slice
+
+	// 遍历调用堆栈函数句柄，获取函数信息
 	for i, pc := range pcs {
-		fn := runtime.FuncForPC(pc)
-		file, line := fn.FileLine(pc)
+		fn := runtime.FuncForPC(pc)   // 从函数句柄获取函数信息
+		file, line := fn.FileLine(pc) // 获取堆栈函数所在的文件和代码调用位置信息
 
+		// 填充结果 slice
 		cs[i] = &CallerState{
 			pc:       pc,
 			FileName: file,
-			LineNo:   line - 1, // 这里因为历史原因，line 计数从 0 开始，而 runtime.Caller 中则是从 1 开始
+			LineNo:   line - 1, // line 和实际行号差 1
 			FuncName: fn.Name(),
 		}
 	}
