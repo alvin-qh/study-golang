@@ -29,17 +29,16 @@ func TestGetCallerInfo(t *testing.T) {
 		assert.Equal(t, "basic/runtime.TestGetCallerInfo.func1", cs.FuncName)
 		assert.Equal(t, 27, cs.LineNo)
 		assert.Equal(t, dir, cs.FileName)
-
 	}()
 
 	// 输出当前调用信息
 	cs, err = Where()
 	assert.NoError(t, err)
 	assert.Equal(t, "basic/runtime.TestGetCallerInfo", cs.FuncName)
-	assert.Equal(t, 36, cs.LineNo)
+	assert.Equal(t, 35, cs.LineNo)
 	assert.Equal(t, dir, cs.FileName)
 
-	assert.Equal(t, "basic/runtime.TestGetCallerInfo:"+dir+"(36)", cs.String())
+	assert.Equal(t, "basic/runtime.TestGetCallerInfo:"+dir+"(35)", cs.String())
 }
 
 // 测试通过闭包获取
@@ -52,7 +51,7 @@ func TestGetCallerStackInfo(t *testing.T) {
 	// 输出当前调用信息
 	cs := ListStackInfo()
 	assert.Equal(t, "basic/runtime.TestGetCallerStackInfo", cs[0].FuncName)
-	assert.Equal(t, 53, cs[0].LineNo)
+	assert.Equal(t, 52, cs[0].LineNo)
 	assert.Equal(t, dir, cs[0].FileName)
 
 	assert.Equal(t, "testing.tRunner", cs[1].FuncName)
@@ -62,7 +61,7 @@ func TestGetCallerStackInfo(t *testing.T) {
 		// 输出当前调用信息
 		cs := ListStackInfo()
 		assert.Equal(t, "basic/runtime.TestGetCallerStackInfo.func1", cs[0].FuncName)
-		assert.Equal(t, 63, cs[0].LineNo)
+		assert.Equal(t, 62, cs[0].LineNo)
 		assert.Equal(t, dir, cs[0].FileName)
 
 		assert.Equal(t, "basic/runtime.TestGetCallerStackInfo", cs[1].FuncName)
@@ -72,7 +71,7 @@ func TestGetCallerStackInfo(t *testing.T) {
 	// 输出当前调用信息
 	cs = ListStackInfo()
 	assert.Equal(t, "basic/runtime.TestGetCallerStackInfo", cs[0].FuncName)
-	assert.Equal(t, 73, cs[0].LineNo)
+	assert.Equal(t, 72, cs[0].LineNo)
 	assert.Equal(t, dir, cs[0].FileName)
 
 	assert.Equal(t, "testing.tRunner", cs[1].FuncName)
