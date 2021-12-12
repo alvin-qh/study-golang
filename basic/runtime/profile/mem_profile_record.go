@@ -13,7 +13,7 @@ import (
 // 内存 Profile 记录结构体
 type MemProfileRecorder struct {
 	freq Frequency     // 每次记录的时间间隔
-	w    *bufio.Writer // 对文件写入
+	w    *bufio.Writer // 输出记录的 Writer
 	ch   chan struct{}
 }
 
