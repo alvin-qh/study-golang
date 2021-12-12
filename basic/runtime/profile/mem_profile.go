@@ -10,24 +10,38 @@ import (
 	"time"
 )
 
+const (
+	TIME_LAYOUT_UTC = "2006-01-02T15:04:05.000Z" // 以 Z 结尾的标准 UTC 时间格式
+)
+
+type Frequency time.Duration
+
 // 内存 Profile 记录结构体
-type MemProfileRecorder struct {
+type MemProfile struct {
 	freq Frequency     // 每次记录的时间间隔
 	w    *bufio.Writer // 输出记录的 Writer
 	ch   chan struct{}
 }
 
 // 创建新的内存 Profile
-func NewMemProfileRecorder(w io.Writer, frequency Frequency) *MemProfileRecorder {
-	return &MemProfileRecorder{
+func NewMemProfile(w io.Writer, frequency Frequency) *MemProfile {
+	return &MemProfile{
 		freq: frequency,
 		w:    wrapWriter(w),
 		ch:   make(chan struct{}),
 	}
 }
 
+// 将 io.Writer 包装为 bufio.Writer
+func wrapWriter(w io.Writer) *bufio.Writer {
+	if bufW, ok := w.(*bufio.Writer); ok {
+		return bufW
+	}
+	return bufio.NewWriter(w)
+}
+
 // 开始记录 MemProfile
-func (r *MemProfileRecorder) start() error {
+func (r *MemProfile) Start() error {
 	if r.w != nil {
 		go func() {
 			for {
@@ -44,7 +58,7 @@ func (r *MemProfileRecorder) start() error {
 }
 
 // 停止记录 MemProfile
-func (r *MemProfileRecorder) stop() {
+func (r *MemProfile) Stop() {
 	if r.ch != nil {
 		close(r.ch)
 		r.ch = nil
@@ -57,7 +71,7 @@ func (r *MemProfileRecorder) stop() {
 }
 
 // 记录信息
-func (r *MemProfileRecorder) record() {
+func (r *MemProfile) record() {
 	n, _ := runtime.MemProfile(nil, true)
 	for {
 		p := make([]runtime.MemProfileRecord, n+50)
@@ -70,7 +84,7 @@ func (r *MemProfileRecorder) record() {
 }
 
 // 输出 runtime.MemProfileRecord 信息
-func (r *MemProfileRecorder) outputMemProfileRecords(records []runtime.MemProfileRecord, recordTime time.Time) {
+func (r *MemProfile) outputMemProfileRecords(records []runtime.MemProfileRecord, recordTime time.Time) {
 	if len(records) == 0 {
 		return
 	}
@@ -117,7 +131,7 @@ func (r *MemProfileRecorder) outputMemProfileRecords(records []runtime.MemProfil
 }
 
 // 输出堆栈信息
-func (r *MemProfileRecorder) outputStackRecord(stack []uintptr, allFrames bool) {
+func (r *MemProfile) outputStackRecord(stack []uintptr, allFrames bool) {
 	show := allFrames
 	wasPanic := false
 
