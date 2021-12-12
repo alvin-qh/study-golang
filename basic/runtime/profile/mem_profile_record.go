@@ -1,4 +1,4 @@
-package runtime
+package profile
 
 import (
 	"bufio"
@@ -10,52 +10,6 @@ import (
 	"time"
 )
 
-const (
-	TIME_LAYOUT_UTC = "2006-01-02T15:04:05.000Z" // 格式化时间，UTC 格式
-)
-
-// 记录 Profile 数据的接口
-type ProfileRecorder interface {
-	start() error // 开始记录
-	stop()        // 停止记录
-}
-
-// Profile 结构体
-type Profile struct {
-	recorders []ProfileRecorder // 保存 ProfileRecorder 的 slice
-}
-
-// 创建一个 Profile 对象
-func NewProfile() *Profile {
-	return &Profile{
-		recorders: make([]ProfileRecorder, 0),
-	}
-}
-
-// 开始记录 Profile
-func (p *Profile) Start() error {
-	for _, r := range p.recorders {
-		if err := r.start(); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// 结束记录 Profile
-func (p *Profile) Stop() {
-	for _, r := range p.recorders {
-		r.stop()
-	}
-}
-
-// 添加一个 ProfileRecorder 对象
-func (p *Profile) Use(recorder ProfileRecorder) {
-	p.recorders = append(p.recorders, recorder)
-}
-
-type Frequency int64
-
 // 内存 Profile 记录结构体
 type MemProfileRecorder struct {
 	freq Frequency     // 每次记录的时间间隔
@@ -65,17 +19,9 @@ type MemProfileRecorder struct {
 
 // 创建新的内存 Profile
 func NewMemProfileRecorder(w io.Writer, frequency Frequency) *MemProfileRecorder {
-	// 判断 w 变量的类型，如果不是 bufio.Writer，则包装为 bufio.Writer
-	var bufW *bufio.Writer
-	if _w, ok := w.(interface{}).(*bufio.Writer); ok {
-		bufW = _w
-	} else {
-		bufW = bufio.NewWriter(w)
-	}
-
 	return &MemProfileRecorder{
 		freq: frequency,
-		w:    bufW,
+		w:    wrapWriter(w),
 		ch:   make(chan struct{}),
 	}
 }
@@ -95,6 +41,19 @@ func (r *MemProfileRecorder) start() error {
 		}()
 	}
 	return nil
+}
+
+// 停止记录 MemProfile
+func (r *MemProfileRecorder) stop() {
+	if r.ch != nil {
+		close(r.ch)
+		r.ch = nil
+	}
+
+	if r.w != nil {
+		r.w.Flush()
+		r.w = nil
+	}
 }
 
 // 记录信息
@@ -198,17 +157,4 @@ func (r *MemProfileRecorder) outputStackRecord(stack []uintptr, allFrames bool) 
 		return
 	}
 	fmt.Fprintln(r.w)
-}
-
-// 停止记录 MemProfile
-func (r *MemProfileRecorder) stop() {
-	if r.ch != nil {
-		close(r.ch)
-		r.ch = nil
-	}
-
-	if r.w != nil {
-		r.w.Flush()
-		r.w = nil
-	}
 }
