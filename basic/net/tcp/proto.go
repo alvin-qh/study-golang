@@ -2,8 +2,10 @@ package tcp
 
 import "errors"
 
+// 定义业务代码
 type ActionCode int
 
+// 业务代码转字符串
 func (a ActionCode) String() string {
 	switch a {
 	case ACTION_LOGIN:
@@ -16,27 +18,37 @@ func (a ActionCode) String() string {
 }
 
 const (
-	ACTION_LOGIN ActionCode = iota
-	ACTION_SHUTDOWN
+	ACTION_LOGIN    ActionCode = iota // 登录业务码
+	ACTION_SHUTDOWN                   // 关闭服务器业务码
 )
 
+// 请求头结构体
 type TCPAskHeader struct {
-	Action ActionCode
+	Action ActionCode // 业务码
 }
 
+// 响应头结构体
 type TCPAckHeader struct {
-	Action ActionCode
-	IsOk   bool
-	Error  string
+	Action ActionCode // 业务码
+	IsOk   bool       // 是否成功
+	Error  string     // 错误信息
 }
 
+// 登录请求结构体
 type TCPLoginAsk struct {
 	Account  string
 	Password string
 }
 
-type TCPLoginAck struct{}
+// 登陆响应结构体
+type TCPLoginAck struct {
+	Welcome string
+}
 
-type TCPShutdownAsk struct{}
+// 关闭请求结构体
+type TCPShutdownAsk struct {
+}
 
-type TCPShutdownAck struct{}
+// 关闭响应结构体
+type TCPShutdownAck struct {
+}

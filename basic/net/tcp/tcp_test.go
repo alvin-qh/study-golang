@@ -1,11 +1,8 @@
 package tcp
 
 import (
-	"encoding/gob"
-	"net"
 	"runtime"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -15,66 +12,32 @@ func init() {
 }
 
 func TestTcpConnect(t *testing.T) {
+	// 启动服务器
 	server, err := StartTCPServer("0.0.0.0:8888")
 	assert.NoError(t, err)
 	defer server.StopTCPServer()
 
-	addr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:8888")
+	// 连接服务器
+	client, err := TCPConnect("127.0.0.1:8888")
 	assert.NoError(t, err)
+	defer client.Close()
 
-	conn, err := net.DialTCP("tcp", nil, addr)
-	assert.NoError(t, err)
-	defer conn.Close()
-
-	conn.SetReadDeadline(time.Now().Add(time.Second * 10))
-	conn.SetWriteDeadline(time.Now().Add(time.Second * 30))
-
-	encoder := gob.NewEncoder(conn)
-	decoder := gob.NewDecoder(conn)
-
-	askHeader := TCPAskHeader{
-		Action: ACTION_LOGIN,
-	}
-	err = encoder.Encode(&askHeader)
-	assert.NoError(t, err)
-
-	loginAsk := TCPLoginAsk{
+	// 发送登录请求
+	resp, err := client.Request(ACTION_LOGIN, &TCPLoginAsk{
 		Account:  "Alvin",
 		Password: "password",
-	}
-	err = encoder.Encode(&loginAsk)
+	})
 	assert.NoError(t, err)
 
-	ackHeader := TCPAckHeader{}
-	err = decoder.Decode(&ackHeader)
+	// 接收登录响应
+	loginAck, ok := resp.(*TCPLoginAck)
+	assert.True(t, ok)
+	assert.Equal(t, "Hello Alvin", loginAck.Welcome)
+
+	// 发送关闭服务请求
+	resp, err = client.Request(ACTION_SHUTDOWN, &TCPShutdownAsk{})
 	assert.NoError(t, err)
-
-	assert.True(t, ackHeader.IsOk)
-
-	loginAck := TCPLoginAck{}
-	err = decoder.Decode(&loginAck)
-	assert.NoError(t, err)
-
-	encoder = gob.NewEncoder(conn)
-	decoder = gob.NewDecoder(conn)
-
-	askHeader = TCPAskHeader{
-		Action: ACTION_SHUTDOWN,
-	}
-	err = encoder.Encode(&askHeader)
-	assert.NoError(t, err)
-
-	shutdownAsk := TCPShutdownAsk{}
-	err = encoder.Encode(&shutdownAsk)
-	assert.NoError(t, err)
-
-	ackHeader = TCPAckHeader{}
-	err = decoder.Decode(&ackHeader)
-	assert.NoError(t, err)
-
-	shutdownAck := TCPShutdownAck{}
-	err = decoder.Decode(&shutdownAck)
-	assert.NoError(t, err)
+	assert.Equal(t, &TCPShutdownAck{}, resp)
 
 	server.Join()
 }
