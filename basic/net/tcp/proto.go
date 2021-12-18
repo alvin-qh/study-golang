@@ -23,32 +23,32 @@ const (
 )
 
 // 请求头结构体
-type TCPAskHeader struct {
+type AskHeader struct {
 	Action ActionCode // 业务码
 }
 
 // 响应头结构体
-type TCPAckHeader struct {
+type AckHeader struct {
 	Action ActionCode // 业务码
 	IsOk   bool       // 是否成功
 	Error  string     // 错误信息
 }
 
 // 登录请求结构体
-type TCPLoginAsk struct {
+type LoginAsk struct {
 	Account  string
 	Password string
 }
 
 // 登陆响应结构体
-type TCPLoginAck struct {
+type LoginAck struct {
 	Welcome string
 }
 
 // 关闭请求结构体
-type TCPShutdownAsk struct {
+type ShutdownAsk struct {
 }
 
 // 关闭响应结构体
-type TCPShutdownAck struct {
+type ShutdownAck struct {
 }

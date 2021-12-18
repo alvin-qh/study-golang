@@ -9,14 +9,14 @@ import (
 )
 
 // 服务端结构体
-type TCPServer struct {
+type Server struct {
 	listener *net.TCPListener // 连接监听
 	mut      sync.Mutex       // 同步锁
 	closeCh  chan struct{}    // 服务器关闭事件的 channel
 }
 
 // 获取 Listener 对象
-func (s *TCPServer) getListener() *net.TCPListener {
+func (s *Server) getListener() *net.TCPListener {
 	s.mut.Lock()
 	defer s.mut.Unlock()
 
@@ -24,7 +24,7 @@ func (s *TCPServer) getListener() *net.TCPListener {
 }
 
 // 获取服务关闭通知通道对象
-func (s *TCPServer) getCloseChan() chan struct{} {
+func (s *Server) getCloseChan() chan struct{} {
 	s.mut.Lock()
 	defer s.mut.Unlock()
 
@@ -32,7 +32,7 @@ func (s *TCPServer) getCloseChan() chan struct{} {
 }
 
 // 启动服务端
-func StartTCPServer(address string) (*TCPServer, error) {
+func ServerStart(address string) (*Server, error) {
 	addr, err := net.ResolveTCPAddr("tcp", address) // 解析服务端监听地址，形如："0.0.0.0:8888"
 	if err != nil {
 		return nil, err
@@ -40,12 +40,13 @@ func StartTCPServer(address string) (*TCPServer, error) {
 
 	listener, err := net.ListenTCP("tcp", addr) // 监听服务端地址和端口
 	if err != nil {
-		logger.Fatalf("network error: %v", err)
+		lServer.Fatalf("Network error: %v", err)
 		return nil, err
 	}
+	lServer.Printf("Start listenning at %v", addr)
 
 	// 产生服务端对象
-	server := &TCPServer{
+	server := &Server{
 		listener: listener,
 		closeCh:  make(chan struct{}),
 	}
@@ -57,14 +58,14 @@ func StartTCPServer(address string) (*TCPServer, error) {
 }
 
 // 等待服务端结束
-func (s *TCPServer) Join() {
+func (s *Server) Join() {
 	if ch := s.getCloseChan(); ch != nil {
 		<-ch
 	}
 }
 
 // 停止服务端
-func (s *TCPServer) StopTCPServer() error {
+func (s *Server) Stop() error {
 	var err error
 
 	s.mut.Lock()
@@ -74,38 +75,34 @@ func (s *TCPServer) StopTCPServer() error {
 	if s.listener != nil {
 		err = s.listener.Close()
 		s.listener = nil
+		lServer.Printf("Stop listenning")
 	}
 
 	// 发送关闭服务端关闭通知
 	if s.closeCh != nil {
 		close(s.closeCh)
 		s.closeCh = nil
+		lServer.Printf("Server stop successful")
 	}
 
 	return err
 }
 
 // 接受客户端连接，启动客户端处理协程
-func (s *TCPServer) handleAcception() {
-	if s.listener == nil {
-		logger.Fatalf("Server started already")
-		return
-	}
-
+func (s *Server) handleAcception() {
 	// 该函数结束后，表示服务端已结束，关闭监听并和 channel（发出结束通知）
-	defer s.StopTCPServer()
-
-	if listener := s.getListener(); listener != nil {
-		logger.Printf("Ready to accepting, %v", s.listener.Addr())
-	}
+	defer s.Stop()
 
 	for {
 		if listener := s.getListener(); listener != nil {
 			// 接受一个连接
 			conn, err := s.listener.AcceptTCP()
 			if err != nil {
-				logger.Fatalf("Network error: %v", err)
+				lServer.Fatalf("Network error: %v", err)
+				break
 			}
+			lServer.Printf("New connection comming, %v", conn.RemoteAddr())
+
 			// 处理一次会话
 			go s.handleClientSession(conn)
 		} else {
@@ -114,55 +111,80 @@ func (s *TCPServer) handleAcception() {
 	}
 }
 
+// 上下文对象类型
+type Context map[string]interface{}
+
+// 创建新的上下文对象
+func newContext() Context {
+	return make(Context)
+}
+
 // 服务端请求结构体
 type Request struct {
-	server  *TCPServer   // 服务端对象
+	server  *Server      // 服务端对象
 	conn    *net.TCPConn // 客户端连接
-	decoder *gob.Decoder // 对象编码解码对象
-	encoder *gob.Encoder
-	header  TCPAskHeader           // 请求头
-	context map[string]interface{} // 上下文对象
+	header  AskHeader    // 请求头
+	context Context      // 上下文对象
 }
 
 // 解码请求头
-func (r *Request) decodeAskHeader() (TCPAskHeader, error) {
-	if err := r.decoder.Decode(&r.header); err != nil {
-		logger.Printf("Decode ask header failed: %v", err)
+func (r *Request) decodeAskHeader() (AskHeader, error) {
+	decoder := gob.NewDecoder(r.conn)
+
+	// 接收请求头数据
+	if err := decoder.Decode(&r.header); err != nil {
+		lServer.Printf("Decode ask header failed: %v", err)
 		return r.header, err
 	}
+
+	lServer.Printf("Ask header received from %v, action=%v", r.conn.RemoteAddr(), r.header.Action)
 	return r.header, nil
 }
 
 // 解码请求内容
 func (r *Request) decodeAskBody(body interface{}) error {
-	if err := r.decoder.Decode(body); err != nil {
-		logger.Printf("Decode ask body failed: %v", err)
+	decoder := gob.NewDecoder(r.conn)
+
+	// 接收请求内容数据
+	if err := decoder.Decode(body); err != nil {
+		lServer.Printf("Decode ask body failed: %v", err)
 		return err
 	}
+
+	lServer.Printf("Ask body received from %v, action=%v", r.conn.RemoteAddr(), r.header.Action)
 	return nil
 }
 
 // 编码响应头
-func (r *Request) encodeAckHeader(header *TCPAckHeader) error {
-	if err := r.encoder.Encode(header); err != nil {
-		logger.Printf("Encode ack header failed: %v", err)
+func (r *Request) encodeAckHeader(header *AckHeader) error {
+	encoder := gob.NewEncoder(r.conn)
+
+	// 发送响应头
+	if err := encoder.Encode(header); err != nil {
+		lServer.Printf("Encode ack header failed: %v", err)
 		return err
 	}
+
+	lServer.Printf("Ack header sent to %v, action=%v", r.conn.RemoteAddr(), r.header.Action)
 	return nil
 }
 
 // 编码相应内容
 func (r *Request) encodeAckBody(body interface{}) error {
-	if err := r.encoder.Encode(body); err != nil {
-		logger.Printf("Encode ack body failed: %v", err)
+	encoder := gob.NewEncoder(r.conn)
+
+	// 发送响应内容
+	if err := encoder.Encode(body); err != nil {
+		lServer.Printf("Encode ack body failed: %v", err)
 	}
+
+	lServer.Printf("Ack body sent to %v, action=%v", r.conn.RemoteAddr(), r.header.Action)
 	return nil
 }
 
 // cspell: ignore sess
 // 处理一次会话
-func (s *TCPServer) handleClientSession(conn *net.TCPConn) {
-	logger.Printf("New connection comming, %v", conn.RemoteAddr())
+func (s *Server) handleClientSession(conn *net.TCPConn) {
 	defer conn.Close()
 
 	// 设置连接保持
@@ -172,20 +194,17 @@ func (s *TCPServer) handleClientSession(conn *net.TCPConn) {
 		conn.SetReadDeadline(time.Now().Add(time.Second * 10))
 		conn.SetWriteDeadline(time.Now().Add(time.Second * 30))
 
-		req := &Request{
+		req := Request{
 			server:  s,
 			conn:    conn,
-			decoder: gob.NewDecoder(conn),
-			encoder: gob.NewEncoder(conn),
-			context: make(map[string]interface{}),
+			context: newContext(),
 		}
 
+		// 解码请求头
 		header, err := req.decodeAskHeader()
 		if err != nil {
 			break
 		}
-
-		logger.Printf("New package header received, action=%v", header.Action)
 
 		// 根据请求头处理会话
 		switch header.Action {
@@ -203,22 +222,21 @@ func (s *TCPServer) handleClientSession(conn *net.TCPConn) {
 
 // 处理登录会话
 func (r *Request) handleLoginAction() error {
-	ask := TCPLoginAsk{}
+	// 解码请求内容
+	ask := LoginAsk{}
 	if err := r.decodeAskBody(&ask); err != nil {
 		return err
 	}
-	logger.Printf("New ACTION_LOGIN body received, account=%v, password=%v", ask.Account, ask.Password)
+	lServer.Printf("Do login action, account=%v, password=%v", ask.Account, ask.Password)
 
-	if err := r.encodeAckHeader(&TCPAckHeader{
-		Action: ACTION_LOGIN,
-		IsOk:   true,
-	}); err != nil {
+	// 编码响应头
+	if err := r.encodeAckHeader(&AckHeader{Action: ACTION_LOGIN, IsOk: true}); err != nil {
 		return err
 	}
 
-	if err := r.encodeAckBody(&TCPLoginAck{
-		Welcome: fmt.Sprintf("Hello %v", ask.Account),
-	}); err != nil {
+	// 编码响应内容
+	content := fmt.Sprintf("Hello %v", ask.Account)
+	if err := r.encodeAckBody(&LoginAck{Welcome: content}); err != nil {
 		return err
 	}
 
@@ -227,23 +245,24 @@ func (r *Request) handleLoginAction() error {
 
 // 处理关闭服务会话
 func (r *Request) handleShutdownAction() error {
-	ask := TCPShutdownAsk{}
+	// 解码请求内容
+	ask := ShutdownAsk{}
 	if err := r.decodeAskBody(&ask); err != nil {
 		return err
 	}
-	logger.Printf("New ACTION_SHUTDOWN body received")
+	lServer.Print("Do shutdown action")
 
-	if err := r.encodeAckHeader(&TCPAckHeader{
-		Action: ACTION_SHUTDOWN,
-		IsOk:   true,
-	}); err != nil {
+	// 编码响应头
+	if err := r.encodeAckHeader(&AckHeader{Action: ACTION_SHUTDOWN, IsOk: true}); err != nil {
 		return err
 	}
 
-	if err := r.encodeAckBody(&TCPShutdownAsk{}); err != nil {
+	// 编码响应内容
+	if err := r.encodeAckBody(&ShutdownAsk{}); err != nil {
 		return err
 	}
 
-	r.server.StopTCPServer()
+	// 关闭服务器
+	r.server.Stop()
 	return nil
 }
