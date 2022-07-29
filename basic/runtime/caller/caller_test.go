@@ -51,7 +51,7 @@ func TestGetCallerStackInfo(t *testing.T) {
 	// 输出当前调用信息
 	cs := ListStackInfo()
 	assert.Equal(t, "basic/runtime/caller.TestGetCallerStackInfo", cs[0].FuncName)
-	assert.Equal(t, 52, cs[0].LineNo)
+	assert.Equal(t, 51, cs[0].LineNo)
 	assert.Equal(t, dir, cs[0].FileName)
 
 	assert.Equal(t, "testing.tRunner", cs[1].FuncName)
