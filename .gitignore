@@ -31,4 +31,4 @@ _testmain.go
 
 **/vendor/
 glide.lock
-.history
+.lh
