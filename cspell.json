@@ -1,0 +1,22 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "backports",
+    "CFLAGS",
+    "clango",
+    "fflush",
+    "GOPATH",
+    "GOPROXY",
+    "GOROOT",
+    "LDFLAGS",
+    "longsleep",
+    "nolint",
+    "semap",
+    "strcpy",
+    "stretchr",
+    "unaddressable"
+  ],
+  "flagWords": [],
+  "enabled": true
+}

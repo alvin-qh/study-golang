@@ -1,125 +1,146 @@
-# Install and setup go environment
+# 安装和设置 Go 开发环境
+
+- [安装和设置 Go 开发环境](#安装和设置-go-开发环境)
+  - [1. 安装 GO 开发环境](#1-安装-go-开发环境)
+    - [1.1. macOS](#11-macos)
+    - [1.2. Linux](#12-linux)
+  - [~~2. 设置 `GOROOT` 和 `GOPATH` 环境变量~~](#2-设置-goroot-和-gopath-环境变量)
+  - [~~3. `glide` 包管理器~~](#3-glide-包管理器)
+    - [~~3.1. macOS~~](#31-macos)
+    - [~~3.2. 通过 `glide` 创建工程~~](#32-通过-glide-创建工程)
+  - [4. 使用 `go mod` 包管理](#4-使用-go-mod-包管理)
+    - [4.1. 启用包管理](#41-启用包管理)
+    - [4.2. 创建 go 工程](#42-创建-go-工程)
+    - [4.3. 安装第三方依赖包](#43-安装第三方依赖包)
+    - [4.4. 设置 `go mod` 代理](#44-设置-go-mod-代理)
 
 ![Logo](./assets/logo.jpg)
 
-## Install GO
+## 1. 安装 GO 开发环境
 
-> See: [Download and install - The Go Programming Language (golang.org)](https://golang.org/doc/install)
+可以从 [Download and install - The Go Programming Language (golang.org)](https://golang.org/doc/install) 下载二进制安装包直接进行安装, 除此之外, 各平台也提供了通过各自管理工具进行安装的方法
 
-### macOS
+### 1.1. macOS
 
-```sh
-$ brew install go
-```
-
-### Linux
-
-Download install file from https://golang.org/dl/go1.17.3.linux-amd64.tar.gz
-
-Install:
+通过 brew 管理工具进行安装
 
 ```bash
-$ rm -rf /usr/local/go && tar -C /usr/local -xzf go1.17.3.linux-amd64.tar.gz
+brew install go
 ```
 
-Set environment variable:
+### 1.2. Linux
+
+添加软件源
 
 ```bash
-export PATH=$PATH:/usr/local/go/bin
+sudo add-apt-repository ppa:longsleep/golang-backports
 ```
 
-
-
-## Setup GOROOT and GOPATH
-
-Open profile file (like `.bash_profile` on macOS)
-
-```sh
-export GOROOT=dir				# each of golang binary installed path
-export GOPATH=dir1:dir2:dir3	# all go project path
-```
-
-## ~~Install glide~~
-
-### macOS
-
-```sh
-$ brew install glide
-```
-
-## Install xcode-select to enable debug
+将软件源替换为国内代理
 
 ```bash
-$ xcode-select --install
+sudo vi /etc/apt/sources.list.d/longsleep-ubuntu-golang-backports-focal.list
 ```
-
-## ~~Create GO project~~
-
-In each GOPATH, create necessary dirs
-
-```sh
-$ cd ~/<gopath dir>
-$ mkdir src
-$ mkdir pkg
-$ mkdir bin
-```
-
-Create project dir in GOPATH
-
-```sh
-$ mkdir myproject
-```
-
-Run `glide create`, install depend
-
-```sh
-$ glide create		# create project
-$ glide get "<go package url>"	# download dependency packages
-$ glide up			# upgrade dependency packages
-$ glide install		# lock versions of dependency packages
-```
-
-## Use GO Module
-
-### Setup
-
-Get version of golang
 
 ```bash
-$ go version
+# deb http://ppa.launchpad.net/longsleep/golang-backports/ubuntu jammy main
+deb https://launchpad.proxy.ustclug.org/longsleep/golang-backports/ubuntu jammy main
 ```
 
-When GO version upper than `1.11` and less than `1.13`
+安装
 
 ```bash
-$ export GO111MODULE=auto
+sudo apt update -y
+sudo apt install golang-go
 ```
 
-or
+## ~~2. 设置 `GOROOT` 和 `GOPATH` 环境变量~~
 
 ```bash
-$ export GO111MODULE=on
+export GOROOT=<dir> # 设置为 go 语言安装路径
+export GOPATH=<dir1>:<dir2>:<dir3> # 设置为各个 go 工程路径
 ```
 
-### Create GO module
+## ~~3. `glide` 包管理器~~
+
+### ~~3.1. macOS~~
+
+安装 `glide` 软件包
 
 ```bash
-$ mkdir demo-work
-$ cd demo-work
-$ go mod init demo-work
+brew install glide
 ```
 
-### Get thirdpart library
+安装 `xcode-select`
 
 ```bash
-$ go get -u github.com/stretchr/testify/
+xcode-select --install
 ```
 
-### Set GO proxy
+### ~~3.2. 通过 `glide` 创建工程~~
+
+在 `GOPATH` 环境变量指定的路径下, 创建如下目录
+
+```bash
+mkdir src  # 源代码路径
+mkdir pkg  # 第三方包存放路径
+mkdir bin  # 编译结果存放路径
+```
+
+在 `GOPATH` 路径下创建工程目录
+
+```bash
+mkdir my_project
+```
+
+通过 `glide` 创建项目
+
+```bash
+glide create                  # 创建工程
+glide get "<go package url>"  # 安装第三方依赖包
+glide up                      # 更新依赖包
+glide install                 # 锁定包版本
+```
+
+## 4. 使用 `go mod` 包管理
+
+### 4.1. 启用包管理
+
+查看 go 版本号
+
+```bash
+go version
+```
+
+对于版本号高于 `1.11` 的, 启用 `go mod` 模块
+
+```bash
+export GO111MODULE=auto
+```
+
+或者
+
+```bash
+export GO111MODULE=on
+```
+
+### 4.2. 创建 go 工程
+
+```bash
+mkdir demo-work
+
+cd demo-work
+go mod init demo-work
+```
+
+### 4.3. 安装第三方依赖包
+
+```bash
+go get -u github.com/stretchr/testify/
+```
+
+### 4.4. 设置 `go mod` 代理
 
 ```bash
 export GOPROXY=https://goproxy.io
 ```
-
-
-
