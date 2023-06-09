@@ -31,4 +31,5 @@ _testmain.go
 
 **/vendor/
 glide.lock
-.lh
+.history
+.vscode
