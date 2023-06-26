@@ -17,6 +17,7 @@ var (
 	ErrServerClosed     = errors.New("server closed")
 	ErrInvalidPackage   = errors.New("invalid package")
 	ErrInvalidSessionId = errors.New("invalid session id")
+	ErrCloseServer      = errors.New("client ask close server")
 )
 
 // 定义 Session 类型
@@ -63,7 +64,7 @@ func ServerStart(address string) (*Server, error) {
 		lServer.Fatalf("Cannot Listen UDP at %v", address)
 		return nil, err
 	}
-	lServer.Printf("Server was listended at %v", addr)
+	lServer.Printf("Server was listened at %v", addr)
 
 	// 创建服务端对象
 	server := &Server{
@@ -175,6 +176,10 @@ func (s *Server) handleSendMessage() {
 			break
 		}
 		lServer.Printf("%v bytes write to %v", n, resp.addr)
+
+		if resp.close {
+			s.Stop()
+		}
 	}
 }
 
@@ -192,14 +197,21 @@ func (s *Server) handleReceiveMessage() {
 		go func() {
 			var pack Package
 
+			closeServer := false
+
 			switch req.action {
 			case ACTION_LOGIN:
 				pack, err = req.handleActionLogin() // 处理登录消息
 			case ACTION_SHUTDOWN:
 				pack, err = req.handleActionShutdown() // 处理关闭服务消息
 			}
+
 			if err != nil {
-				log.Fatal(err)
+				if errors.Is(err, ErrCloseServer) {
+					closeServer = true
+				} else {
+					log.Fatal(err)
+				}
 			}
 
 			// 保存 session 对象
@@ -211,7 +223,7 @@ func (s *Server) handleReceiveMessage() {
 				return
 			}
 
-			ch <- Response{addr: req.addr, pack: pack}
+			ch <- Response{addr: req.addr, pack: pack, close: closeServer}
 		}()
 	}
 }
@@ -332,20 +344,19 @@ func (r *Request) handleActionShutdown() (Package, error) {
 
 	lServer.Printf("New ACTION_SHUTDOWN body received")
 
-	r.server.Stop()
-
-	// 返回关闭服务响应对象
+	// 返回关闭服务响应对象, 附带错误信息要求关闭服务端
 	return &ShutdownAck{
 		AckHeader: AckHeader{
 			Action:    ACTION_SHUTDOWN,
 			SessionId: r.sessionId,
 			IsOk:      true,
 		},
-	}, nil
+	}, ErrCloseServer
 }
 
 // 响应结构体，用在响应发送的 channel 上
 type Response struct {
-	addr *net.UDPAddr // 接收方远程地址
-	pack Package      // 待发送的数据对象
+	addr  *net.UDPAddr // 接收方远程地址
+	pack  Package      // 待发送的数据对象
+	close bool         // 是否关闭服务器
 }

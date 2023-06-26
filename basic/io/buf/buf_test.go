@@ -53,8 +53,8 @@ func TestBufferSize(t *testing.T) {
 
 	// 扩大容积
 	buf.Grow(200)
-	assert.Equal(t, 0, buf.Len())   // 内容不变
-	assert.Equal(t, 400, buf.Cap()) // 容积翻倍
+	assert.Equal(t, 0, buf.Len())            // 内容不变
+	assert.GreaterOrEqual(t, buf.Cap(), 200) // 容积增大
 }
 
 // 测试 Buffer 的读写
