@@ -44,7 +44,7 @@ func TestAssignArray(t *testing.T) {
 	assert.ElementsMatch(t, [...]int{1, 0, 0}, arr) // 除了显式初始化的元素外, 其余元素值为 0
 }
 
-// # 多维数组
+// # 测试多维数组
 func TestMultiDimensionalArray(t *testing.T) {
 	arr := [9][9]int{}
 	assert.Len(t, arr, 9)    // 数组的第 1 维长度
@@ -71,7 +71,7 @@ func TestMultiDimensionalArray(t *testing.T) {
 	}
 }
 
-// 任意类型数组项
+// # 测试任意类型数组项
 func TestGenericArrayItem(t *testing.T) {
 	arr := [...]interface{}{"Hello", 1, false} // 声明一个项类型为 interface{} 类型的数组, 即数组项可以为任意类型
 
@@ -81,7 +81,7 @@ func TestGenericArrayItem(t *testing.T) {
 	assert.Equal(t, "bool", reflect.TypeOf(arr[2]).Name())
 }
 
-// 数组指针
+// # 测试数组指针
 func TestPointerOfArray(t *testing.T) {
 	arr := [...]int{1, 2, 3}
 	parr := &arr                                      // 获取数组的指针
@@ -91,7 +91,7 @@ func TestPointerOfArray(t *testing.T) {
 	assert.ElementsMatch(t, [...]int{10, 2, 3}, arr)
 }
 
-// 数组复制
+// 测试数组复制
 func TestCloneArray(t *testing.T) {
 	arr := [...]int{1, 2, 3}
 

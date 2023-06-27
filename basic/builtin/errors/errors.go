@@ -5,21 +5,29 @@ import (
 	"fmt"
 )
 
-// 定义具有 `Wrap(error)` 函数的接口类型
-// `Wrap` 函数的作用是存入另一个 `error` 对象, 表示当前的错误是由另一个错误引发
+// # 定义异常包装接口
 type Wrapped interface {
+	// # 包装上一层异常对象
+	//
+	// 参数:
+	//   - `caused`: 引发当前异常的前一个异常对象
 	Wrap(caused error)
 }
 
-// 定义错误类型结构体
-// 该结构体作为自定义错误类型, 并实现 `Wrapable` 接口
+// # 定义自定义错误类型
+//
+// 表示长度不正确的错误信息
 type LengthError struct {
 	length   int
 	expected int
 	caused   error // 引发当前错误的另一个错误对象
 }
 
-// 为 `LengthError` 结构体实现 `Error` 接口, 获取错误信息
+// # 获取错误信息
+//
+// 为 `LengthError` 类型实现 `error` 接口
+//
+// 返回错误信息字符串
 func (e *LengthError) Error() string {
 	return fmt.Sprintf("invalid length: %d, expected %d", e.length, e.expected)
 }
@@ -29,7 +37,9 @@ func (e *LengthError) Unwrap() error {
 	return e.caused
 }
 
-// 为 `LengthError` 实现 `Wrapped` 接口, 传入引发当前错误的另一个错误
+// # 传入引发当前错误的另一个错误
+//
+// 为 `LengthError` 类型实现 `Wrapped` 接口
 func (e *LengthError) Wrap(caused error) {
 	e.caused = caused
 }
@@ -40,7 +50,7 @@ var (
 	ErrName = errors.New("invalid name")
 )
 
-// 自定义错误
+// # 自定义错误
 type EmptyError struct {
 	name string
 }
