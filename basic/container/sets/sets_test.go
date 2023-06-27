@@ -11,7 +11,7 @@ func TestSet(t *testing.T) {
 	// 初始化并添加元素
 	s1 := New(100)               // 初始化
 	s1.Add(1, 2, 3, 4, 2)        // 批量添加元素
-	assert.Equal(t, 4, s1.Len()) // 实际添加了 4 个元素，重复的 2 只存在 1 份
+	assert.Equal(t, 4, s1.Len()) // 实际添加了 4 个元素, 重复的 2 只存在 1 份
 
 	// 判断集合是否包含指定值
 	ok := s1.Contains(1)
@@ -20,7 +20,7 @@ func TestSet(t *testing.T) {
 	ok = s1.Contains(2, 3, 4) // 多值判断
 	assert.True(t, ok)
 
-	ok = s1.Contains(3, 4, 5) // 5 不在集合中，返回 false
+	ok = s1.Contains(3, 4, 5) // 5 不在集合中, 返回 false
 	assert.False(t, ok)
 
 	// 集合相等判断
@@ -44,7 +44,7 @@ func TestSet(t *testing.T) {
 	ok = s1.IsSubset(s2)
 	assert.True(t, ok)
 
-	s1.Remove(2) // 删除集合元素，此时两个集合不再互为子集
+	s1.Remove(2) // 删除集合元素, 此时两个集合不再互为子集
 	ok = s2.IsSubset(s1)
 	assert.False(t, ok)
 	ok = s1.IsSubset(s2)

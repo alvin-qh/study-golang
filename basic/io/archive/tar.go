@@ -43,7 +43,7 @@ func (t *Tar) Archive(srcFiles []string) error {
 
 // 归档文件
 func tarArchiveFiles(w io.Writer, srcFiles []string) error {
-	// 创建一个写入 tar 文件的 Writer 对象，归档内容均是通过该 Writer 对象写入
+	// 创建一个写入 tar 文件的 Writer 对象, 归档内容均是通过该 Writer 对象写入
 	tw := tar.NewWriter(w)
 	defer func() {
 		if err := tw.Flush(); err == nil {
@@ -61,7 +61,7 @@ func tarArchiveFiles(w io.Writer, srcFiles []string) error {
 }
 
 // 归档一个文件
-// 归档的基本动作为：1. 写入 归档文件头（FileInfoHeader 结构体）；2. 写入归档文件内容（[]byte）；其中，归档文件头可以从待归档文件的 Stat 状态得到
+// 归档的基本动作为: 1. 写入归档文件头 (`FileInfoHeader` 结构体); 2. 写入归档文件内容 (`[]byte`); 其中, 归档文件头可以从待归档文件的 `Stat` 状态得到
 func tarArchiveEachFile(tw *tar.Writer, filename string) error {
 	// 打开待归档文件
 	file, err := os.Open(filename)
@@ -105,7 +105,7 @@ func (t *Tar) Unarchive(targetPath string) error {
 
 // 从归档文件中恢复被归档的文件
 func tarUnarchiveFile(r io.Reader, targetPath string) error {
-	// 从归档文件中创建 Reader 对象，用于读取归档文件
+	// 从归档文件中创建 Reader 对象, 用于读取归档文件
 	tr := tar.NewReader(r)
 
 	// 遍历所有的 归档文件头

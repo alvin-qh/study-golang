@@ -18,14 +18,14 @@ func TestCancelContext(t *testing.T) {
 	ctx, _, ch := CreateCancelContext() // 创建 context 对象
 
 	go CancelContextHandler(ctx) // 调用协程函数
-	ch <- "OK"                   // 向 ch 发送内容，令协程正常结束
+	ch <- "OK"                   // 向 ch 发送内容, 令协程正常结束
 
 	r := <-ch // 从 ch 获取结果
 	close(ch)
 	assert.Equal(t, "Completed", r)
 
 	// 通过 Context cancel 函数结束协程
-	ctx, cancel, ch := CreateCancelContext() // 创建 context 对象，返回 cancel 函数
+	ctx, cancel, ch := CreateCancelContext() // 创建 context 对象, 返回 cancel 函数
 
 	go CancelContextHandler(ctx)
 	cancel() // 调用 cancel 函数结束协程
@@ -40,7 +40,7 @@ func TestTimeoutContext(t *testing.T) {
 	ctx, _, ch := CreateTimeoutContext(time.Second) // 创建 context 对象
 
 	go TimeoutHandler(ctx, 2*time.Second) // 调用协程函数
-	ch <- "OK"                            // 向 chan 发送数据，令协程正常结束
+	ch <- "OK"                            // 向 chan 发送数据, 令协程正常结束
 
 	r := <-ch // 从 ch 获取结果
 	close(ch)

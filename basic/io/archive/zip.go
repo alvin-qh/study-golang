@@ -37,7 +37,7 @@ func (z *Zip) Close() error {
 
 // 打包文件
 func (z *Zip) Archive(srcFiles []string) error {
-	// 创建一个写入 zip 文件的 Writer 对象，归档内容均是通过该 Writer 对象写入
+	// 创建一个写入 zip 文件的 Writer 对象, 归档内容均是通过该 Writer 对象写入
 	zw := zip.NewWriter(z.file)
 	defer func() {
 		if err := zw.Flush(); err == nil {
@@ -55,7 +55,7 @@ func (z *Zip) Archive(srcFiles []string) error {
 }
 
 // 归档一个文件
-// 归档的基本动作为：1. 写入 归档文件头（FileInfoHeader 结构体）；2. 写入归档文件内容（[]byte）；其中，归档文件头可以从待归档文件的 Stat 状态得到
+// 归档的基本动作为: 1. 写入归档文件头 (`FileInfoHeader` 结构体); 2. 写入归档文件内容 (`[]byte`); 其中, 归档文件头可以从待归档文件的 `Stat` 状态得到
 func zipArchiveEachFile(zw *zip.Writer, filename string) error {
 	// 打开待归档文件
 	file, err := os.Open(filename)
@@ -76,12 +76,12 @@ func zipArchiveEachFile(zw *zip.Writer, filename string) error {
 		return err
 	}
 
-	// 根据压缩文件头，创建一个 Writer， 用于写入压缩内容
+	// 根据压缩文件头, 创建一个 Writer,  用于写入压缩内容
 	zh, err := zw.CreateHeader(hdr)
 	if err != nil {
 		return err
 	}
-	// 也可以不使用 归档文件头，直接通过一个字符串作为标识写入归档内容
+	// 也可以不使用 归档文件头, 直接通过一个字符串作为标识写入归档内容
 	// zfw, err := zw.Create(srcName)
 
 	// 将源文件压缩并写入压缩文件
@@ -107,10 +107,10 @@ func (z *Zip) Unarchive(unarchivePath string) error {
 		return err
 	}
 
-	// 也可以直接打开压缩文件，得到 Reader 对象
+	// 也可以直接打开压缩文件, 得到 Reader 对象
 	// zr, err := zip.OpenReader(`./test.zip`)
 
-	// 遍历压缩文件中的归档文件列表，逐一进行解压缩
+	// 遍历压缩文件中的归档文件列表, 逐一进行解压缩
 	for _, zf := range zr.File {
 		if err := zipUnarchiveEachFile(zf, filepath.Join(unarchivePath, zf.Name)); err != nil {
 			return err

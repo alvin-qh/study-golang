@@ -25,7 +25,7 @@ func TestLogger(t *testing.T) {
 	f, err := os.Create(LOG_FILE_NAME)
 	assert.NoError(t, err)
 
-	// 设定 log 写入的内容，包括 日期、时间和文件名
+	// 设定 log 写入的内容, 包括 日期、时间和文件名
 	flag := log.Ldate | log.Ltime | log.Lshortfile
 
 	// 增加文件和标准输出流两个 appender
@@ -37,7 +37,7 @@ func TestLogger(t *testing.T) {
 	l.Info("Test Info Log")
 	l.Warn("Test Warn Log")
 	l.Error("Test Error Log")
-	l.Close() // 关闭日志对象，等待所有日志都处理完毕
+	l.Close() // 关闭日志对象, 等待所有日志都处理完毕
 
 	f.Close()
 

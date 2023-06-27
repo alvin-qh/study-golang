@@ -354,7 +354,7 @@ func (r *Request) handleActionShutdown() (Package, error) {
 	}, ErrCloseServer
 }
 
-// 响应结构体，用在响应发送的 channel 上
+// 响应结构体, 用在响应发送的 channel 上
 type Response struct {
 	addr  *net.UDPAddr // 接收方远程地址
 	pack  Package      // 待发送的数据对象

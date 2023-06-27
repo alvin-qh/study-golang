@@ -34,7 +34,7 @@ func TestInterface(t *testing.T) {
 	assert.True(t, Le(s1, s1))
 	assert.True(t, Le(s1, s11))
 
-	// 测试比较不同类型对象时，出现的 panic 异常
+	// 测试比较不同类型对象时, 出现的 panic 异常
 	defer func() {
 		err := recover().(error)
 		assert.ErrorIs(t, err, errors.ErrType)

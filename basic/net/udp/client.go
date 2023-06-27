@@ -50,7 +50,7 @@ func (c *Client) Close() error {
 	return err
 }
 
-// 发送请求数据，返回
+// 发送请求数据, 返回
 func (c *Client) Request(pack Package) (Package, error) {
 	if err := c.sendRequest(pack); err != nil {
 		return nil, err
@@ -107,7 +107,7 @@ func (c *Client) receiveResponse(action ActionCode) (Package, error) {
 		return nil, fmt.Errorf(header.Error)
 	}
 
-    // 
+    //
 	c.sessionId = header.SessionId
 
 	// 根据响应类型创建响应数据类型

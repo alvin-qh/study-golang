@@ -34,7 +34,7 @@ func TestCreateTime(t *testing.T) {
 }
 
 // 时区转换
-// 时间对象的 Location 函数获取该时间的时区对象；In 函数可以在不同时区转换时间；UTC 函数将时间转换为 UTC 时区
+// 时间对象的 Location 函数获取该时间的时区对象; In 函数可以在不同时区转换时间; UTC 函数将时间转换为 UTC 时区
 func TestConvertLocalTime(t *testing.T) {
 	tm := time.Date(2012, 11, 11, 12, 0, 0, 0, time.UTC) // UTC 时区时间
 
@@ -52,7 +52,7 @@ func TestConvertLocalTime(t *testing.T) {
 }
 
 // 时间计算
-// 时间对象的 Sub 函数用于求两个时间对象的差，结果为 Duration 对象
+// 时间对象的 Sub 函数用于求两个时间对象的差, 结果为 Duration 对象
 // 时间对象的 Add 函数用于求时间和一个 Duration 对象的结果
 func TestDuration(t *testing.T) {
 	tm1 := time.Date(2012, 11, 11, 12, 0, 0, 0, time.UTC)

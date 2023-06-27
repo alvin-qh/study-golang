@@ -20,7 +20,7 @@ func TestSize3DStruct(t *testing.T) {
 }
 
 // 测试继承性
-// Size3D 结构体从 Size 结构体继承，可以使用 Size 对象的函数
+// Size3D 结构体从 Size 结构体继承, 可以使用 Size 对象的函数
 func TestInherit(t *testing.T) {
 	s := New(10, 20, 30)
 	assert.Equal(t, 200.0, s.Area()) // Area() 函数从 Size 类型继承

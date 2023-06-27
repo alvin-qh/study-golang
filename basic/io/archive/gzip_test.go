@@ -12,8 +12,8 @@ const (
 	GZ_UNARCHIVE_PATH = "unarchive"
 )
 
-// 在 tar 归档的基础上，通过 gzip 压缩算法对 tar 归档文件进行压缩，产生 tar.gz 归档文件
-// 由于 gzip 算法本身不具备归档结构，无法压缩多个文件，所以在 tar 的基础上进行压缩处理，所以只需要在 tar.Writer 基础上，增加一个 gzip.Writer 即可
+// 在 tar 归档的基础上, 通过 gzip 压缩算法对 tar 归档文件进行压缩, 产生 tar.gz 归档文件
+// 由于 gzip 算法本身不具备归档结构, 无法压缩多个文件, 所以在 tar 的基础上进行压缩处理, 所以只需要在 tar.Writer 基础上, 增加一个 gzip.Writer 即可
 // 读取 gzip 压缩的归档文件同理
 func TestArchiveWithGZip(t *testing.T) {
 	defer func() {

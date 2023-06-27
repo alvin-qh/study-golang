@@ -29,7 +29,7 @@ func TestCondBroadcasting(t *testing.T) {
 
 	fc := NewFileCond(COND_FILE_NAME, true)
 
-	// 进行 3 次读操作，因为写操作尚未进行，所以读操作无法进行
+	// 进行 3 次读操作, 因为写操作尚未进行, 所以读操作无法进行
 	for i := 0; i < COND_NUM_READER; i++ {
 		go func() {
 			defer wg.Done()
@@ -40,7 +40,7 @@ func TestCondBroadcasting(t *testing.T) {
 		}()
 	}
 
-	// 稍等后进入写操作，以保证读操作均进入 Wait 操作
+	// 稍等后进入写操作, 以保证读操作均进入 Wait 操作
 	time.Sleep(500 * time.Millisecond)
 
 	go func() {
@@ -59,8 +59,8 @@ func TestCondSignaling(t *testing.T) {
 
 	fc := NewFileCond(COND_FILE_NAME, false)
 
-	// 进行 3 次读操作，因为写操作尚未进行，所以读操作无法进行
-	// 每次打开文件从头读取，读取最近一次写入文件的内容
+	// 进行 3 次读操作, 因为写操作尚未进行, 所以读操作无法进行
+	// 每次打开文件从头读取, 读取最近一次写入文件的内容
 	for i := 0; i < COND_NUM_READER; i++ {
 		go func() {
 			defer wg.Done()
@@ -72,11 +72,11 @@ func TestCondSignaling(t *testing.T) {
 		}()
 	}
 
-	// 稍等后进入写操作，以保证读操作均进入 Wait 操作
+	// 稍等后进入写操作, 以保证读操作均进入 Wait 操作
 	time.Sleep(500 * time.Millisecond)
 
-	// 进行 3 次写操作，每次写操作通知一个协程处理对应的读操作
-	// 注意，这三次写操作并不是追加写，而是每次清空文件进行写，所以操作结束后，文件中只有最后一次写的内容
+	// 进行 3 次写操作, 每次写操作通知一个协程处理对应的读操作
+	// 注意, 这三次写操作并不是追加写, 而是每次清空文件进行写, 所以操作结束后, 文件中只有最后一次写的内容
 	for i := 0; i < COND_NUM_READER; i++ {
 		num := i + 1
 		go func() {

@@ -48,7 +48,7 @@ func (c *Client) Close() error {
 	return err
 }
 
-// 发送请求数据，返回
+// 发送请求数据, 返回
 func (c *Client) Request(action ActionCode, body interface{}) (interface{}, error) {
 	if err := sendRequest(c.conn, action, body); err != nil {
 		return nil, err

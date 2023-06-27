@@ -14,7 +14,7 @@ func TestOptionArgsNone(t *testing.T) {
 	assert.Equal(t, 'M', u.Gender)
 }
 
-// 测试仅设置 UserId 参数的情形
+// 测试仅设置 `UserId` 参数的情形
 func TestOptionArgsId(t *testing.T) {
 	u := CreateUser(WithUserId(2))
 	assert.Equal(t, 2, u.Id)
@@ -22,7 +22,7 @@ func TestOptionArgsId(t *testing.T) {
 	assert.Equal(t, 'M', u.Gender)
 }
 
-// 测试同时设置 UserId, UserName 参数的情形
+// 测试同时设置 `UserId`, `UserName` 参数的情形
 func TestOptionArgsIdName(t *testing.T) {
 	u := CreateUser(WithUserId(2), WithUserName("Emma"))
 	assert.Equal(t, 2, u.Id)
@@ -30,7 +30,7 @@ func TestOptionArgsIdName(t *testing.T) {
 	assert.Equal(t, 'M', u.Gender)
 }
 
-// 测试同时设置 UserId, UserGender 参数的情形
+// 测试同时设置 `UserId`, `UserGender` 参数的情形
 func TestOptionArgsIdGender(t *testing.T) {
 	u := CreateUser(WithUserId(2), WithUserGender('F'))
 	assert.Equal(t, 2, u.Id)

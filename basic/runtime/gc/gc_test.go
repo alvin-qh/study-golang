@@ -9,7 +9,7 @@ import (
 )
 
 // 测试 GC
-// 可以通过 runtime.ReadMemStats 函数来获取 Go 内存状态，以判断 GC 执行的情况
+// 可以通过 runtime.ReadMemStats 函数来获取 Go 内存状态, 以判断 GC 执行的情况
 func TestGc(t *testing.T) {
 	runtime.GC() // 手动唤起 GC 释放堆
 
@@ -21,7 +21,7 @@ func TestGc(t *testing.T) {
 	m := Memory{}
 
 	finalized := false
-	runtime.SetFinalizer(&m, func(m *Memory) { finalized = true }) // 调用 GC 时，会同时调用设置在对象上的 finalizer 函数，释放资源
+	runtime.SetFinalizer(&m, func(m *Memory) { finalized = true }) // 调用 GC 时, 会同时调用设置在对象上的 finalizer 函数, 释放资源
 
 	size := 1024 * 100000
 

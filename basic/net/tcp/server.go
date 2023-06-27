@@ -33,7 +33,7 @@ func (s *Server) getCloseChan() chan struct{} {
 
 // 启动服务端
 func ServerStart(address string) (*Server, error) {
-	addr, err := net.ResolveTCPAddr("tcp", address) // 解析服务端监听地址，形如："0.0.0.0:8888"
+	addr, err := net.ResolveTCPAddr("tcp", address) // 解析服务端监听地址, 形如: "0.0.0.0:8888"
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func ServerStart(address string) (*Server, error) {
 		lServer.Fatalf("Network error: %v", err)
 		return nil, err
 	}
-	lServer.Printf("Start listenning at %v", addr)
+	lServer.Printf("Start listening at %v", addr)
 
 	// 产生服务端对象
 	server := &Server{
@@ -52,7 +52,7 @@ func ServerStart(address string) (*Server, error) {
 	}
 
 	// 调用客户端连接处理函数
-	go server.handleAcception()
+	go server.handleAcceptation()
 
 	return server, nil
 }
@@ -75,7 +75,7 @@ func (s *Server) Stop() error {
 	if s.listener != nil {
 		err = s.listener.Close()
 		s.listener = nil
-		lServer.Printf("Stop listenning")
+		lServer.Printf("Stop listening")
 	}
 
 	// 发送关闭服务端关闭通知
@@ -88,9 +88,9 @@ func (s *Server) Stop() error {
 	return err
 }
 
-// 接受客户端连接，启动客户端处理协程
-func (s *Server) handleAcception() {
-	// 该函数结束后，表示服务端已结束，关闭监听并和 channel（发出结束通知）
+// 接受客户端连接, 启动客户端处理协程
+func (s *Server) handleAcceptation() {
+	// 该函数结束后, 表示服务端已结束, 关闭监听并和 channel (发出结束通知)
 	defer s.Stop()
 
 	for {
@@ -101,7 +101,7 @@ func (s *Server) handleAcception() {
 				lServer.Fatalf("Network error: %v", err)
 				break
 			}
-			lServer.Printf("New connection comming, %v", conn.RemoteAddr())
+			lServer.Printf("New connection coming, %v", conn.RemoteAddr())
 
 			// 处理一次会话
 			go s.handleClientSession(conn)

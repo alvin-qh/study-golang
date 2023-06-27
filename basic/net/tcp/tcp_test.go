@@ -3,10 +3,10 @@ package tcp
 /**
  * Golang with TCP
  *
- * Golang 处理 TCP 连接较为简单。通过把每个客户端连接放到一个 goroutine 中处理，简化了异步处理
- * 服务端处理过程如下：
- *  1. 启动监听（Listening）
- *  2. 等待客户端连接（Accepting）
+ * Golang 处理 TCP 连接较为简单. 通过把每个客户端连接放到一个 goroutine 中处理, 简化了异步处理
+ * 服务端处理过程如下:
+ *  1. 启动监听 (Listening)
+ *  2. 等待客户端连接 (Accepting)
  *  3. 为客户端连接启动 goroutine
  *  4. 通过客户端连接接收数据
  *  5. 通过客户端连接发送数据

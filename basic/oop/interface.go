@@ -1,11 +1,11 @@
 package oop
 
-// 定义接口，将对象转为字符串
+// 定义接口, 将对象转为字符串
 type ToString interface {
 	String() string
 }
 
-// 定义接口，用于比较两个对象
+// 定义接口, 用于比较两个对象
 type Comparable interface {
 	Compare(other interface{}) int
 }

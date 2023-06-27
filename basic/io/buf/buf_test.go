@@ -19,7 +19,7 @@ func TestCreateBuffer(t *testing.T) {
 	assert.Equal(t, 100, buf.Len()) // 长度为 100
 	assert.Equal(t, 100, buf.Cap())
 
-	// 产生一个初始长度为 0，初始容量为 100 的 Buffer 对象
+	// 产生一个初始长度为 0, 初始容量为 100 的 Buffer 对象
 	buf = bytes.NewBuffer(make([]byte, 0, 100))
 	assert.Equal(t, 0, buf.Len()) // 长度为 100
 	assert.Equal(t, 100, buf.Cap())
@@ -29,7 +29,7 @@ func TestCreateBuffer(t *testing.T) {
 	assert.Equal(t, 12, buf.Len()) // 长度和初始内容一致
 	assert.Equal(t, 12, buf.Cap())
 
-	s, err := buf.ReadString(byte('!')) // 读取内容到指定的 byte 值（包含指定 byte 值），返回字符串
+	s, err := buf.ReadString(byte('!')) // 读取内容到指定的 byte 值 (包含指定 byte 值), 返回字符串
 	assert.NoError(t, err)
 	assert.Equal(t, `Hello World!`, s)
 }
@@ -48,7 +48,7 @@ func TestBufferSize(t *testing.T) {
 
 	// 重置操作
 	buf.Reset()
-	assert.Equal(t, 0, buf.Len())   // 内容被清空，长度为 0
+	assert.Equal(t, 0, buf.Len())   // 内容被清空, 长度为 0
 	assert.Equal(t, 100, buf.Cap()) // 容积不变
 
 	// 扩大容积
@@ -58,9 +58,9 @@ func TestBufferSize(t *testing.T) {
 }
 
 // 测试 Buffer 的读写
-// 数据读写依赖 bytes.Buffer 类型，其实现了 io.Reader 和 io.Writer 接口，可以同时进行读写操作
-// 字符串类型通过编码为 utf8 编码，进行读取和写入
-// 对于 int, float, bool, rune, slice 等类型，需要借助 binary 包，转换为 byte 类型后进行读写
+// 数据读写依赖 bytes.Buffer 类型, 其实现了 io.Reader 和 io.Writer 接口, 可以同时进行读写操作
+// 字符串类型通过编码为 utf8 编码, 进行读取和写入
+// 对于 int, float, bool, rune, slice 等类型, 需要借助 binary 包, 转换为 byte 类型后进行读写
 func TestBufferRW(t *testing.T) {
 	// 创建空 Buffer 以供写入
 	buf := bytes.NewBuffer(make([]byte, 0, 20))

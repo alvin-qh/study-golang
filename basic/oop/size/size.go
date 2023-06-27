@@ -11,7 +11,7 @@ type Size struct {
 	height float64 // 高度
 }
 
-// 构造函数，产生 Size 对象
+// 构造函数, 产生 Size 对象
 func New(width, height float64) *Size { return new(Size).Init(width, height) }
 
 // 初始化 Size 结构体对象
@@ -27,7 +27,7 @@ func (s *Size) String() string { return fmt.Sprintf("<Size width=%v height=%v>",
 // 获取面积值
 func (s *Size) Area() float64 { return s.width * s.height }
 
-// 实现 typedef.Comparable 接口，比较两个对象大小
+// 实现 typedef.Comparable 接口, 比较两个对象大小
 func (s *Size) Compare(other interface{}) int {
 	v, ok := other.(*Size)
 	if !ok {

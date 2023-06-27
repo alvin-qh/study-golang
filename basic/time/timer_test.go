@@ -7,17 +7,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// 测试暂停当前线程（协程）
+// 测试暂停当前线程 (协程)
 func TestSleep(t *testing.T) {
 	tm := time.Now()
 	time.Sleep(3*time.Second + 2*time.Millisecond) // 休眠 3.2 秒
 
-	d := time.Since(tm) // 计算当前时间和指定时间的差值，相当于 time.Now().Sub(tm)
+	d := time.Since(tm) // 计算当前时间和指定时间的差值, 相当于 time.Now().Sub(tm)
 	assert.Equal(t, 3, int(d.Seconds()))
 }
 
 // 测试定时信号
-// 定时信号可以在指定时间后，通过 channel 发送一次性的定时信号
+// 定时信号可以在指定时间后, 通过 channel 发送一次性的定时信号
 func TestTimeAfter(t *testing.T) {
 	tm1 := time.Now()
 
@@ -79,6 +79,6 @@ func TestTimer(t *testing.T) {
 }
 
 // Timer 和 After 的异同
-//    Timer 和 After 均可以在指定时间后发送一个信号，以达到定时任务的效果
-//    Timer（或者 Ticker）具备更丰富的操作手段，包括 Stop（打断计时）和 Reset（重新计时)
+//    Timer 和 After 均可以在指定时间后发送一个信号, 以达到定时任务的效果
+//    Timer (或者 Ticker) 具备更丰富的操作手段, 包括 Stop (打断计时) 和 Reset (重新计时)
 //    After 的功能比较简单

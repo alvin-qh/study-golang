@@ -27,43 +27,43 @@ func TestRune(t *testing.T) {
 	assert.Equal(t, "ABC", s)
 
 	// 将字符串和 utf-8 字节进行转换
-	bs := []byte("Hello,大家好") // 字符串转为 byte 数组（utf8编码）
+	bs := []byte("Hello,大家好") // 字符串转为 byte 数组 (utf8编码)
 	s = string(bs)            // byte 数组转换为 字符串
 	assert.Equal(t, "Hello,大家好", s)
 	assert.Equal(t, []byte(s), bs)
 
 	// 字符和 byte 类型转换
-	// 一个 rune 类型可能会转换为 1~4 个 byte 类型（utf8编码）
-	// 实际情况中，需要从 byte 数组中解码指定的字符，或将指定的字符编码为 byte 数组
+	// 一个 rune 类型可能会转换为 1~4 个 byte 类型 (utf8编码)
+	// 实际情况中, 需要从 byte 数组中解码指定的字符, 或将指定的字符编码为 byte 数组
 	r = '好'
-	bs = make([]byte, utf8.RuneLen(r)) // 获取 rune 类型值转为 byte 数组所需的空间大小，依据此大小生成 byte 数组作为缓存
-	size := utf8.EncodeRune(bs, r)     // 将 rune 编码为 byte 数组，返回编码长度，该长度和 utf8.RuneLen 返回的值一致
+	bs = make([]byte, utf8.RuneLen(r)) // 获取 rune 类型值转为 byte 数组所需的空间大小, 依据此大小生成 byte 数组作为缓存
+	size := utf8.EncodeRune(bs, r)     // 将 rune 编码为 byte 数组, 返回编码长度, 该长度和 utf8.RuneLen 返回的值一致
 	assert.Equal(t, 3, size)           // 汉字编码为 byte 数组需 3 个字节
 	assert.Equal(t, size, utf8.RuneLen(r))
 
-	r, size = utf8.DecodeRune(bs) // 从 byte 数组解码出第一个字符，并返回解码了多少个字节
+	r, size = utf8.DecodeRune(bs) // 从 byte 数组解码出第一个字符, 并返回解码了多少个字节
 	assert.Equal(t, 3, size)      // 解码了 3 个字节
 	assert.Equal(t, '好', r)       // 解码的第一个字符
 
 	s = "好"
-	r, size = utf8.DecodeRuneInString(s) // 从字符串解码出第一个字符，并返回解码了多少个字节
+	r, size = utf8.DecodeRuneInString(s) // 从字符串解码出第一个字符, 并返回解码了多少个字节
 	assert.Equal(t, 3, size)             // 解码了 3 个字节
 	assert.Equal(t, '好', r)              // 解码的第一个字符
 
-	r, size = utf8.DecodeLastRune(bs) // 从 byte 数组解码出最后一个字符，并返回解码了多少个字节
+	r, size = utf8.DecodeLastRune(bs) // 从 byte 数组解码出最后一个字符, 并返回解码了多少个字节
 	assert.Equal(t, '好', r)
 	assert.Equal(t, 3, size)
 
-	r, size = utf8.DecodeLastRuneInString(s) // 从 byte 数组解码出最后一个字符，并返回解码了多少个字节
+	r, size = utf8.DecodeLastRuneInString(s) // 从 byte 数组解码出最后一个字符, 并返回解码了多少个字节
 	assert.Equal(t, '好', r)
 	assert.Equal(t, 3, size)
 }
 
 // 测试求字符串长度
 // 字符串在内存中默认是以 UTF-8 编码存储的 byte 集合
-// rune 类型表示一个完整的 UTF-8 字符，可能占据 1~4 个 byte
-// 所以获取字符串长度，实际需要得到字符串中 rune 元素的数量
-// len(string) 返回的是字符串的 byte 数量，不能作为字符串的真实长度
+// rune 类型表示一个完整的 UTF-8 字符, 可能占据 1~4 个 byte
+// 所以获取字符串长度, 实际需要得到字符串中 rune 元素的数量
+// len(string) 返回的是字符串的 byte 数量, 不能作为字符串的真实长度
 // len([]rune(string)) 则是字符串真实的字符个数
 func TestStringLength(t *testing.T) {
 	s := "Hello, 大家好"
@@ -76,13 +76,13 @@ func TestStringLength(t *testing.T) {
 	size = utf8.RuneCountInString(s)
 	assert.Equal(t, 10, size)
 
-	// 直接对字符串使用 len，得出字符串的 字节总数，对于包含非 ASCII 编码的字符，结果不正确
+	// 直接对字符串使用 len, 得出字符串的 字节总数, 对于包含非 ASCII 编码的字符, 结果不正确
 	size = len(s)
-	assert.Equal(t, 7+9, size) // 得出结果为 16，即 7 个 ASCII 字符（占 7 字节）+ 3 个 UTF8 字符（占 9 字节）
+	assert.Equal(t, 7+9, size) // 得出结果为 16, 即 7 个 ASCII 字符 (占 7 字节) + 3 个 UTF8 字符 (占 9 字节)
 }
 
 // 测试字符串转换
-// 其它类型和字符串类型之间的转换，主要是通过 strconv 包来完成
+// 其它类型和字符串类型之间的转换, 主要是通过 strconv 包来完成
 func TestConvertToString(t *testing.T) {
 	// 整数转换
 	n := int64(-100)
@@ -123,7 +123,7 @@ func TestConvertToString(t *testing.T) {
 	assert.Nil(t, ok)
 	assert.Equal(t, float64(123.456), f)
 
-	s = strconv.FormatFloat(f, 'f', 1, 32) // 1 表示保留 1位 小数位数，并进行四舍五入
+	s = strconv.FormatFloat(f, 'f', 1, 32) // 1 表示保留 1位 小数位数, 并进行四舍五入
 	assert.Equal(t, "123.5", s)
 
 	f, ok = strconv.ParseFloat(s, 64) // 将 科学计数法 形式的字符串转为 64 位浮点数
@@ -142,7 +142,7 @@ func TestConvertToString(t *testing.T) {
 	assert.Nil(t, ok)
 	assert.Equal(t, true, b)
 
-	// 复数类型转换，转换 complex128 到 string
+	// 复数类型转换, 转换 complex128 到 string
 	c := complex(100, 20)
 	s = strconv.FormatComplex(c, 'f', -1, 128) // 'f', -1, 128 含义和 FormatFloat 类似
 	assert.Equal(t, "(100+20i)", s)
@@ -152,16 +152,16 @@ func TestConvertToString(t *testing.T) {
 	assert.Equal(t, (100 + 20i), c)
 }
 
-// rune 表示一个 "字符" 而非 "byte"， 所以要正确的从字符串获取指定位置的字符，需要将字符串类型转为 []rune 来处理
+// rune 表示一个 "字符" 而非 "byte",  所以要正确的从字符串获取指定位置的字符, 需要将字符串类型转为 []rune 来处理
 func TestRuneOfString(t *testing.T) {
 	s := "Hello, 大家好"
-	assert.Equal(t, rune(s[1]), 'e')   // 一个 rune 类型表示一个字符，用单引号 ' 包围
+	assert.Equal(t, rune(s[1]), 'e')   // 一个 rune 类型表示一个字符, 用单引号 ' 包围
 	assert.Equal(t, string(s[1]), "e") // rune 类型可以转为 string 类型
 
-	// 将字符串转为 rune 数组，相当于字符数组
+	// 将字符串转为 rune 数组, 相当于字符数组
 	rs := []rune(s)
-	assert.Equal(t, rs[1], int32(s[1]))    // 字符串下标返回一个字节 (uint8)，rune下标返回一个 utf8 字符 (int32)
-	assert.NotEqual(t, rs[8], int32(s[8])) // 第 8 个字符是中文字符，所以 string 和 rune 下标相同时，值不再相同
+	assert.Equal(t, rs[1], int32(s[1]))    // 字符串下标返回一个字节 (uint8), rune下标返回一个 utf8 字符 (int32)
+	assert.NotEqual(t, rs[8], int32(s[8])) // 第 8 个字符是中文字符, 所以 string 和 rune 下标相同时, 值不再相同
 	assert.Equal(t, '家', rs[8])
 }
 
@@ -170,14 +170,14 @@ func TestRuneOfString(t *testing.T) {
 func TestStringCompare(t *testing.T) {
 	s := "abc"
 
-	assert.Equal(t, 0, strings.Compare(s, "abc"))  // 两个字符串比较，相等则返回 0
-	assert.Equal(t, 1, strings.Compare(s, "Abc"))  // 第一个字符串大于第二个字符串，返回 1
-	assert.Equal(t, -1, strings.Compare(s, "bbc")) // 第一个字符串小于第二个字符串，返回 -1
+	assert.Equal(t, 0, strings.Compare(s, "abc"))  // 两个字符串比较, 相等则返回 0
+	assert.Equal(t, 1, strings.Compare(s, "Abc"))  // 第一个字符串大于第二个字符串, 返回 1
+	assert.Equal(t, -1, strings.Compare(s, "bbc")) // 第一个字符串小于第二个字符串, 返回 -1
 
-	assert.True(t, strings.EqualFold(s, "ABC")) // 对两个字符串进行忽略大小写的比较，返回是否相等
+	assert.True(t, strings.EqualFold(s, "ABC")) // 对两个字符串进行忽略大小写的比较, 返回是否相等
 }
 
-// 对子字符串的操作，是通过 strings 包下面的
+// 对子字符串的操作, 是通过 strings 包下面的
 // strings.Contains
 // strings.Index, strings.LastIndex, strings.IndexAny, strings.LastIndexAny, strings.IndexByte, strings.LastIndexByte, strings.IndexFunc, strings.LastIndexFunc
 // strings.HasPrefix, strings.HasSuffix
@@ -213,7 +213,7 @@ func TestSubString(t *testing.T) {
 	n = strings.LastIndexByte(s, 'l') // 在字符串中查找一个 byte 第一次出现的位置
 	assert.Equal(t, 3, n)             // 在位置 3 找到 byte 'o'
 
-	// 通过逐字符回调指定函数，查找符合结果的内容第一次出现的位置
+	// 通过逐字符回调指定函数, 查找符合结果的内容第一次出现的位置
 	n = strings.IndexFunc(s, func(r rune) bool {
 		return r == ',' // 判断当前字符是否 ',' 字符
 	})
@@ -224,7 +224,7 @@ func TestSubString(t *testing.T) {
 	})
 	assert.Equal(t, 5, n)
 
-	// 判断字符串是否以指定的子字符串开头（或结束）
+	// 判断字符串是否以指定的子字符串开头 (或结束)
 	b := strings.HasPrefix(s, "Hello") // 字符串是否以指定的子字符串开头
 	assert.True(t, b)
 
@@ -248,14 +248,14 @@ func TestSubString(t *testing.T) {
 	sr = strings.Replace(s, "l", "L", -1) // 将子字符串替换为指定的字符串, 共替换 任意 次
 	assert.Equal(t, "HeLLo,大家好", sr)
 
-	sr = strings.ReplaceAll(s, "l", "L") // 替换所有的指定子字符串，相当于 strings.Replace(s, "l", "L", -1)
+	sr = strings.ReplaceAll(s, "l", "L") // 替换所有的指定子字符串, 相当于 strings.Replace(s, "l", "L", -1)
 	assert.Equal(t, "HeLLo,大家好", sr)
 
 	// 去除字符串前后的指定内容
-	sr = strings.Trim(s, "He好") // 删除字符串前后的指定字符，字符集合中的内容会被全部删除
+	sr = strings.Trim(s, "He好") // 删除字符串前后的指定字符, 字符集合中的内容会被全部删除
 	assert.Equal(t, "llo,大家", sr)
 
-	sr = strings.TrimSpace(" \r" + s + "\t\n") // 去除字符串前后的空白字符，相当于 strings.Trim(s, " \r\n\t")
+	sr = strings.TrimSpace(" \r" + s + "\t\n") // 去除字符串前后的空白字符, 相当于 strings.Trim(s, " \r\n\t")
 	assert.Equal(t, s, sr)
 
 	sr = strings.TrimLeft(s, "He好") // 删除字符串开始位置的指定字符
@@ -274,50 +274,50 @@ func TestSubString(t *testing.T) {
 	})
 	assert.Equal(t, "Hello,", sr)
 
-	sr = strings.TrimPrefix(s, "Hel") // 删除字符串开始位置的指定子字符串，需要匹配整个子字符串
+	sr = strings.TrimPrefix(s, "Hel") // 删除字符串开始位置的指定子字符串, 需要匹配整个子字符串
 	assert.Equal(t, "lo,大家好", sr)
 
-	sr = strings.TrimSuffix(s, "家好") // 删除字符串结束位置的指定子字符串，需要匹配整个子字符串
+	sr = strings.TrimSuffix(s, "家好") // 删除字符串结束位置的指定子字符串, 需要匹配整个子字符串
 	assert.Equal(t, "Hello,大", sr)
 
 	// 将字符串分隔成若干子字符串
 	ss := strings.Split(s, ",")                   // 通过 ',' 将字符串分割
 	assert.Equal(t, []string{"Hello", "大家好"}, ss) // 分割为两个子字符串
 
-	ss = strings.SplitN(s, ",", 1)             // 指定分割结果的数量，至多将字符串分割为 1 个部分
-	assert.Equal(t, []string{"Hello,大家好"}, ss) // 分隔为 1 个子字符串，相当于不做分割
+	ss = strings.SplitN(s, ",", 1)             // 指定分割结果的数量, 至多将字符串分割为 1 个部分
+	assert.Equal(t, []string{"Hello,大家好"}, ss) // 分隔为 1 个子字符串, 相当于不做分割
 
-	ss = strings.SplitN(s, ",", 2)                // 指定分割结果的数量，至多将字符串分割为 2 个部分
+	ss = strings.SplitN(s, ",", 2)                // 指定分割结果的数量, 至多将字符串分割为 2 个部分
 	assert.Equal(t, []string{"Hello", "大家好"}, ss) // 分隔为 2 个子字符串
 
-	ss = strings.SplitN(s, ",", -1)               // 分割为任意部分，相当于 strings.Split(s)
+	ss = strings.SplitN(s, ",", -1)               // 分割为任意部分, 相当于 strings.Split(s)
 	assert.Equal(t, []string{"Hello", "大家好"}, ss) // 分割为 2 个子字符串
 
 	ss = strings.SplitAfter(s, ",")                // 分割结果中包含用于分割的字符串本身
 	assert.Equal(t, []string{"Hello,", "大家好"}, ss) // 用于分隔的字符串和前一个分割结果合并在一起
 
 	ss = strings.SplitAfterN(s, ",", 1)        // 分割结果中至多包含 1 个子字符串
-	assert.Equal(t, []string{"Hello,大家好"}, ss) // 分隔为 1 个子字符串，相当于不做分割
+	assert.Equal(t, []string{"Hello,大家好"}, ss) // 分隔为 1 个子字符串, 相当于不做分割
 
 	ss = strings.SplitAfterN(s, ",", 2)            // 分割结果中至多包含 2 个子字符串
 	assert.Equal(t, []string{"Hello,", "大家好"}, ss) // 分隔为 2 个子字符串
 
-	ss = strings.SplitAfterN(s, ",", -1)           // 分割为任意部分，相当于 strings.SplitAfter(s)
+	ss = strings.SplitAfterN(s, ",", -1)           // 分割为任意部分, 相当于 strings.SplitAfter(s)
 	assert.Equal(t, []string{"Hello,", "大家好"}, ss) // 分割为 2 个子字符串
 }
 
-// 字符串连接，将若干个子字符串连接成一个完整的字符
+// 字符串连接, 将若干个子字符串连接成一个完整的字符
 // '+'
 // strings.Join
 // strings.Repeat
 func TestStringConcat(t *testing.T) {
 	s := "Hello"
 
-	// 字符串连接，通过 '+' 可以连接两个字符串
+	// 字符串连接, 通过 '+' 可以连接两个字符串
 	sc := s + ", World"
 	assert.Equal(t, "Hello, World", sc)
 
-	// 字符串连接，将字符串数组（切片）通过连接符进行连接
+	// 字符串连接, 将字符串数组 (切片) 通过连接符进行连接
 	sc = strings.Join([]string{s, "World"}, " ")
 	assert.Equal(t, "Hello World", sc)
 
@@ -326,7 +326,7 @@ func TestStringConcat(t *testing.T) {
 	assert.Equal(t, "HelloHello", sc)
 }
 
-// 对于复杂的字符串拼接，使用 bytes.Buffer 可以获得更高的效率
+// 对于复杂的字符串拼接, 使用 bytes.Buffer 可以获得更高的效率
 // buffer.WriteString, buffer.WriteRune, buffer.Write
 func TestStringBuffer(t *testing.T) {
 	buffer := bytes.Buffer{}
@@ -346,18 +346,18 @@ func TestStringBuffer(t *testing.T) {
 }
 
 // 字符串格式化
-// 通过 fmt.Sprint, fmt.Sprintf, fmt.Sprintln 函数，可以将一组参数组成一个字符串
-// 其中，fmt.Sprintf 函数可以按所给的字符串格式以及参数，产生格式化后的字符串
+// 通过 fmt.Sprint, fmt.Sprintf, fmt.Sprintln 函数, 可以将一组参数组成一个字符串
+// 其中, fmt.Sprintf 函数可以按所给的字符串格式以及参数, 产生格式化后的字符串
 func TestStringFormat(t *testing.T) {
 	// 将一组参数组成字符串
 	s := fmt.Sprint("Hello", "World", 123)
 	assert.Equal(t, "HelloWorld123", s)
 
-	// 将一组参数组成字符串，参数间用 空格 分隔，末尾增加换行符
+	// 将一组参数组成字符串, 参数间用 空格 分隔, 末尾增加换行符
 	s = fmt.Sprintln("Hello", "World", 123)
 	assert.Equal(t, "Hello World 123\n", s)
 
-	// 根据所给的字符串格式，生成格式化后的字符串
+	// 根据所给的字符串格式, 生成格式化后的字符串
 	s = fmt.Sprintf("%s %s %.2f", "Hello", "World", 123.456)
 	assert.Equal(t, "Hello World 123.46", s)
 }

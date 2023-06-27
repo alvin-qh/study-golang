@@ -24,15 +24,15 @@ func NewLock() *Lock {
 
 // 锁定
 func (l *Lock) Lock(ctx context.Context) bool {
-	for !l.locked.CompareAndSwap(false, true) { // 当原子量为 false 时，设置其为 true，并进入临界区
+	for !l.locked.CompareAndSwap(false, true) { // 当原子量为 false 时, 设置其为 true, 并进入临界区
 
 		// 临界区
 
 		ch := l.channel() // 获取 channel 对象
 		select {
-		case <-ch: // channel 被关闭，表示被解锁，
-			// 继续循环，直到完成锁定
-		case <-ctx.Done(): // 超时时间到，如果还未完成锁定，则返回未锁定成功
+		case <-ch: // channel 被关闭, 表示被解锁
+			// 继续循环, 直到完成锁定
+		case <-ctx.Done(): // 超时时间到, 如果还未完成锁定, 则返回未锁定成功
 			return false
 		}
 	}
@@ -49,7 +49,7 @@ func (l *Lock) channel() <-chan struct{} {
 
 // 解锁
 func (l *Lock) Unlock() {
-	if l.locked.CompareAndSwap(true, false) { // 判断锁对象是否锁定，若未锁定则忽略操作，否则进入临界区
+	if l.locked.CompareAndSwap(true, false) { // 判断锁对象是否锁定, 若未锁定则忽略操作, 否则进入临界区
 		// 临界区
 
 		defer func() {
@@ -58,8 +58,8 @@ func (l *Lock) Unlock() {
 			}
 		}()
 
-		ch := l.swapChannel(make(chan struct{}, 1)) // 设置新的 channel 对象，返回原有 channel 对象
-		close(ch)                                   // 关闭 channel 对象，表示解锁
+		ch := l.swapChannel(make(chan struct{}, 1)) // 设置新的 channel 对象, 返回原有 channel 对象
+		close(ch)                                   // 关闭 channel 对象, 表示解锁
 	}
 }
 
@@ -89,12 +89,12 @@ type GeneratorFunc func(ch chan interface{}) interface{}
 // 产生一个新的生成器对象
 func NewGenerator(gen GeneratorFunc) *Generator {
 	g := &Generator{ch: make(chan interface{})}
-	runtime.SetFinalizer(g, func(g *Generator) { g.Close() }) // 析构函数，关闭生成器对象
+	runtime.SetFinalizer(g, func(g *Generator) { g.Close() }) // 析构函数, 关闭生成器对象
 
 	go func() {
 		defer func() {
-            recover()
-        }()
+			recover()
+		}()
 		gen(g.ch) // 在协程中异步生成数据
 	}()
 

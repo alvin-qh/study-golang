@@ -8,11 +8,11 @@ import (
 	"time"
 )
 
-// 和文件锁相关的常量包括：
-//  LOCK_EX：互斥锁
-//  LOCK_NB：非阻塞
-//  LOCK_SH：共享锁
-//  LOCK_UN：解锁
+// 和文件锁相关的常量包括:
+//  LOCK_EX: 互斥锁
+//  LOCK_NB: 非阻塞
+//  LOCK_SH: 共享锁
+//  LOCK_UN: 解锁
 
 // 文件锁结构体
 type FileLock struct {
@@ -24,11 +24,11 @@ type FileLock struct {
 // 新建一个文件锁对象
 func New(dir string, nonBlock bool) *FileLock {
 	fl := &FileLock{dir: dir, nonBlock: nonBlock}                // 设置锁定文件路径
-	runtime.SetFinalizer(fl, func(fl *FileLock) { fl.Unlock() }) // 在引用失效后，自动解锁
+	runtime.SetFinalizer(fl, func(fl *FileLock) { fl.Unlock() }) // 在引用失效后, 自动解锁
 	return fl
 }
 
-// 加锁操作，在文件上施加一个互斥锁
+// 加锁操作, 在文件上施加一个互斥锁
 func (fl *FileLock) XLock() error {
 	// 创建或打开加锁文件
 	f, err := os.OpenFile(fl.dir, os.O_CREATE, 0644)
@@ -42,7 +42,7 @@ func (fl *FileLock) XLock() error {
 		how |= syscall.LOCK_NB // 设置是否阻塞
 	}
 
-	// 对文件进行加锁，Fd() 函数返回文件描述符句柄
+	// 对文件进行加锁, Fd() 函数返回文件描述符句柄
 	if err = syscall.Flock(int(f.Fd()), how); err != nil {
 		f.Close()
 		return err
@@ -86,7 +86,7 @@ func WaitTimeout(wg *sync.WaitGroup, timeout time.Duration) bool {
 
 	// 等待 channel 结果
 	select {
-	case <-c: // channel 被关闭，表示等待成功
+	case <-c: // channel 被关闭, 表示等待成功
 		return true
 	case <-time.After(timeout): // 等待到时间到达
 		return false

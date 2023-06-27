@@ -6,14 +6,14 @@ import (
 	"fmt"
 )
 
-// 定义 Size3D 结构体，从 Size 结构体继承
+// 定义 Size3D 结构体, 从 Size 结构体继承
 type Size3D struct {
 	size.Size         // 继承 Size 结构体
 	depth     float64 // 定义深度
 
 }
 
-// 构造函数，生成 Size3D 对象
+// 构造函数, 生成 Size3D 对象
 func New(width, height, depth float64) *Size3D { return new(Size3D).Init(width, height, depth) }
 
 // 初始化 Size3D 结构体
@@ -41,7 +41,7 @@ func (s *Size3D) String() string {
 	return fmt.Sprintf("<Size3D width=%v height=%v depth=%v>", width, height, depth)
 }
 
-// 实现 typedef.Comparable 接口，比较两个对象大小
+// 实现 typedef.Comparable 接口, 比较两个对象大小
 func (s *Size3D) Compare(other interface{}) int {
 	v, ok := other.(*Size3D)
 	if !ok {
@@ -53,11 +53,11 @@ func (s *Size3D) Compare(other interface{}) int {
 	return int(s.Volume() - v.Volume())
 }
 
-// 获取 A 面尺寸，为一个 Size 对象
+// 获取 A 面尺寸, 为一个 Size 对象
 func (s *Size3D) SideA() *size.Size { return &s.Size }
 
-// 获取 B 面尺寸，为一个 Size 对象
+// 获取 B 面尺寸, 为一个 Size 对象
 func (s *Size3D) SideB() *size.Size { return size.New(s.Size.Width(), s.depth) }
 
-// 获取 C 面尺寸，为一个 Size 对象
+// 获取 C 面尺寸, 为一个 Size 对象
 func (s *Size3D) SideC() *size.Size { return size.New(s.Size.Height(), s.depth) }

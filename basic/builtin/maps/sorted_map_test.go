@@ -14,7 +14,7 @@ func TestSortedMap(t *testing.T) {
 	assert.Equal(t, 0, sm.Len())
 
 	sm.Put(100, "A")
-	sm.Put(100, "B") // 使用相同的 key 再次存储，因为 key 相同，所以会覆盖掉之前的 key/value
+	sm.Put(100, "B") // 使用相同的 key 再次存储, 因为 key 相同, 所以会覆盖掉之前的 key/value
 
 	keys := sm.Keys() // 目前只存储了 1 个 key
 	assert.Len(t, keys, 1)
@@ -74,7 +74,7 @@ func TestSortedMapRemoveAndClear(t *testing.T) {
 
 	assert.Equal(t, []interface{}{"D", "C"}, sm.Values()) // 剩余的 values 依旧保持和 keys 的有序对应
 
-	sm.Clear() // 清空，返回初始状态
+	sm.Clear() // 清空, 返回初始状态
 
 	assert.Len(t, sm.m, 0)
 	assert.Len(t, sm.s, 0)

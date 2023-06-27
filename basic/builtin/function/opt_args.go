@@ -2,64 +2,54 @@ package function
 
 import "basic/builtin/types"
 
-// CreateUser 函数的参数结构体
-type UserOptions struct {
+// 用于 `CreateUser` 函数的可选参数结构体
+type option struct {
 	Id     int
 	Name   string
 	Gender rune
 }
 
-// CreateUser 函数参数项接口
-type UserOption interface {
-	// 用于设置 UserOptions 某项的函数
-	apply(*UserOptions)
-}
+// # 用于设置 `CreateUser` 可选参数的回调类型
+type UserOption = func(*option)
 
-// 用于设置 UserOptions 结构体某个属性值
-type UserOptionsSetter struct {
-	// 设置 UserOptions 属性值的函数
-	set func(*UserOptions)
-}
-
-// 实现 UserOption 接口
-func (setter *UserOptionsSetter) apply(opts *UserOptions) {
-	setter.set(opts)
-}
-
-// 产生一个 UserOptionsSetter 结构体对象
-func newFuncOption(setter func(*UserOptions)) *UserOptionsSetter {
-	return &UserOptionsSetter{set: setter}
-}
-
-// 用于设置 User Id 属性
+// # 用于设置 `Id` 属性的回调函数
+//
+// 参数:
+//   - `id`: 可选参数值
+//
+// 返回 `UserOption` 回调函数
 func WithUserId(id int) UserOption {
-	return newFuncOption(func(opt *UserOptions) { opt.Id = id })
+	return func(o *option) {
+		o.Id = id
+	}
 }
 
 // 用于设置 User Name 属性
 func WithUserName(name string) UserOption {
-	return newFuncOption(func(opt *UserOptions) { opt.Name = name })
+	return func(o *option) {
+		o.Name = name
+	}
 }
 
 // 用于设置 User Gender 属性
 func WithUserGender(gender rune) UserOption {
-	return newFuncOption(func(opt *UserOptions) { opt.Gender = gender })
-}
-
-// 产生默认的 UserOption 对象
-func defaultUserOption() *UserOptions {
-	return &UserOptions{Id: 1, Name: "Alvin", Gender: 'M'}
+	return func(o *option) {
+		o.Gender = gender
+	}
 }
 
 // 创建一个 User 对象
 func CreateUser(opts ...UserOption) *types.User {
-	// 先将 arg 设置为默认的 UserOptions 对象
-	arg := defaultUserOption()
+	def := option{
+		Id:     1,
+		Name:   "Alvin",
+		Gender: 'M',
+	}
 
-	// 根据传入的 opts 参数值，设置 arg 中的各属性，未设置的属性保持其默认值
+	// 根据传入的 opts 参数值, 设置 arg 中的各属性, 未设置的属性保持其默认值
 	for _, opt := range opts {
-		opt.apply(arg)
+		opt(&def)
 	}
 	// 使用设置后的 arg 参数
-	return &types.User{Id: arg.Id, Name: arg.Name, Gender: arg.Gender}
+	return &types.User{Id: def.Id, Name: def.Name, Gender: def.Gender}
 }

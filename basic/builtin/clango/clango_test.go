@@ -6,7 +6,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// 测试内置 C 代码
+// # 测试调用内置 C 代码
+//
+// 测试 `clango.go` 文件中通过注释内嵌的 C 代码
 func TestCallEmbeddedC(t *testing.T) {
 	ptr := CreateCString("Hello World!")
 	defer FreeCString(ptr)
@@ -17,7 +19,9 @@ func TestCallEmbeddedC(t *testing.T) {
 	ShowCString(ptr)
 }
 
-// 测试通过 .h 文件引入的外部 C 代码
+// # 测试通过 `.h` 文件引入的外部 C 代码
+//
+// 测试 `clango.go` 文件中通过 C 头文件引入的外部 C 代码
 func TestCallExternalC(t *testing.T) {
 	pt1 := CreatePoint(10.0, 20.0)
 	assert.Equal(t, 10.0, pt1.GetX())

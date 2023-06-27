@@ -12,8 +12,8 @@ const (
 	Z_UNARCHIVE_PATH = "unarchive"
 )
 
-// 通过 zip 算法，对文件进行压缩
-// 由于 zip 算法自带归档结构，所以多个文件可以直接压缩到一个归档文件中
+// 通过 zip 算法, 对文件进行压缩
+// 由于 zip 算法自带归档结构, 所以多个文件可以直接压缩到一个归档文件中
 func TestArchiveWithZip(t *testing.T) {
 	defer func() {
 		os.Remove(Z_ARCHIVE_FILE)
