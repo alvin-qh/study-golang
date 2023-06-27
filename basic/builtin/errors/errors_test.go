@@ -9,7 +9,7 @@ import (
 )
 
 // 创建错误变量
-// go 语言遵循 “error is a value” 的理念，通过是否返回 error 来确定一个函数调用是否成功
+// go 语言遵循 "error is a value" 的理念，通过是否返回 error 来确定一个函数调用是否成功
 // 所有错误都是 error 接口的对象，保存着错误信息
 func TestMakeError(t *testing.T) {
 	err := errors.New("invalid name")            // 创建一个 error 类型的错误对象

@@ -33,7 +33,7 @@ func NewFileSemaphore(filename string, count int64) (*FileSemaphore, error) {
 		weighted: semaphore.NewWeighted(count), // 信号量，设置其总共可使用的数量，此时所有信号量均是占用状态
 		ctx:      context.Background(),         // 信号量上下文，参考 routine/context.go
 	}
-	fs.acquire(count, "[Init]") // 将所有的信号量设置为“已占用”状态，等待释放
+	fs.acquire(count, "[Init]") // 将所有的信号量设置为 "已占用" 状态，等待释放
 	return fs, nil
 }
 

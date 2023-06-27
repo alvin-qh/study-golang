@@ -17,7 +17,7 @@ char* create_string(const char* ps)
 
     size_t len = strlen(ps) + 1;
 
-    char* pcs = (char*)malloc(len);
+    char* pcs = (char*) malloc(len);
     strcpy(pcs, ps);
 
     return pcs;

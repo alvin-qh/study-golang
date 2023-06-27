@@ -17,7 +17,7 @@ const (
 	COND_TIME_LAYOUT = "2006-01-02T15:04:05.000-07:00"
 )
 
-// Cond 对象，表示一个带“条件”的锁（Condition Lock）
+// Cond 对象，表示一个带 "条件" 的锁（Condition Lock）
 // Cond 对象依赖一个锁对象（async.Mutex, async.RWMutex），在其上增加了条件支持
 // 在 Cond 对象 Wait 的时候，会释放锁，并在 Wait 成功后重新进入锁
 // 等待成功意味着有一个 Notify 到达

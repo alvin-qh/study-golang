@@ -66,7 +66,7 @@ func TestCutSubPiecesFromSlice(t *testing.T) {
 	assert.Equal(t, []int{3}, s) // 切片为数组的第 3 个元素
 }
 
-// 从切片中“删除”元素
+// 从切片中 "删除" 元素
 // 切片本身不具备删除元素的操作，可以通过新建切片并忽略要删除元素的方式进行
 func TestRemoveItemFromSlice(t *testing.T) {
 	s := []int{1, 2, 3, 4, 5}

@@ -10,12 +10,22 @@
     "GOPROXY",
     "GOROOT",
     "LDFLAGS",
+    "libtest",
+    "libxxx",
     "longsleep",
+    "malloc",
     "nolint",
     "semap",
+    "SRCDIR",
+    "stdlib",
     "strcpy",
     "stretchr",
-    "unaddressable"
+    "strlen",
+    "unaddressable",
+    "unistd",
+    "Varargs",
+    "varuint",
+    "Wrapable"
   ],
   "flagWords": [],
   "enabled": true

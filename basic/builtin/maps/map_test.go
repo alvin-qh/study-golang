@@ -81,7 +81,7 @@ func TestThroughMap(t *testing.T) {
 	assert.ElementsMatch(t, []interface{}{100, "B", []int{1, 2, 3}}, vs)
 }
 
-func TestComflexMapKey(t *testing.T) {
+func TestComplexMapKey(t *testing.T) {
 	// 定义结构体作为 map key
 	type Key struct {
 		id   int

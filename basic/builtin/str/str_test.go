@@ -152,7 +152,7 @@ func TestConvertToString(t *testing.T) {
 	assert.Equal(t, (100 + 20i), c)
 }
 
-// rune 表示一个 ‘字符’ 而非 ‘byte’， 所以要正确的从字符串获取指定位置的字符，需要将字符串类型转为 []rune 来处理
+// rune 表示一个 "字符" 而非 "byte"， 所以要正确的从字符串获取指定位置的字符，需要将字符串类型转为 []rune 来处理
 func TestRuneOfString(t *testing.T) {
 	s := "Hello, 大家好"
 	assert.Equal(t, rune(s[1]), 'e')   // 一个 rune 类型表示一个字符，用单引号 ' 包围

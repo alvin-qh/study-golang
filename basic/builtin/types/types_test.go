@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// 测试结构体类型
 func TestStructType(t *testing.T) {
 	// 定义结构体变量并进行初始化
 	var u1 User = User{Id: 1, Name: "Alvin", Gender: 'M'}
@@ -44,7 +45,7 @@ func TestStructType(t *testing.T) {
 	assert.Equal(t, 3, pu1.Id)
 }
 
-// go 语言的类型转化基于非常简单个规则：值类型转换
+// go 语言的类型转化基于非常简单的规则：值类型转换
 // go 语言具备非常简单的类型系统：基本值类型，结构体类型，指针类型和 interface{} 类型
 // 基本值类型包括：数字类型和布尔类型，数字类型包括：int8~64, float32~64, complex64~128, rune，数值类型之间可以直接转换, bool 类型只能是 true, false
 // 结构体之间无法进行转换，只能依赖接口对类型进行处理
@@ -71,8 +72,8 @@ func TestTypeConvert(t *testing.T) {
 	var pv2 *int64 = (*int64)(unsafe.Pointer(&v1))    // 要将 *float64 类型变量强制转换为 *int64，需要通过 unsafe.Pointer 进行
 	assert.Equal(t, int64(4638387860618067575), *pv2) // 转换后解引指针，得到错误结果，说明指针指向的变量类型错误
 
-	// 任何类型都可以转为 interface{} 类型，即 go 语言特有的 “空接口” 类型
-	// interface{} 类型可以看作是“未知”类型，可以通过“类型断言”转化为其原始类型
+	// 任何类型都可以转为 interface{} 类型，即 go 语言特有的 "空接口" 类型
+	// interface{} 类型可以看作是"未知"类型，可以通过"类型断言"转化为其原始类型
 	var obj interface{} = v1     // 令 obj 为 float64 类型
 	if v1, ok := obj.(int); ok { // 类型断言，ok 为 true 时，v1 为转换后的结果，否则 v1 不可用
 		assert.Equal(t, 123.456, v1)

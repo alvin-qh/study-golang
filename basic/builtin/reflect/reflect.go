@@ -38,11 +38,12 @@ func GetFullTypeName(t reflect.Type) string {
 }
 
 // 通过反射设置值
-// 要对一个对象的值进行设置，需要操作该对象的地址，否则会报告“非地址类型异常”
+// 要对一个对象的值进行设置，需要操作该对象的地址，否则会报告"非地址类型异常"
 
 // 通过反射设置变量值
-//  ptr: 要设置的变量的指针
-//  newVal: 要设置的新值
+//
+//	ptr: 要设置的变量的指针
+//	newVal: 要设置的新值
 func SetValueByReflect(ptr interface{}, newVal interface{}) (err error) {
 	// ptr 参数转为 Value 类型
 	tv := reflect.ValueOf(ptr)
@@ -57,9 +58,10 @@ func SetValueByReflect(ptr interface{}, newVal interface{}) (err error) {
 }
 
 // 通过反射设置结构体字段值
-//  ptr: 要设置字段的结构体变量指针
-//  field: 要设置的结构体字段名
-//  newVal: 要设置的字段新值
+//
+//	ptr: 要设置字段的结构体变量指针
+//	field: 要设置的结构体字段名
+//	newVal: 要设置的字段新值
 func SetStructFieldByReflect(ptr interface{}, field string, newVal interface{}) (err error) {
 	// ptr 参数转为 Value 类型
 	tv := reflect.ValueOf(ptr)

@@ -242,7 +242,7 @@ func TestSetStructFieldByReflect(t *testing.T) {
 }
 
 // Tag 是标记在结构体字段上的文本标记
-// 通过 Tag 可以在结构体字段上添加一些“元数据”，帮助框架在解读结构体时给予一些信息
+// 通过 Tag 可以在结构体字段上添加一些 "元数据"，帮助框架在解读结构体时给予一些信息
 func TestStructFieldTag(t *testing.T) {
 	var obj interface{} = User{Id: 1, Name: "Alvin", Gender: 'M'}
 

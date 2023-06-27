@@ -112,7 +112,7 @@ func TestVarint(t *testing.T) {
 	data := make([]byte, 5)
 
 	// 写入 varuint
-	n := binary.PutVarint(data, int64(100)) // 将 int64 以“可变长度”（变体）形式存入 byte 数组。变体 （varint）可以根据数值的大小变化编码长度，可以节省存储空间
+	n := binary.PutVarint(data, int64(100)) // 将 int64 以 "可变长度"（变体）形式存入 byte 数组。变体 （varint）可以根据数值的大小变化编码长度，可以节省存储空间
 	assert.Equal(t, 2, n)                   // 变体长度为 2，较 int64 原本长度（长度8）减少 6 个字节
 
 	n = binary.PutUvarint(data[n:], uint64(123456)) // 将 uint64 以变体形式存入 byte 数组
