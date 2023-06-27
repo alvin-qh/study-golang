@@ -19,8 +19,7 @@ func TestGenericIntFloatAdd(t *testing.T) {
 	assert.Equal(t, float64(2.3), rFloat)
 }
 
-func TestGenericAdd()  {
-    r := GenericAdd(1, 2)
-
-    
+func TestGenericAdd(t *testing.T) {
+	r := GenericAdd(1, 2)
+	assert.Equal(t, 3, r)
 }
