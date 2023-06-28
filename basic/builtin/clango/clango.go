@@ -41,6 +41,7 @@ void free_string(const char* ps)
 }
 */
 import "C" // C 代码要全部卸载文件最开始的注释中, 紧接着 C 代码注释, 导入 C 代码为 符号 `C`
+// 注意, `import "C"` 指令之前不能包含任何除 C 代码之外的注释, 所有的注释都会被认作为内嵌的 C 代码
 
 import (
 	"math"
@@ -64,10 +65,10 @@ func CreateCString(s string) unsafe.Pointer {
 
 // # 将 C 字符串转为 Go 字符串
 //
-// 调用 `GoString` C 函数进行转换
+// 调用 `GoString` C 函数进行转换, `GoString` 函数是 Go 语言框架为了方便和 C 语言集成提供的工具方法, 位于 `unistd.h` 头文件中
 //
 // 参数:
-//   - `ptr`: 指向 C 字符串的指针
+//   - `ptr`: 指向 C 字符串的指针, 该参数为 `unsafe.Pointer` 类型, 表示一个 C 语言内存地址
 //
 // 返回 Go 字符串对象
 func ConvertCString(ptr unsafe.Pointer) string {
@@ -81,7 +82,7 @@ func ConvertCString(ptr unsafe.Pointer) string {
 // 调用 `show_string` C 函数显示 C 字符串
 //
 // 参数:
-//   - `ptr`: 指向 C 字符串的指针
+//   - `ptr`: 指向 C 字符串的指针, 在调用 `show_string` 函数时需转为 `*C.char` 指针类型, 表示一个 C 语言 `char` 类型指针
 func ShowCString(ptr unsafe.Pointer) {
 	// 传参时, 需要将 unsafe.Pointer 类型参数转为 *C.char 的 C 指针类型
 	C.show_string((*C.char)(ptr))
@@ -89,7 +90,7 @@ func ShowCString(ptr unsafe.Pointer) {
 
 // # 释放 C 指针
 //
-// 调用 `free_string` C 函数释放内存
+// 调用 `free_string` C 函数释放内存, 在调用 `free_string` 函数时需转为 `*C.char` 指针类型, 表示一个 C 语言 `char` 类型指针
 //
 // 参数:
 //   - `ptr`: 指向 C 字符串的指针
@@ -101,12 +102,8 @@ func FreeCString(ptr unsafe.Pointer) {
 // 测试外部 C 代码
 // 外部代码是通过 `#include "point.h"` 引入的
 
-// # 包装 C 结构体
-//
-// 结构体成员变量为一个 C 结构体变量
-type Point struct {
-	point C.point // 结构体成员为一个 C 结构体
-}
+// 为 C 结构体重新映射一个类型名称
+type Point C.point
 
 // # 创建 `Point` 对象
 //
@@ -119,22 +116,24 @@ type Point struct {
 // 返回 `Point` 结构体指针
 func CreatePoint(x float64, y float64) *Point {
 	// 参数需要转换为 C.double 类型, 返回 point C 结构体变量
-	pt := C.create_point((C.double)(x), (C.double)(y))
-	return &Point{point: pt}
+	pt := Point(C.create_point((C.double)(x), (C.double)(y)))
+	return &pt
 }
 
 // # 获取 C `point` 结构体的 `x` 成员变量值
 //
+// 可以看到, 对于 C 语言定义的结构体, 可以在 Go 中直接访问其成员变量
+//
 // 返回 `x` 成员变量值
 func (p *Point) GetX() float64 {
-	return float64(p.point.x) // Go 中可以直接访问 C 结构体 中的字段
+	return float64(Point(*p).x) // Go 中可以直接访问 C 结构体 中的字段
 }
 
 // # 获取 C `point` 结构体的 `y` 成员变量值
 //
 // 返回 `y` 成员变量值
 func (p *Point) GetY() float64 {
-	return float64(p.point.y)
+	return float64(Point(*p).y) // Go 中可以直接访问 C 结构体 中的字段
 }
 
 // # 计算两个 `Point` 变量之间的距离
@@ -142,12 +141,12 @@ func (p *Point) GetY() float64 {
 // 调用 `distance` C 函数, 计算两个点之间的距离
 //
 // 参数:
-//   - `op`: `Point` 变量地址
+//   - `op`: `Point` 另一个 `Point` 结构体变量指针
 //
 // 返回当前 `Point` 变量和目标 `Point` 变量距离
 func (p *Point) Distance(op *Point) float64 {
-	pa := (*C.point)(unsafe.Pointer(&p.point)) // 将 point 结构体的地址转为 C 语言类型指针
-	pb := (*C.point)(unsafe.Pointer(&op.point))
+	pa := (*C.point)(p) // 将 point 结构体的地址转为 C 语言类型指针
+	pb := (*C.point)(op)
 	return math.Round(float64(C.distance(pa, pb))*100) / 100 // 计算并保留 2 位小数
 }
 

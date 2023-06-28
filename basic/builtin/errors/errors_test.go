@@ -8,105 +8,93 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// 创建错误变量
-// Go 语言遵循 "error is a value" 的理念, 通过是否返回 `error` 来确定一个函数调用是否成功
-// 所有错误都是 error 接口的对象, 保存着错误信息
-func TestMakeError(t *testing.T) {
-	err := errors.New("invalid name")            // 创建一个 error 类型的错误对象
-	assert.Error(t, err)                         // 断言是否是 error 类型变量
-	assert.Equal(t, "invalid name", err.Error()) // 获取错误信息
+// # 创建错误对象
+//
+// Go 语言遵循 "Error is a value" 的理念, 通过是否返回 `error` 对象来确定一个函数调用是否成功
+//
+// 所有错误都是 error 接口的对象, 保存着错误原因
+//
+// 错误可以传递, 即通过 `fmt.Errorf(...)` 函数, 通过 `%w` 占位符并传递 `error` 对象, 可以得到一个新 `error` 对象, 是前一个 `error` 对象的"包装"
+//
+// 包装对象可以通过 `errors.Unwrap` 函数可以获取"被包装"的 `error` 对象, 相当于获取错误链条的上一个环节
+//
+// 通过 `errors.Is` 函数可以判断一个错误链上是否有指定的错误对象, 即沿着错误链条逐级向上查找, 直到找到目标错误对象
+func TestError(t *testing.T) {
+	err1 := errors.New("invalid name")            // 创建一个 error 类型的错误对象
+	assert.Error(t, err1)                         // 断言是否是 error 类型变量
+	assert.Equal(t, "invalid name", err1.Error()) // 获取错误信息
 
-	err = fmt.Errorf("error: %v", err) // 通过 fmt.Errorf 创建一个带有错误信息的错误对象, %v 表示该错误信息中引用另一个错误的信息
-	assert.Error(t, err)
-	assert.Equal(t, "error: invalid name", err.Error())
+	err2 := fmt.Errorf("error: %w", err1) // 通过 fmt.Errorf 创建一个带有错误信息的错误对象, %w 表示包装 (Wrap) 另一个错误对象
+	assert.Error(t, err2)
+	assert.Equal(t, "error: invalid name", err2.Error())
+
+	// 通过 errors.Unwrap 函数可以获取到一个错误对象中包装的错误对象
+	assert.Same(t, err1, errors.Unwrap(err2)) // err2 中包装了 err1
+	// 通过 errors.Is 函数可以判断错误链条中是否最终包装了指定的错误
+	assert.True(t, errors.Is(err2, err1)) // 判断 err2 中是否包装了 err1
 }
 
-// 自定义错误类型
-// `error` 接口只定义了 `Error() string` 方法, 所以所有实现了该方法的结构体, 均可视为 `error` 类型, 作为错误值使用
+// # 测试使用预定义错误
+//
+// Go 语言错误对象的一个最佳实践即, 将所有可以预期的错误对象进行预定义, 并在代码中返回这些错误, 而非返回临时构建的错误对象
+func TestPredefinedError(t *testing.T) {
+	// 调用函数, 返回错误对象
+	err := causeLengthError()
+
+	// 判断错误是否为预期类型
+	assert.Same(t, ErrLength, err)    // 通过引用比较确认错误是否为预期类型
+	assert.ErrorIs(t, err, ErrLength) // 通过 errors.Is 判断错误是否为预期类型
+}
+
+// # 自定义错误类型
+//
+// 通过自定义的 `CustomError` 类型对象表示的错误, 具备更多的错误信息, 且可以作为错误传递链条的一环, 包装另一个错误对象
+//
+// 对于一个 `error` 接口类型对象, 其原始类型是否为某个自定义错误类型, Go 语言提供了两种方法来进行判断:
+//   - 通过 `err.(*CustomError)` 语法进行类型转换 (或 `switch err.(type)` 语法进行类型选择), 查看 `err` 变量类型是否为所期待的自定义错误类型;
+//   - 通过 `errors.As` 函数, 第 1 个参数为 `error` 类型变量, 第 2 个参数为自定义错误类型的指针, 此时对于参数 1 链条上任意错误类型和参数 2 一致, 则返回 `true`;
 func TestCustomErrorType(t *testing.T) {
 	// 使用自定义错误类型
-	var err error = &LengthError{length: 12, expected: 20}          // 定义 error 接口引用, 引用到 LengthError 类型对象上
-	assert.Error(t, err)                                            // 判断自定义类型是否为 error 类型
-	assert.Equal(t, "invalid length: 12, expected 20", err.Error()) // 获取错误信息
+	err := NewCustomError("custom error", 100, ErrLength) // 定义 error 接口引用, 引用到 LengthError 类型对象上
+	assert.Error(t, err)                                  // 判断自定义类型是否为 error 类型
 
-	// 所有 error 类型的变量都可以转化为其原始错误类型, 转换方式同 go 语言接口引用类型转换语法
-	if e := err.(*LengthError); e != nil { // 将 error 变量的引用转为 *LengthError 类型, e 即为 LengthError 引用
-		assert.Error(t, e)
-		assert.Equal(t, "invalid length: 12, expected 20", e.Error())
-	} else {
-		assert.Fail(t, "Cannot run here")
-	}
+	// 可以通过类型转换将错误对象转为其原始类型
+	cErr, ok := err.(*CustomError)
+	assert.True(t, ok)
+	assert.Equal(t, 100, cErr.val) // 转为原始类型后, 即可获取类型中定义的其它属性
+	assert.Equal(t, "custom error, error value=100", cErr.Error(), cErr.msg)
 
-	if _, ok := err.(*LengthError); ok { // 类型转换也可以通过 ok 这个哨兵返回值来判断
-		assert.Error(t, err)
-		assert.Equal(t, "invalid length: 12, expected 20", err.Error())
-	} else {
-		assert.Fail(t, "Cannot run here")
-	}
+	assert.ErrorIs(t, err, ErrLength)             // 具备 Unwrap 方法的 error 对象可以使用 errors.Is 方法进行判断
+	assert.Same(t, ErrLength, errors.Unwrap(err)) // 同时可以通过 errors.Unwrap 方法获取被包装的错误对象
+
+	// 也可以可以通过 errors.As 函数来判断 err 错误的类型是否和 cErr 相同
+	cErr = &CustomError{}                 // 这段代码为 cErr 变量换个类型就容易理解: var err error = &CustomError{}, 将 CustomError 对象地址转为 error 类型
+	assert.True(t, errors.As(err, &cErr)) // errors.As(err, any(&err)), 第 2 个参数要求为 error 对象的地址, 所以 err 变量相当于是 CustomError 对象指针的指针
+
+	// errors.As 的一个增强功能即可以沿着错误链条逐个查找和指定类型相同的错误
+	wrapErr := fmt.Errorf("wrap error %w", err)
+	assert.True(t, errors.As(wrapErr, &cErr))
 }
 
-// 测试错误值的比较和类型判断
-// 如果为错误类型增加一个指向另一个错误的引用 (参见 `LengthError.caused` 字段), 则组成了错误链表 (error chains), 可以以此回溯到最初引发错误的那个错误
-// 通过 `errors.Is` 函数, 可以判断一个错误是否为指定错误, 该函数会不断调用错误对象的 `Unwrap` 函数, 相当于沿着错误链表回溯, 直到错误匹配, 否则返回 `false`
-// 通过 `errors.As` 函数, 可以判断两个参数是否是相同类型的错误值, 并把前一个参数传递给后一个参数. 注意: `target` 相当于是 `error` 引用的指针 `error.As`
-// 方法也会通过调用错误的 `Unwrap` 函数, 不断回溯错误链, 直到找到类型匹配的项, 否则返回 `false`
-func TestErrorIsOrAs(t *testing.T) {
-	// 测试错误值比较
-	var err error = ErrName                 // 产生一个错误对象
-	assert.True(t, errors.Is(err, ErrName)) // 判断错误值是否等于 ErrName
-	assert.ErrorIs(t, err, ErrName)         // errors.Is 的断言
-
-	// 测试沿错误链表回溯并比较
-	// 这是产生错误链的简单方式, 即无需额外定义错误类型, 直接进行 Wrap 操作即可
-	err = fmt.Errorf("%w, name is: %s", ErrName, "alvin") // 产生一个错误, 并包装 ErrName 错误, 相当于 err -> ErrName 的链
-	assert.True(t, errors.Is(err, ErrName))               // 判断错误值是否等于或包含 ErrName 错误, 即通过 Unwrap 不断回溯比较
-	assert.ErrorIs(t, err, ErrName)                       // errors.Is 的断言
-	assert.Equal(t, ErrName, errors.Unwrap(err))          // 显示调用 errors.Unwrap 函数, 获取错误
-
-	// 判断错误类型
-	var targetErr1 *LengthError
-
-	err = fmt.Errorf("invalid length")           // 定义错误
-	assert.False(t, errors.As(err, &targetErr1)) // 确认 err 变量不是 LengthError 类型 (或错误链上也没有 LengthError 类型)
-
-	err = &LengthError{length: 10, expected: 20} // 定义 LengthError 类型的错误
-	assert.True(t, errors.As(err, &targetErr1))  // 确认 err 变量是 LengthError 类型, 并将 err 的引用传递给 targetErr1 变量
-	assert.Same(t, err, targetErr1)              // 现在 err 和 targetErr1 具备相同的引用
-	assert.Equal(t, "invalid length: 10, expected 20", targetErr1.Error())
-
-	err = fmt.Errorf("%w caused", &LengthError{length: 10, expected: 20})  // 包装 LengthError, 产生 err -> LengthError 的错误链
-	assert.True(t, errors.As(err, &targetErr1))                            // 确认 err 的链上有 LengthError 类型的错误值 (通过不断调用 Unwrap 函数), 并将符合类型的错误值传递给 targetErr1 变量
-	assert.Equal(t, "invalid length: 10, expected 20", targetErr1.Error()) // targetErr1 引用到了被包装的错误值上
-
-	var targetErr2 *EmptyError
-	err = &LengthError{length: 10, expected: 20}            // 定义 err 变量引用到 LengthError 类型
-	err.(Wrapped).Wrap(&EmptyError{name: "name"})           // 手动调用 Wrap 函数, 为 LengthError 类型的错误传入另一个错误, 相当于 LengthError -> EmptyError 的链
-	assert.True(t, errors.As(err, &targetErr2))             // 确认 err 的链上具有 EmptyError 类型的错误值, 并传递该错误值引用到 targetErr2 变量
-	assert.Equal(t, "name is required", targetErr2.Error()) // 确认 targetErr2 是引用到 EmptyError 类型的变量
-
-	err = errors.Unwrap(err) // 手动调用错误的 Unwrap 函数, 获取前一个错误
-	assert.IsType(t, &EmptyError{}, err)
-}
-
-// 抛出异常的函数
-// 抛出异常, `panic` 调用会终止当前函数调用, 即 `panic` 之后的代码不会被调用
-// 调用终止后, 代码执行会跳转到调用方的 `defer` 调用上, 如果该 `defer` 调用具备 `recover` 捕获
-// 则会捕获该异常, 并结束调用方函数, 否则异常会继续上更上一级的调用者抛出
-func PanicError() {
-	panic(ErrName)
-}
-
-// 测试通过 `defer` 函数捕获 `panic` 抛出的异常
+// # 测试 Go 异常处理
+//
+// 除了返回 `error` 对象外, Go 还提供了运行时异常的抛出和处理机制
+//
+// 被调用的函数内部通过调用 `panic` 函数抛出一个变量 (可以是 `error` 变量)
+//
+// 调用方函数内部可以通过 `defer` 关键字修饰一个函数调用, 当 `panic` 调用发生后, 该 `defer` 调用随即被调用
+//
+// `defer` 调用内部可以通过 `recover` 函数获取通过 `panic` 抛出的信息
 func TestDeferAndPanicError(t *testing.T) {
 	defer func() { // 当异常发生后, 该 defer 调用会被执行
 		r := recover()                    // 捕获异常
 		if err := r.(error); err != nil { // 判断异常类型
 			// 处理异常
-			assert.ErrorIs(t, err, ErrName)
+			assert.ErrorIs(t, err, ErrLength)
 		}
 		// 异常处理完毕, TestDeferAndPanicError 函数随之结束
 	}()
 
-	PanicError() // 调用函数并抛出异常
-	assert.Fail(t, "Cannot be run here")
+	panicError()                         // 调用函数并抛出异常
+	assert.Fail(t, "Cannot be run here") // 这里不会被调用
 }
