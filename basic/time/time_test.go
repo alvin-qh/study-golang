@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	TIME_LOCAL, _ = time.LoadLocation("Asia/Shanghai") // 获取东八区时区
+	ZONE_LOCAL, _ = time.LoadLocation("Asia/Shanghai") // 获取东八区时区
 
 	// Go 语言中格式化时间模板不是常见的 Y,M,S 等
 	// 而是 Go 语言的诞生时间 2006-01-02 15:04:05.000 MST
@@ -19,6 +19,9 @@ var (
 	TIME_OFF        = "2021-11-11T12:00:00.100+08:00"
 
 	TIME_LAYOUT_ST = "2006-01-02 15:04:05 MST" // 带时间标准符合的时间格式
+
+	TIME_LAYOUT_LOCAL = "2006-01-02 15:04:05.0000" // 设置本地时间格式
+	TIME_LOCAL        = "2021-11-11 12:00:00.0000"
 )
 
 // 创建时间对象
@@ -29,7 +32,7 @@ func TestCreateTime(t *testing.T) {
 	assert.Equal(t, "2012-11-11 12:00:00 +0000 UTC", tm.String())
 
 	// 创建东八区时区时间对象
-	tm = time.Date(2012, 11, 11, 12, 0, 0, 0, TIME_LOCAL)
+	tm = time.Date(2012, 11, 11, 12, 0, 0, 0, ZONE_LOCAL)
 	assert.Equal(t, "2012-11-11 12:00:00 +0800 CST", tm.String())
 }
 
@@ -41,7 +44,7 @@ func TestConvertLocalTime(t *testing.T) {
 	loc := tm.Location() // 获取对应时区
 	assert.Equal(t, "UTC", loc.String())
 
-	tm = tm.In(TIME_LOCAL) // 时区转换到东八区
+	tm = tm.In(ZONE_LOCAL) // 时区转换到东八区
 	assert.Equal(t, "2012-11-11 20:00:00 +0800 CST", tm.String())
 
 	loc = tm.Location() // 获取时区
@@ -116,7 +119,7 @@ func TestRoundAndTruncate(t *testing.T) {
 
 // 时间格式化为字符串
 func TestTimeFormat(t *testing.T) {
-	tm := time.Date(2012, 11, 11, 12, 0, 0, 0, TIME_LOCAL)
+	tm := time.Date(2012, 11, 11, 12, 0, 0, 0, ZONE_LOCAL)
 
 	s := tm.Format(TIME_LAYOUT_UTC)
 	assert.Equal(t, "2012-11-11T12:00:00.000Z", s) // 格式化为标准 UTC 格式
@@ -176,4 +179,24 @@ func TestTimeMarshal(t *testing.T) {
 	tm2 = time.Time{}
 	tm2.UnmarshalText([]byte("2012-11-11T12:00:00Z")) // 从字符串反序列化
 	assert.Equal(t, tm1, tm2)
+}
+
+// 测试通过指定的时区对象解析时间字符串
+func TestParseTimeWithGivenLocationObject(t *testing.T) {
+	// 通过 Asia/Shanghai 作为时区对象解析时间字符串
+	tmLoc, err := time.ParseInLocation(TIME_LAYOUT_LOCAL, TIME_LOCAL, ZONE_LOCAL)
+	assert.NoError(t, err)
+
+	// 解析 UTC 时间
+	tmUtc, err := time.Parse(TIME_LAYOUT_UTC, TIME_UTC)
+	assert.NoError(t, err)
+
+	// 此时两个时间的小时数一致
+	assert.Equal(t, 0, tmLoc.Hour()-tmUtc.Hour())
+
+	// 将 Asia/Shanghai 时间转为 UTC 时间
+	tmLoc = tmLoc.In(time.UTC)
+
+	// 此时两个时间的小时数相差 8 小时
+	assert.Equal(t, 8, tmUtc.Hour()-tmLoc.Hour())
 }
