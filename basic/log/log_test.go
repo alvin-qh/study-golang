@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	LOG_FILE_NAME = "log.log" // 保持 log 的文件
+	LOG_FILE_NAME = "log.log" // 保存 log 的文件
 )
 
 func TestLogger(t *testing.T) {

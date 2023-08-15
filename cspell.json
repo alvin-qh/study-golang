@@ -3,6 +3,7 @@
   "language": "en",
   "words": [
     "Alloc",
+    "antonfisher",
     "Appender",
     "backports",
     "callstack",
@@ -20,6 +21,7 @@
     "LDFLAGS",
     "libtest",
     "libxxx",
+    "logrus",
     "longsleep",
     "malloc",
     "memclr",
@@ -29,6 +31,7 @@
     "nanotime",
     "nolint",
     "semap",
+    "sirupsen",
     "SRCDIR",
     "stdlib",
     "strcpy",
@@ -36,6 +39,7 @@
     "strlen",
     "unaddressable",
     "unistd",
+    "Unpatch",
     "Varargs",
     "varuint",
     "Wrapable"
