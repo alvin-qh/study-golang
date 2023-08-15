@@ -2,7 +2,9 @@ package logging
 
 import (
 	"bytes"
+	"fmt"
 	"os"
+	"runtime"
 	"testing"
 	"time"
 
@@ -13,20 +15,33 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// 用于测试的日志拦截器结构体
 type TestingHook struct {
+	// 存储日志的缓冲区
 	buffer *bytes.Buffer
 }
 
+// 将日志拦截器拦截的日志内容转为字符串
 func (h *TestingHook) String() string {
 	return h.buffer.String()
 }
 
+// 创建新的测试日志拦截器对象
+//
+// 返回值:
+//
+//	拦截器对象
 func newTestingHook() *TestingHook {
 	return &TestingHook{
 		buffer: bytes.NewBuffer(make([]byte, 0, 4096)),
 	}
 }
 
+// 设置该日志拦截器对应的日志级别
+//
+// 返回值:
+//
+//	可以应用此拦截器的日志级别集合
 func (h *TestingHook) Levels() []log.Level {
 	return []log.Level{
 		log.DebugLevel,
@@ -37,6 +52,14 @@ func (h *TestingHook) Levels() []log.Level {
 	}
 }
 
+// 日志拦截方法
+//
+// 参数:
+//   - `e` 日志实体指针
+//
+// 返回值:
+//
+//	错误对象, `nil` 表示没有错误
 func (h *TestingHook) Fire(e *log.Entry) error {
 	s, err := e.String()
 	if err != nil {
@@ -48,7 +71,7 @@ func (h *TestingHook) Fire(e *log.Entry) error {
 }
 
 var (
-	hook    *TestingHook
+	// 日志时间时区
 	zone, _ = time.LoadLocation("Asia/Shanghai")
 )
 
@@ -61,32 +84,36 @@ func TestMain(m *testing.M) {
 	// 执行完毕后, 取消 patch
 	defer guard.Unpatch()
 
-	// 实例化测试用的日志拦截器
-	hook = newTestingHook()
 	os.Exit(m.Run())
 }
 
 // 测试 `logrus` 库自带的格式
 func TestTextFormatterWithColorificOutput(t *testing.T) {
+	// 实例化测试用的日志拦截器
+	hook := newTestingHook()
+
 	logger := LogInit(&LogSetting{
-		logger: log.New(),
+		Logger: log.New(),
 		Level:  log.DebugLevel,
 		// 使用 `nested-logrus-formatter` 格式化插件
 		Formatter: &log.TextFormatter{
 			// 强制输出色彩信息
 			ForceColors:   true,
 			DisableColors: false,
-            FullTimestamp: true,
-            Time
+			FullTimestamp: true,
 		},
 		Hooks: []log.Hook{hook},
 	})
+	logger.Debug("")
 }
 
 // 测试 `nested-logrus-formatter` 库的日志格式化插件
 func TestNestedFormatter(t *testing.T) {
+	// 实例化测试用的日志拦截器
+	hook := newTestingHook()
+
 	logger := LogInit(&LogSetting{
-		logger: log.New(),
+		Logger: log.New(),
 		Level:  log.DebugLevel,
 		// 使用 `nested-logrus-formatter` 格式化插件
 		Formatter: &nested.Formatter{
@@ -94,17 +121,24 @@ func TestNestedFormatter(t *testing.T) {
 			HideKeys:              true,
 			NoColors:              false,
 			NoFieldsColors:        false,
-			TimestampFormat:       time.RFC3339,
+			TimestampFormat:       fmt.Sprintf("[%s]", time.RFC3339),
 			ShowFullLevel:         true,
 			NoUppercaseLevel:      false,
 			NoFieldsSpace:         false,
 			TrimMessages:          true,
-			CallerFirst:           false,
+			CallerFirst:           true,
 			CustomCallerFormatter: nil,
 		},
 		Hooks: []log.Hook{hook},
 	})
+	logger.SetReportCaller(true)
 
+	// 获取
+	_, currentFilename, line, _ := runtime.Caller(0)
 	logger.Debug("Hello")
-	assert.Equal(t, "2023-08-15T17:13:00+08:00\x1b[37m [DEBUG] \x1b[0mHello\n", hook.String())
+
+	assert.Equal(t, fmt.Sprintf(
+		"[2023-08-15T17:13:00+08:00] "+
+			"(%s:%d logrus/logging.TestNestedFormatter)"+
+			"\x1b[37m [DEBUG] \x1b[0mHello\n", currentFilename, line+1), hook.String())
 }

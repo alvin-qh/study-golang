@@ -10,7 +10,7 @@ import (
 // 定义日志配置信息
 type LogSetting struct {
 	// 要配置的 log 对象, 如果为 nil, 则配置默认全局日志对象
-	logger *log.Logger
+	Logger *log.Logger
 	// 设置的日志格式
 	Formatter log.Formatter
 	// 设置的日志级别
@@ -29,7 +29,7 @@ type LogSetting struct {
 //	日志对象
 func LogInit(s *LogSetting) *log.Logger {
 	// 获取要设置的 log 对象
-	logger := s.logger
+	logger := s.Logger
 	if logger == nil {
 		// 如果未设置 log 对象, 则使用默认的标准日志对象
 		logger = log.StandardLogger()
