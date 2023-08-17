@@ -22,7 +22,7 @@ func TestLoggingToFile(t *testing.T) {
 		},
 	})
 	logger.SetReportCaller(true)
-	logger.AddHook(NewRollingFileHook("test.log"))
+	logger.AddHook(NewRollingFileHook("logs/test.log"))
 
 	logger.Debug("Hello")
 }
