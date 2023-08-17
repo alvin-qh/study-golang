@@ -12,6 +12,15 @@ type RollingFileHook struct {
 // 可变参数类型
 type RollingFileHookOption = func(option *lumberjack.Logger)
 
+// 创建滚动文件日志拦截器
+//
+// 参数:
+//   - `filename` 日志文件名
+//   - `options` 日志记录选项, 参考 `RollingFileHookOption` 选项类型
+//
+// 返回:
+//
+//	日志拦截器对象
 func NewRollingFileHook(filename string, options ...RollingFileHookOption) *RollingFileHook {
 	opt := lumberjack.Logger{
 		Filename:   filename,
@@ -19,13 +28,14 @@ func NewRollingFileHook(filename string, options ...RollingFileHookOption) *Roll
 		MaxBackups: 3,
 		MaxAge:     30,
 		Compress:   true,
+		LocalTime:  true,
 	}
 
 	for _, fn := range options {
 		fn(&opt)
 	}
 
-    opt.Rotate()
+	opt.Rotate()
 
 	return &RollingFileHook{
 		logger: &opt,
@@ -66,6 +76,8 @@ func (h *RollingFileHook) Fire(e *log.Entry) error {
 	_, err = h.logger.Write(c)
 	return err
 }
+
+// 定义 `NewRollingFileHook` 函数的选项
 
 func WithMaxSize(maxSize int) RollingFileHookOption {
 	return func(option *lumberjack.Logger) {
