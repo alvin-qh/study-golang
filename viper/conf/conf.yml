@@ -1,0 +1,7 @@
+cache:
+  redis:
+    max-items: 100
+    item-size: 64
+  memcache:
+    max-items: 200
+    item-size: 80
