@@ -18,6 +18,7 @@
     "GOROOT",
     "graphviz",
     "heapf",
+    "Infof",
     "LDFLAGS",
     "libtest",
     "libxxx",
