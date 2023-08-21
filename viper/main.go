@@ -1,46 +1,46 @@
 package main
 
 import (
-	"path"
+    "path"
 
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
+    log "github.com/sirupsen/logrus"
+    "github.com/spf13/viper"
 
-	"os"
-	"viper/conf"
-	"viper/logging"
+    "os"
+    "viper/conf"
+    "viper/logging"
 )
 
 const (
-	CONF_PATH = "demo"
-	CONF_FILE = "conf.json"
+    ConfPath = "demo"
+    ConfFile = "conf.json"
 )
 
 func main() {
-	// 初始化日志
-	logging.Setup()
+    // 初始化日志
+    logging.Setup()
 
-	// 获取当前工作目录
-	cwd, err := os.Getwd()
-	if err != nil {
-		log.Fatal("Cannot get current path", cwd)
-	}
+    // 获取当前工作目录
+    cwd, err := os.Getwd()
+    if err != nil {
+        log.Fatal("Cannot get current path", cwd)
+    }
 
-	// 生成配置文件路径
-	confPath := path.Join(cwd, CONF_PATH)
-	log.Infof("Get path of config files \"%v\"", confPath)
+    // 生成配置文件路径
+    confPath := path.Join(cwd, ConfPath)
+    log.Infof("Get path of config files \"%v\"", confPath)
 
-	// 设置配置文件路径
-	conf.SetConfigPaths([]string{confPath})
+    // 设置配置文件路径
+    conf.SetConfigPaths([]string{confPath})
 
-	// 读取配置文件
-	if err = conf.ReadJsonConfig(CONF_FILE); err != nil {
-		log.Fatal("Cannot read config file", err)
-	}
+    // 读取配置文件
+    if err = conf.ReadJsonConfig(ConfFile); err != nil {
+        log.Fatal("Cannot read config file", err)
+    }
 
-	// 输出配置文件内容
-	log.Infof("host.address=%v", viper.GetString("host.address"))
-	log.Infof("host.ports=%v", viper.GetIntSlice("host.ports"))
-	log.Infof("database.metric.host=%v", viper.GetString("database.metric.host"))
-	log.Infof("database.metric.port=%v", viper.GetInt("database.metric.port"))
+    // 输出配置文件内容
+    log.Infof("host.address=%v", viper.GetString("host.address"))
+    log.Infof("host.ports=%v", viper.GetIntSlice("host.ports"))
+    log.Infof("database.metric.host=%v", viper.GetString("database.metric.host"))
+    log.Infof("database.metric.port=%v", viper.GetInt("database.metric.port"))
 }

@@ -8,8 +8,16 @@ func SetConfigPaths(configPaths []string) {
 	}
 }
 
-func ReadJsonConfig(filename string) error {
-	viper.SetConfigName(filename)
-	viper.SetConfigType("json")
+func readConfig(name string, ctype string) error {
+	viper.SetConfigName(name)
+	viper.SetConfigType(ctype)
 	return viper.ReadInConfig()
+}
+
+func ReadJsonConfig(name string) error {
+	return readConfig(name, "json")
+}
+
+func ReadYamlConfig(name string) error {
+	return readConfig(name, "yaml")
 }
