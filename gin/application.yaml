@@ -1,0 +1,21 @@
+server:
+  address:
+    - "0.0.0.0:8080"
+  cors:
+    allowed-origins: "*"
+    allowed-methods:
+      - "GET"
+      - "PUT"
+      - "POST"
+      - "DELETE"
+      - "OPTIONS"
+      - "HEAD"
+      - "PATCH"
+
+logger:
+  file: logs/server.log
+  show-caller: true
+  max-size: 100
+  compress: true
+  max-age: 30
+  max-backups: 100
