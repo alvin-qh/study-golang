@@ -34,7 +34,7 @@ func Setup(config *conf.Config) {
 		CallerFirst:     true,
 		ShowFullLevel:   true,
 		CustomCallerFormatter: func(f *runtime.Frame) string {
-			return fmt.Sprintf("(%v:%v)", resolveFile(f.File), f.Line)
+			return fmt.Sprintf(" (%v:%v)", resolveFile(f.File), f.Line)
 		},
 	})
 

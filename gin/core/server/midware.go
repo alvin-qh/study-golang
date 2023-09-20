@@ -1,6 +1,7 @@
 package server
 
 import (
+	"strconv"
 	"study-gin/core/conf"
 	"time"
 
@@ -34,28 +35,55 @@ func JSONMiddleware() gin.HandlerFunc {
 }
 
 const (
-	headerAllowOrigin  = "Access-Control-Allow-Origin"
-	headerAllowMethods = "Access-Control-Allow-Methods"
+	headerAllowOrigin      = "Access-Control-Allow-Origin"
+	headerAllowMethods     = "Access-Control-Allow-Methods"
+	headerAllowHeaders     = "Access-Control-Allow-Headers"
+	headerExposeHeaders    = "Access-Control-Expose-Headers"
+	headerAllowCredentials = "Access-Control-Allow-Credentials"
+	headerMaxAge           = "Access-Control-Max-Age"
 )
 
 // 允许跨域请求的中间件
 // 参考: https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS
 func CORSMiddleware(config *conf.Config) gin.HandlerFunc {
-	log.Info("middleware \"cors\" enabled")
+	enable := config.Server.Cors.Enable
+	if !enable {
+		return func(*gin.Context) {
+			// Nothing
+		}
+	} else {
+		log.Info("middleware \"cors\" enabled")
 
-	allowedOrigins := conf.ToString(config.Server.Cors.AllowedOrigins)
-	log.Infof("\t%v=%v", headerAllowOrigin, allowedOrigins)
+		allowOrigin := conf.ToString(config.Server.Cors.AllowOrigin, ",")
+		log.Infof("\t%v=%v", headerAllowOrigin, allowOrigin)
 
-	allowedMethods := conf.ToString(config.Server.Cors.AllowedMethods)
-	log.Infof("\t%v=%v", headerAllowMethods, allowedMethods)
+		allowMethods := conf.ToString(config.Server.Cors.AllowMethods, ",")
+		log.Infof("\t%v=%v", headerAllowMethods, allowMethods)
 
-	return func(ctx *gin.Context) {
-		header := ctx.Writer.Header()
-		header.Set(headerAllowOrigin, conf.ToString(config.Server.Cors.AllowedOrigins))
+		allowHeaders := conf.ToString(config.Server.Cors.AllowHeaders, ",")
+		log.Infof("\t%v=%v", headerAllowHeaders, allowHeaders)
 
-		if ctx.Request.Method != string(OPTIONS) {
+		exposeHeaders := conf.ToString(config.Server.Cors.ExposeHeaders, ",")
+		log.Infof("\t%v=%v", headerExposeHeaders, exposeHeaders)
+
+		allowCredentials := config.Server.Cors.AllowCredentials
+		log.Infof("\t%v=%v", headerAllowCredentials, allowCredentials)
+
+		maxAge := config.Server.Cors.AllowCredentials
+		log.Infof("\t%v=%v", headerMaxAge, maxAge)
+
+		return func(ctx *gin.Context) {
+			header := ctx.Writer.Header()
+			header.Set(headerAllowOrigin, allowOrigin)
+
+			if ctx.Request.Method == string(OPTIONS) {
+				header.Set(headerAllowMethods, allowMethods)
+				header.Set(headerAllowHeaders, allowHeaders)
+				header.Set(headerExposeHeaders, exposeHeaders)
+				header.Set(headerAllowCredentials, strconv.FormatBool(allowCredentials))
+			}
+
 			ctx.Next()
-			return
 		}
 	}
 }
