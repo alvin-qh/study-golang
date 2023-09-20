@@ -7,6 +7,8 @@ import (
 
 func AnyToString(val any) string {
 	switch sval := val.(type) {
+	case string:
+		return sval
 	case int:
 		return strconv.FormatInt(int64(sval), 10)
 	case int8:
@@ -29,22 +31,10 @@ func AnyToString(val any) string {
 		return strconv.FormatUint(sval, 10)
 	case float32:
 		return strconv.FormatFloat(float64(sval), 'f', 5, 32)
-    case float64:
+	case float64:
 		return strconv.FormatFloat(float64(sval), 'f', 11, 64)
 	case bool:
 		return strconv.FormatBool(sval)
-	case int:
-		return strconv.FormatInt(int64(sval), 10)
-	case int:
-		return strconv.FormatInt(int64(sval), 10)
-	case int:
-		return strconv.FormatInt(int64(sval), 10)
-	case int:
-		return strconv.FormatInt(int64(sval), 10)
-	case int:
-		return strconv.FormatInt(int64(sval), 10)
-	case int:
-		return strconv.FormatInt(int64(sval), 10)
 	default:
 		return fmt.Sprintf("%v", sval)
 	}

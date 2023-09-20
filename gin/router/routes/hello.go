@@ -7,5 +7,8 @@ func HelloGet(ctx *gin.Context) {
 		"result":  "OK",
 		"content": "Hello World",
 	})
-    ctx.Next()
+}
+
+func HelloPost(ctx *gin.Context) {
+	HelloGet(ctx)
 }

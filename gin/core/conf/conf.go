@@ -3,8 +3,8 @@ package conf
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"strings"
+	"study-gin/core/utils"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -130,22 +130,7 @@ func ToString(val any, sep string) string {
 		return strings.Join((func() []string {
 			result := make([]string, len(sval))
 			for i, v := range sval {
-				switch sv := v.(type) {
-				case string:
-					result[i] = sv
-				case int:
-					result[i] = strconv.FormatInt(int64(sv), 10)
-				case int64:
-					result[i] = strconv.FormatInt(sv, 10)
-				case byte:
-					result[i] = strconv.FormatUint(uint64(sv), 10)
-				case uint:
-					result[i] = strconv.FormatUint(uint64(sv), 10)
-				case uint64:
-					result[i] = strconv.FormatUint(uint64(sv), 10)
-				default:
-					result[i] = fmt.Sprintf("%v", sv)
-				}
+				result[i] = utils.AnyToString(v)
 			}
 			return result
 		})(), sep)

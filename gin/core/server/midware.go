@@ -48,8 +48,8 @@ const (
 func CORSMiddleware(config *conf.Config) gin.HandlerFunc {
 	enable := config.Server.Cors.Enable
 	if !enable {
-		return func(*gin.Context) {
-			// Nothing
+		return func(ctx *gin.Context) {
+			ctx.Next()
 		}
 	} else {
 		log.Info("middleware \"cors\" enabled")
@@ -81,6 +81,9 @@ func CORSMiddleware(config *conf.Config) gin.HandlerFunc {
 				header.Set(headerAllowHeaders, allowHeaders)
 				header.Set(headerExposeHeaders, exposeHeaders)
 				header.Set(headerAllowCredentials, strconv.FormatBool(allowCredentials))
+
+				ctx.AbortWithStatus(200)
+				return
 			}
 
 			ctx.Next()
