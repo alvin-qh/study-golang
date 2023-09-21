@@ -11,11 +11,11 @@ import (
 )
 
 // 配置结构体
-type Config struct {
+type _Config struct {
 	// 服务器配置
 	Server struct {
 		// 服务地址
-		Address []string `mapstructure:"address"`
+		Address string `mapstructure:"address"`
 
 		// 跨域配置
 		Cors struct {
@@ -41,14 +41,14 @@ type Config struct {
 	} `mapstructure:"logger"`
 }
 
-const (
-	CONF_FILE = "./application.yaml"
+var (
+	Config = &_Config{}
 )
 
 func configToJson() string {
 	data, err := json.MarshalIndent(viper.AllSettings(), "", "  ")
 	if err != nil {
-		panic(err)
+		log.Fatalf("invalid config caused %v", err)
 	}
 	return fmt.Sprintf("\n%v", string(data))
 }
@@ -80,20 +80,18 @@ func setDefaultConfig() {
 	viper.SetDefault("logger.max-backup", 100)
 }
 
-func Load(filename string) (*Config, error) {
+func Init(filename string) {
 	setDefaultConfig()
 
 	viper.SetConfigType("yaml")
 	viper.SetConfigFile(filename)
 	if err := viper.ReadInConfig(); err != nil {
-		return nil, err
+		log.Fatalf("cannot load config file \"%v\", caused %v", filename, err)
+	}
+	if err := viper.Unmarshal(Config); err != nil {
+		log.Fatalf("cannot load config file \"%v\", caused %v", filename, err)
 	}
 	log.Infof("config file \"%v\" read, content is %v", filename, configToJson())
-
-	conf := &Config{}
-	err := viper.Unmarshal(conf)
-
-	return conf, err
 }
 
 type _Value interface {
@@ -120,22 +118,22 @@ func Default[T _Value](val T, defVal T) T {
 	}
 }
 
-func ToString(val any, sep string) string {
+func ToString(val any, sep string) (result string) {
 	switch sval := val.(type) {
 	case string:
-		return sval
+		result = sval
 	case []string:
-		return strings.Join(sval, sep)
+		result = strings.Join(sval, sep)
 	case []any:
-		return strings.Join((func() []string {
-			result := make([]string, len(sval))
+		result = strings.Join((func() []string {
+			lst := make([]string, len(sval))
 			for i, v := range sval {
-				result[i] = utils.AnyToString(v)
+				lst[i] = utils.AnyToString(v)
 			}
-			return result
+			return lst
 		})(), sep)
 	default:
-		log.Panicf("invalid config value \"%v\"", val)
-		return ""
+		log.Fatalf("invalid config value \"%v\"", val)
 	}
+	return
 }

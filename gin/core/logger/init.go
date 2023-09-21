@@ -25,7 +25,7 @@ func resolveFile(file string) string {
 }
 
 // 初始化日志
-func Setup(config *conf.Config) {
+func Init() {
 	log.SetOutput(os.Stdout)
 	log.SetFormatter(&nested.Formatter{
 		HideKeys:        true,
@@ -38,19 +38,19 @@ func Setup(config *conf.Config) {
 		},
 	})
 
-	level, err := log.ParseLevel(conf.Default(config.Logger.Level, "DEBUG"))
+	level, err := log.ParseLevel(conf.Default(conf.Config.Logger.Level, "DEBUG"))
 	if err != nil {
-		panic(err)
+		log.Fatalf("invalid log level in config %v", conf.Config.Logger.Level)
 	}
 
 	log.SetLevel(level)
-	log.SetReportCaller(config.Logger.ShowCaller)
+	log.SetReportCaller(conf.Config.Logger.ShowCaller)
 
 	log.AddHook(newRollingFileHook(
-		config.Logger.File,
-		withMaxSize(conf.Default(config.Logger.MaxSize, 100)),
-		withCompress(config.Logger.Compress),
-		withMaxAge(config.Logger.MaxAge),
-		withMaxBackups(config.Logger.MaxBackups),
+		conf.Config.Logger.File,
+		withMaxSize(conf.Default(conf.Config.Logger.MaxSize, 100)),
+		withCompress(conf.Config.Logger.Compress),
+		withMaxAge(conf.Config.Logger.MaxAge),
+		withMaxBackups(conf.Config.Logger.MaxBackups),
 	))
 }

@@ -1,10 +1,11 @@
 package main
 
 import (
+	"study-gin/app"
 	"study-gin/core/conf"
 	"study-gin/core/logger"
 	"study-gin/core/server"
-	"study-gin/router"
+	"study-gin/core/utils"
 )
 
 const (
@@ -12,17 +13,10 @@ const (
 )
 
 func main() {
-	server.DisableGinLogger()
+	conf.Init(CONF_FILE)
+	logger.Init()
+	server.Init()
+	app.Init()
 
-	conf, err := conf.Load(CONF_FILE)
-	if err != nil {
-		panic(err)
-	}
-
-	logger.Setup(conf)
-
-	engine := server.Create(conf)
-	router.Setup(engine)
-
-	engine.Start()
+	utils.StartHttpServer(conf.Config.Server.Address, server.Engine)
 }
