@@ -13,7 +13,7 @@ var (
 func Init() {
 	DisableGinLogger()
 
-	Engine.Use(gin.Recovery(), LogMiddleware(), JSONMiddleware(), CORSMiddleware())
+	Engine.Use(gin.Recovery(), LogMiddleware(), RestfulMiddleware(), CORSMiddleware())
 	if conf.Config.Server.Cors.Enable {
 		Engine.OPTIONS("/*path", CORSOptionsRoute())
 	}

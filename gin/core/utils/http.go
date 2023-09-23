@@ -3,47 +3,60 @@ package utils
 import (
 	"context"
 	"net/http"
-	"os"
-	"os/signal"
 	"time"
 
 	log "github.com/sirupsen/logrus"
 )
 
-func listenAndServe(server *http.Server) {
-	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatalf("cannot start server at \"%v\" caused %v", server.Addr, err)
+// 定义结构体, 从 `http.Server` 结构体继承
+type server struct {
+	http.Server
+}
+
+// 启动 http 服务监听
+func (s *server) listen() {
+	// 启动监听
+	if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatalf("cannot start server at \"%v\" caused %v", s.Addr, err)
 	}
-	log.Infof("server started at \"%v\"", server.Addr)
+	log.Infof("server started at \"%v\"", s.Addr)
 }
 
-func waitInterruptSignal() {
-	ch := make(chan os.Signal, 1)
-
-	signal.Notify(ch, os.Interrupt)
-	<-ch
-}
-
-func shutdownServer(server *http.Server) {
+// 关闭 http 服务
+func (s *server) shutdown() {
+	// 设定一个超时上下文, 超时时间 5 秒
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	if err := server.Shutdown(ctx); err != nil {
+	// 关闭 http 服务并等待 5 秒超时
+	if err := s.Shutdown(ctx); err != nil {
 		log.Fatalf("server was shutdown with error %v", err)
 	}
 	log.Info("server already shutdown")
 }
 
-func StartHttpServer(address string, handler http.Handler) {
-	server := &http.Server{
-		Addr:    address,
-		Handler: handler,
+// 启动 http 服务并等待 `SIGINT` 信号后关闭服务器
+//
+// 参数:
+//   - address (string): 服务监听地址
+//   - handler (http.handler): `http.handler` 接口对象
+func HttpStart(address string, handler http.Handler) {
+	// 实例化结构体
+	server := &server{
+		Server: http.Server{
+			Addr:    address, // 监听地址
+			Handler: handler, // `http.handler` 接口对象
+		},
 	}
 	log.Infof("starting server at \"%v\"...", server.Addr)
 
-	go listenAndServe(server)
-	waitInterruptSignal()
+	// 启动协程进行监听
+	go server.listen()
+
+	// 在主线程等待进程结束信号
+	WaitInterruptSignal()
 
 	log.Infof("shutdown server...")
-	shutdownServer(server)
+	// 关闭服务
+	server.shutdown()
 }
