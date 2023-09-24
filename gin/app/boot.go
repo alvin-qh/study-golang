@@ -7,6 +7,14 @@ import (
 
 // 在此注册其它的路由函数
 func Init() {
-	server.Engine.GET("/hello", routes.HelloGet)
-	server.Engine.POST("/hello", routes.HelloPost)
+	web := server.Engine.Group("/web")
+	{
+		web.GET("/render", routes.RenderHTML)
+	}
+
+	api := server.Engine.Group("/api")
+	{
+		api.GET("/hello", routes.HelloGet)
+		api.POST("/hello", routes.HelloPost)
+	}
 }

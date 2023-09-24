@@ -1,0 +1,10 @@
+* {
+  font-size: 14px;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  box-sizing: border-box;
+}
+
+.main {
+  margin: 0px auto;
+  width: 1200px;
+}

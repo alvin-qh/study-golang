@@ -38,8 +38,8 @@ func (s *server) shutdown() {
 // 启动 http 服务并等待 `SIGINT` 信号后关闭服务器
 //
 // 参数:
-//   - address (string): 服务监听地址
-//   - handler (http.handler): `http.handler` 接口对象
+//   - `address` (`string`): 服务监听地址
+//   - `handler` (`http.handler`): `http.handler` 接口对象
 func HttpStart(address string, handler http.Handler) {
 	// 实例化结构体
 	server := &server{

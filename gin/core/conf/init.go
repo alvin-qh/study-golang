@@ -27,6 +27,13 @@ type _Config struct {
 			AllowCredentials bool `mapstructure:"allow-credentials"`
 			MaxAge           bool `mapstructure:"max-age"`
 		} `mapstructure:"cors"`
+
+		Template struct {
+			Enable        bool   `mapstructure:"enable"`
+			TemplatesPath string `mapstructure:"templates-path"`
+			StaticPath    string `mapstructure:"static-path"`
+			StaticBaseURI string `mapstructure:"static-base-uri"`
+		} `mapstructure:"template"`
 	} `mapstructure:"server"`
 
 	// 日志配置
@@ -70,6 +77,11 @@ func setDefaultConfig() {
 	viper.SetDefault("server.cors.expose-headers", "*")
 	viper.SetDefault("server.cors.allow-credentials", true)
 	viper.SetDefault("server.cors.max-age", 86400)
+
+	viper.SetDefault("server.template.enable", false)
+	viper.SetDefault("server.template.templates-path", "templates")
+	viper.SetDefault("server.template.static-path", "static")
+	viper.SetDefault("server.template.static-base-uri", "/static")
 
 	viper.SetDefault("logger.file", "logs/server.log")
 	viper.SetDefault("logger.level", "INFO")

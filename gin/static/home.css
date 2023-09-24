@@ -1,0 +1,26 @@
+.card {
+  line-height: 1.5em;
+  background-color: rgb(217, 217, 250);
+  border: 1px solid rgb(67, 67, 245);
+  border-radius: 20px;
+  padding: 30px 20px;
+}
+
+.section {
+  display: flex;
+  flex-direction: row;
+  justify-content: baseline;
+  margin: 10px 0;
+}
+
+.section .label {
+  width: 100px;
+  text-align: right;
+  padding: 10px 10px;
+  font-weight: bold;
+}
+
+.section .value {
+  text-align: left;
+  padding: 10px 10px;
+}

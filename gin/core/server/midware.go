@@ -1,8 +1,15 @@
 package server
 
 import (
+	"errors"
+	"net"
+	"net/http"
+	"net/http/httputil"
+	"os"
 	"strconv"
+	"strings"
 	"study-gin/core/conf"
+	"study-gin/core/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -27,18 +34,82 @@ func LogMiddleware() gin.HandlerFunc {
 			ctx.Writer.Status(),
 			endTime.Sub(startTime),
 		)
+
+		for _, err := range ctx.Errors {
+			log.Error(err.Err)
+		}
 	}
 }
 
-// 定义 RESTful 风格中间件函数
+// 定义异常恢复中间件
 //
-// 返回:
-//   - gin 框架中间件函数
-func RestfulMiddleware() gin.HandlerFunc {
-	log.Info("middleware \"json\" enabled")
+// 当代码中抛出 `panic` 错误时, 该中间件负责捕获并输出日志
+//
+// 输出的日志包括发生 `panic` 错误的原因和调用堆栈
+//
+// 参数:
+//   - `handlers` (`...gin.RecoveryFunc`): 其它处理异常恢复的回调
+//
+// 返回
+//   - 中间件函数
+func RecoveryMiddleware(handles ...gin.RecoveryFunc) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		header := ctx.Writer.Header()
-		header.Set("Content-Type", "application/json; charset=utf-8")
+		defer func() {
+			if err := recover(); err != nil {
+				// 判断连接是否中断
+				var brokenPipe bool
+				if ne, ok := err.(*net.OpError); ok {
+					var se *os.SyscallError
+					if errors.As(ne, &se) {
+						seStr := strings.ToLower(se.Error())
+						if strings.Contains(seStr, "broken pipe") ||
+							strings.Contains(seStr, "connection reset by peer") {
+							brokenPipe = true
+						}
+					}
+				}
+
+				if brokenPipe {
+					// 转存请求对象
+					req, _ := httputil.DumpRequest(ctx.Request, false)
+					// 获取所有请求头
+					headers := strings.Split(string(req), "\r\n")
+
+					// 遍历请求头, 过滤掉 `Authorization` 头的内容
+					for idx, header := range headers {
+						if strings.HasPrefix(header, "Authorization") {
+							current := strings.Split(header, ":")
+							headers[idx] = current[0] + ": *"
+						}
+					}
+
+					// 将请求头连接为一个字符串
+					headersToStr := strings.Join(headers, "\r\n")
+
+					// 输出 panic 错误以及请求头内容
+					log.Errorf("%s\n%s", err, headersToStr)
+				} else {
+					// 输出 panic 错误以及调用栈信息
+					log.Errorf("[Recovery] panic recovered: %s\n%s", err, utils.CallStack(3))
+				}
+
+				if brokenPipe {
+					// 如果连接中断, 则输出错误信息并中断请求, 无法输出响应状态
+					ctx.Error(err.(error))
+					ctx.Abort()
+				} else {
+					// 如果连接未中断, 则输出响应状态
+					ctx.AbortWithStatus(http.StatusInternalServerError)
+
+					// 调用后续的处理函数 (如果存在)
+					for _, h := range handles {
+						h(ctx, err)
+					}
+				}
+			}
+		}()
+
+		ctx.Next()
 	}
 }
 
