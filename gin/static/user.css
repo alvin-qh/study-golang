@@ -1,15 +1,8 @@
-.card {
-  line-height: 1.5em;
-  background-color: rgb(217, 217, 250);
-  border: 1px solid rgb(67, 67, 245);
-  border-radius: 20px;
-  padding: 30px 20px;
-}
-
 .section {
   display: flex;
   flex-direction: row;
   justify-content: baseline;
+  flex-wrap: wrap;
   margin: 10px 0;
 }
 
@@ -23,4 +16,20 @@
 .section .value {
   text-align: left;
   padding: 10px 10px;
+}
+
+.section ul {
+  margin: 0;
+  padding: 0;
+  padding-left: 15px;
+}
+
+.section button {
+  margin-left: 50px;
+}
+
+.section .errors {
+  width: 100%;
+  margin-left: 110px;
+  color: rgb(209, 67, 67);
 }

@@ -9,7 +9,9 @@ import (
 func Init() {
 	web := server.Engine.Group("/web")
 	{
-		web.GET("/render", routes.RenderHTML)
+		web.GET("/user", routes.GetUser)
+		web.GET("/user/edit", routes.GetUserEditor)
+		web.POST("/user", routes.PostUser)
 	}
 
 	api := server.Engine.Group("/api")

@@ -36,7 +36,7 @@ func LogMiddleware() gin.HandlerFunc {
 		)
 
 		for _, err := range ctx.Errors {
-			log.Error(err.Err)
+			log.Errorf("error caused when visit \"%v\", error: %v", ctx.Request.URL.Path, err.Err)
 		}
 	}
 }

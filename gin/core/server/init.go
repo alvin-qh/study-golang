@@ -12,7 +12,8 @@ var (
 
 func Init() {
 	DisableGinLogger()
-	SetupTemplate(Engine)
+	SetupTemplate()
+	SetupValidator()
 
 	Engine.Use(
 		RecoveryMiddleware(),

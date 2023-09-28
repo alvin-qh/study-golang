@@ -20,8 +20,7 @@ type rollingFileHookOption = func(option *lumberjack.Logger)
 //   - `options` 日志记录选项, 参考 `RollingFileHookOption` 选项类型
 //
 // 返回:
-//
-//	日志拦截器对象
+//   - 日志拦截器对象
 func newRollingFileHook(filename string, options ...rollingFileHookOption) *rollingFileHook {
 	opt := lumberjack.Logger{
 		Filename:   filename,
@@ -46,8 +45,7 @@ func newRollingFileHook(filename string, options ...rollingFileHookOption) *roll
 // 设置该日志拦截器对应的日志级别
 //
 // 返回值:
-//
-//	可以应用此拦截器的日志级别集合
+//   - 可以应用此拦截器的日志级别集合
 func (h *rollingFileHook) Levels() []log.Level {
 	return []log.Level{
 		log.DebugLevel,
@@ -64,8 +62,7 @@ func (h *rollingFileHook) Levels() []log.Level {
 //   - `e` 日志实体指针
 //
 // 返回值:
-//
-//	错误对象, `nil` 表示没有错误
+//   - 错误对象, `nil` 表示没有错误
 func (h *rollingFileHook) Fire(e *log.Entry) error {
 	fmt := e.Logger.Formatter
 

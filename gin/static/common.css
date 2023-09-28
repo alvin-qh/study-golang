@@ -8,3 +8,11 @@
   margin: 0px auto;
   width: 1200px;
 }
+
+.card {
+  line-height: 1.5em;
+  background-color: rgb(217, 217, 250);
+  border: 1px solid rgb(67, 67, 245);
+  border-radius: 20px;
+  padding: 30px 20px;
+}
