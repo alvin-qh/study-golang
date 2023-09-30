@@ -16,7 +16,7 @@ func init() {
 
 	api := server.Engine.Group("/api")
 	{
-		api.GET("/hello", routes.HelloGet)
-		api.POST("/hello", routes.HelloPost)
+		api.GET("/hello", routes.GetHello)
+		api.POST("/hello", routes.PostHello)
 	}
 }

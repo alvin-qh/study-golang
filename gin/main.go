@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "study-gin/app"
 	"study-gin/core/conf"
 	"study-gin/core/server"
 	"study-gin/core/utils"

@@ -74,6 +74,7 @@ func TestMappedValidatorErrors(t *testing.T) {
 	errors := MappedValidatorErrors(
 		validate.Struct(&user).(validator.ValidationErrors),
 		&user,
+		"form",
 	)
 	assert.Len(t, errors, 5)
 

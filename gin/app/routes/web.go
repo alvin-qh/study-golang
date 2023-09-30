@@ -49,10 +49,10 @@ func PostUser(ctx *gin.Context) {
 	err := ctx.ShouldBind(&user)
 	if err != nil {
 		// 表单验证失败, 渲染编辑页面并展示错误信息
-		ctx.HTML(http.StatusOK, "user_editor.tmpl", gin.H{
+		ctx.HTML(http.StatusBadRequest, "user_editor.tmpl", gin.H{
 			"title": "User Editor",
 			"user":  user,
-			"errs":  server.MappedValidatorErrors(err.(validator.ValidationErrors), &user),
+			"errs":  server.MappedValidatorErrors(err.(validator.ValidationErrors), &user, "form"),
 		})
 		return
 	}

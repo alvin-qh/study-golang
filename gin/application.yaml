@@ -5,4 +5,4 @@ server:
   template:
     enable: true
 logger:
-  file: logs/server.log
+  # file: logs/server.log

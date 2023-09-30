@@ -40,7 +40,7 @@ func SetupValidator() {
 //
 // 返回:
 //   - Key 为表单项名称, Value 为错误描述的 `map` 集合对象
-func MappedValidatorErrors(errs validator.ValidationErrors, target any) map[string]any {
+func MappedValidatorErrors(errs validator.ValidationErrors, target any, tag string) map[string]any {
 	errMap := make(map[string]any)
 
 	// 获取表单结构体对象类型
@@ -52,7 +52,7 @@ func MappedValidatorErrors(errs validator.ValidationErrors, target any) map[stri
 		// 获取发生错误的原始表单结构体字段
 		field, _ := realType.FieldByName(e.StructField())
 		// 通过标注获取表单项名称, 并翻译错误信息内容
-		errMap[field.Tag.Get("form")] = e.Translate(translate)
+		errMap[field.Tag.Get(tag)] = e.Translate(translate)
 	}
 
 	return errMap

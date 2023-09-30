@@ -51,12 +51,15 @@ func init() {
 	// 要求日志中包含调用位置
 	log.SetReportCaller(conf.Config.Logger.ShowCaller)
 
-	// 添加日志 hook, 用于将日志记录到文件中
-	log.AddHook(newRollingFileHook(
-		conf.Config.Logger.File,
-		withMaxSize(conf.Config.Logger.MaxSize),
-		withCompress(conf.Config.Logger.Compress),
-		withMaxAge(conf.Config.Logger.MaxAge),
-		withMaxBackups(conf.Config.Logger.MaxBackups),
-	))
+	// 查看是否运行在单元测试
+	if len(conf.Config.Logger.File) > 0 {
+		// 添加日志 hook, 用于将日志记录到文件中
+		log.AddHook(newRollingFileHook(
+			conf.Config.Logger.File,
+			withMaxSize(conf.Config.Logger.MaxSize),
+			withCompress(conf.Config.Logger.Compress),
+			withMaxAge(conf.Config.Logger.MaxAge),
+			withMaxBackups(conf.Config.Logger.MaxBackups),
+		))
+	}
 }

@@ -110,7 +110,7 @@ func setDefaultConfig() {
 	viper.SetDefault("server.template.static-path", "static")
 	viper.SetDefault("server.template.static-base-uri", "/static")
 
-	viper.SetDefault("logger.file", "logs/server.log")
+	viper.SetDefault("logger.file", "")
 	viper.SetDefault("logger.level", "INFO")
 	viper.SetDefault("logger.show-caller", true)
 	viper.SetDefault("logger.max-size", 100)

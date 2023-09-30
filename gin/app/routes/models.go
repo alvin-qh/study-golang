@@ -43,3 +43,26 @@ func (u *UserForm) toUser() *User {
 		),
 	}
 }
+
+const (
+	InputErrorCode = "input_error"
+)
+
+// 定义打招呼的请求结构体
+type Agreeing struct {
+	Name   string `json:"name" binding:"required"`
+	Gender Gender `json:"gender" binding:"required,oneof=F M"`
+	Age    int    `json:"age" binding:"min=10,max=99"`
+}
+
+// 打招呼的响应结构体
+type Answer struct {
+	Ok     bool   `json:"ok"`
+	Answer string `json:"answer"`
+}
+
+// 错误结构体
+type ErrorResult struct {
+	Code   string         `json:"code"`
+	Errors map[string]any `json:"errors"`
+}
