@@ -1,18 +1,17 @@
 package conf
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
+	"reflect"
 	"strings"
-	"study-gin/core/utils"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
 const (
-	DEF_CONF_FILE = "./application.yaml"
+	DEF_CONF_FILE = "./application.yaml" // 默认配置文件名称
 )
 
 // 配置结构体
@@ -30,7 +29,7 @@ type _Config struct {
 			AllowHeaders     any  `mapstructure:"allow-headers"`
 			ExposeHeaders    any  `mapstructure:"expose-headers"`
 			AllowCredentials bool `mapstructure:"allow-credentials"`
-			MaxAge           bool `mapstructure:"max-age"`
+			MaxAge           int  `mapstructure:"max-age"`
 		} `mapstructure:"cors"`
 
 		Template struct {
@@ -54,17 +53,40 @@ type _Config struct {
 }
 
 var (
+	// 实例化配置结构体实例
 	Config = &_Config{}
 )
 
-func configToJson() string {
-	data, err := json.MarshalIndent(viper.AllSettings(), "", "  ")
-	if err != nil {
-		log.Fatalf("invalid config caused %v", err)
+// 将配置
+func configToString() string {
+	// data, err := json.MarshalIndent(viper.AllSettings(), "", "  ")
+	// if err != nil {
+	//    log.Fatalf("invalid config caused %v", err)
+	// }
+	// return fmt.Sprintf("\n%v", string(data))
+
+	var fn func(string, map[string]any) string
+	fn = func(prefix string, m map[string]any) string {
+		sb := strings.Builder{}
+
+		for k, v := range m {
+			if sv, ok := v.(map[string]any); ok {
+				sb.WriteString(fn(fmt.Sprintf("%v%v.", prefix, k), sv))
+			} else {
+				sb.WriteString(fmt.Sprintf("%v%v", prefix, k))
+				sb.WriteString("=")
+				sb.WriteString(fmt.Sprintf("%v\n", v))
+			}
+		}
+		return sb.String()
 	}
-	return fmt.Sprintf("\n%v", string(data))
+
+	return fn("\t", viper.AllSettings())
 }
 
+// 设置默认配置项
+//
+// 默认配置项是指: 当配置文件不包含指定项时, 该项默认的值
 func setDefaultConfig() {
 	viper.SetDefault("server.address", "0.0.0.0:8080")
 
@@ -97,65 +119,56 @@ func setDefaultConfig() {
 	viper.SetDefault("logger.max-backup", 100)
 }
 
+// 初始化配置项
 func init() {
+	// 设置默认配置项
 	setDefaultConfig()
 
+	// 读取配置文件名称
+	// 1. 先从环境变量中获取 CONF 变量作为配置文件名
+	// 2. 如果环境变量不存在, 则使用默认的配置文件名
 	filename, ok := os.LookupEnv("CONF")
 	if !ok {
 		filename = DEF_CONF_FILE
 	}
 
+	// 设置配置文件格式为 yaml 格式
 	viper.SetConfigType("yaml")
+	// 设置配置文件名称
 	viper.SetConfigFile(filename)
+	// 读取配置文件
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf("cannot load config file \"%v\", caused %v", filename, err)
+		log.Errorf("cannot load config file \"%v\", caused %v", filename, err)
 	}
+	// 将配置文件内容反序列化到 _Config 类型结构体变量
 	if err := viper.Unmarshal(Config); err != nil {
 		log.Fatalf("cannot load config file \"%v\", caused %v", filename, err)
 	}
-	log.Infof("config file \"%v\" read, content is %v", filename, configToJson())
+	log.Infof("config file \"%v\" read, content is\n%v", filename, configToString())
 }
 
-type _Value interface {
-	~string |
-		~int |
-		~int64 |
-		~int32 |
-		~float32 |
-		~float64
-}
-
-func Default[T _Value](val T, defVal T) T {
-	switch t := (any(val)).(type) {
-	case string:
-		if len(t) == 0 {
-			return defVal
+// 获取配置项, 如果配置项不存在, 则返回默认值
+//
+// 参数:
+//   - `key` (`string`): 配置项键名称
+//   - `def` (`T`): 配置项默认值
+//
+// 返回:
+//   - `val` (`T`): 配置项的值, 如果配置项不存在, 则为 `def` 参数的值
+//   - `err` (`error`): 错误对象
+func Default[T any](key string, def T) (val T, err error) {
+	// 从配置中获取指定 key 的值
+	v := viper.Get(key)
+	if v == nil {
+		// 如果 key 不存在, 则返回默认值
+		val = def
+	} else {
+		// 如果 key 存在, 则将配置项转为指定类型
+		var ok bool
+		val, ok = v.(T)
+		if !ok {
+			err = fmt.Errorf("value by key \"%v\" not match type \"%v\"", key, reflect.ValueOf(def).Type().Name())
 		}
-		return val
-	default:
-		if t == 0 {
-			return defVal
-		}
-		return val
-	}
-}
-
-func ToString(val any, sep string) (result string) {
-	switch sval := val.(type) {
-	case string:
-		result = sval
-	case []string:
-		result = strings.Join(sval, sep)
-	case []any:
-		result = strings.Join((func() []string {
-			lst := make([]string, len(sval))
-			for i, v := range sval {
-				lst[i] = utils.AnyToString(v)
-			}
-			return lst
-		})(), sep)
-	default:
-		log.Fatalf("invalid config value \"%v\"", val)
 	}
 	return
 }

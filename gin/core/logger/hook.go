@@ -75,26 +75,52 @@ func (h *rollingFileHook) Fire(e *log.Entry) error {
 	return err
 }
 
-// 定义 `NewRollingFileHook` 函数的选项
-
+// 定义日志文件的最大尺寸, 超出此尺寸后会自动建立新的日志文件
+//
+// 参数:
+//   - `maxSize` (`int`): 最大日志长度
+//
+// 返回:
+//   - `rollingFileHookOption`: 可选参数对象
 func withMaxSize(maxSize int) rollingFileHookOption {
 	return func(option *lumberjack.Logger) {
 		option.MaxSize = maxSize
 	}
 }
 
+// 定义最大备份日志文件数量, 超出此数量, 则最早的备份日志文件会被删除
+//
+// 参数:
+//   - `maxBackups` (`int`): 最大备份文件数量
+//
+// 返回:
+//   - `rollingFileHookOption`: 可选参数对象
 func withMaxBackups(maxBackups int) rollingFileHookOption {
 	return func(option *lumberjack.Logger) {
 		option.MaxBackups = maxBackups
 	}
 }
 
+// 定义备份日志文件保存的最长时间 (单位为 天), 超出此时间的备份日志文件会被删除
+//
+// 参数:
+//   - `maxAge` (`int`): 最大日志备份天数
+//
+// 返回:
+//   - `rollingFileHookOption`: 可选参数对象
 func withMaxAge(maxAge int) rollingFileHookOption {
 	return func(option *lumberjack.Logger) {
 		option.MaxAge = maxAge
 	}
 }
 
+// 是否启用备份压缩, 如果为 `true`, 则备份的日志文件会被压缩 (gzip)
+//
+// 参数:
+//   - `compress` (`bool`): 是否启用日志备份压缩
+//
+// 返回:
+//   - `rollingFileHookOption`: 可选参数对象
 func withCompress(compress bool) rollingFileHookOption {
 	return func(option *lumberjack.Logger) {
 		option.Compress = compress

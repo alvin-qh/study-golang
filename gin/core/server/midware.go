@@ -133,19 +133,19 @@ const headerLogFormat = "\t%v=%v"
 // 返回:
 //   - gin 框架路由处理函数
 func CORSOptionsRoute() gin.HandlerFunc {
-	allowMethods := conf.ToString(conf.Config.Server.Cors.AllowMethods, ",")
+	allowMethods := utils.JoinAny(conf.Config.Server.Cors.AllowMethods, ",")
 	log.Infof(headerLogFormat, headerAllowMethods, allowMethods)
 
-	allowHeaders := conf.ToString(conf.Config.Server.Cors.AllowHeaders, ",")
+	allowHeaders := utils.JoinAny(conf.Config.Server.Cors.AllowHeaders, ",")
 	log.Infof(headerLogFormat, headerAllowHeaders, allowHeaders)
 
-	exposeHeaders := conf.ToString(conf.Config.Server.Cors.ExposeHeaders, ",")
+	exposeHeaders := utils.JoinAny(conf.Config.Server.Cors.ExposeHeaders, ",")
 	log.Infof(headerLogFormat, headerExposeHeaders, exposeHeaders)
 
 	allowCredentials := conf.Config.Server.Cors.AllowCredentials
 	log.Infof(headerLogFormat, headerAllowCredentials, allowCredentials)
 
-	maxAge := conf.Config.Server.Cors.AllowCredentials
+	maxAge := conf.Config.Server.Cors.MaxAge
 	log.Infof(headerLogFormat, headerMaxAge, maxAge)
 
 	return func(ctx *gin.Context) {
@@ -165,14 +165,18 @@ func CORSOptionsRoute() gin.HandlerFunc {
 // 返回:
 //   - gin 框架中间件函数
 func CORSMiddleware() gin.HandlerFunc {
-	log.Info("middleware \"cors\" enabled")
+	// 如果未启用跨域, 则返回一个空中间件函数, 不做任何处理
 	if !conf.Config.Server.Cors.Enable {
 		return func(ctx *gin.Context) { ctx.Next() }
 	}
 
-	allowOrigin := conf.ToString(conf.Config.Server.Cors.AllowOrigin, ",")
+	log.Info("middleware \"cors\" enabled")
+
+	// 获取配置的跨域 HTTP 头设置
+	allowOrigin := utils.JoinAny(conf.Config.Server.Cors.AllowOrigin, ",")
 	log.Infof("\t%v=%v", headerAllowOrigin, allowOrigin)
 
+	// 返回中间件函数, 用于为所有响应增加跨域 HTTP 头
 	return func(ctx *gin.Context) {
 		header := ctx.Writer.Header()
 		header.Set(headerAllowOrigin, allowOrigin)

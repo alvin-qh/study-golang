@@ -22,7 +22,6 @@ import (
 // 在本例中, `base.tmpl` 模板文件定义了页面的 "layout", 其它模板文件都需要和该文件组合
 //
 // 返回:
-//
 //   - `multitemplate.Renderer`, 渲染对象
 func LoadTemplates() multitemplate.Renderer {
 	// 获取 base.tmpl 文件的路径
