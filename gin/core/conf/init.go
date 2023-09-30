@@ -3,11 +3,16 @@ package conf
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 	"study-gin/core/utils"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+)
+
+const (
+	DEF_CONF_FILE = "./application.yaml"
 )
 
 // 配置结构体
@@ -92,8 +97,13 @@ func setDefaultConfig() {
 	viper.SetDefault("logger.max-backup", 100)
 }
 
-func Init(filename string) {
+func init() {
 	setDefaultConfig()
+
+	filename, ok := os.LookupEnv("CONF")
+	if !ok {
+		filename = DEF_CONF_FILE
+	}
 
 	viper.SetConfigType("yaml")
 	viper.SetConfigFile(filename)

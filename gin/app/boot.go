@@ -6,7 +6,7 @@ import (
 )
 
 // 在此注册其它的路由函数
-func Init() {
+func init() {
 	web := server.Engine.Group("/web")
 	{
 		web.GET("/user", routes.GetUser)

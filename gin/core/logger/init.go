@@ -25,7 +25,7 @@ func resolveFile(file string) string {
 }
 
 // 初始化日志
-func Init() {
+func init() {
 	log.SetOutput(os.Stdout)
 	log.SetFormatter(&nested.Formatter{
 		HideKeys:        true,

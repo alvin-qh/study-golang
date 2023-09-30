@@ -10,7 +10,8 @@ var (
 	Engine = gin.New()
 )
 
-func Init() {
+// 初始化 http 服务
+func init() {
 	DisableGinLogger()
 	SetupTemplate()
 	SetupValidator()
