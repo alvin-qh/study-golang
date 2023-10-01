@@ -1,0 +1,73 @@
+nav {
+  margin: 10px 10px;
+}
+
+.section {
+  display: flex;
+  flex-direction: row;
+  justify-content: baseline;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+
+.section .label {
+  width: 100px;
+  text-align: right;
+  padding: 10px 10px;
+  font-weight: bold;
+}
+
+.section .value {
+  text-align: left;
+  padding: 10px 10px;
+}
+
+.section ul {
+  margin: 0;
+  padding: 0;
+  padding-left: 15px;
+}
+
+.section button {
+  margin-left: 50px;
+  padding: 5px 10px;
+}
+
+.section .errors {
+  width: 100%;
+  margin-left: 110px;
+  color: rgb(209, 67, 67);
+}
+
+.users .add {
+  margin: 10px 0;
+}
+
+.users .add::after {
+  content: "";
+  display: block;
+  clear: both;
+  visibility: hidden;
+  width: 0;
+  height: 0;
+}
+
+.users .add a {
+  display: block;
+  float: left;
+  border: 1px solid #b7b5b5;
+  padding: 10px 20px;
+  border-radius: 5px;
+  background-color: #ccc;
+  text-decoration: none;
+}
+
+.users table {
+  border-collapse: collapse;
+  width: 90%;
+}
+
+.users table th, .users table td {
+  border: 1px solid #ccc;
+  padding: 10px 20px;
+}

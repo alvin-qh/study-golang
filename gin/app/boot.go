@@ -9,14 +9,16 @@ import (
 func init() {
 	web := server.Engine.Group("/web")
 	{
-		web.GET("/user", routes.WebGetUser)
-		web.GET("/user/edit", routes.WebGetUserEditor)
-		web.POST("/user", routes.WebPostUser)
+		web.GET("/users", routes.WebGetUsers)
+		web.GET("/users/new", routes.WebNewUsers)
+		web.POST("/users", routes.WebPostUsers)
+		web.GET("/users/:id", routes.WebEditUsers)
+		web.POST("/users/:id", routes.WebPutUsers)
 	}
 
 	api := server.Engine.Group("/api")
 	{
-		api.GET("/user", routes.ApiGetUser)
-		api.POST("/user", routes.ApiPostUser)
+		api.GET("/users", routes.ApiGetUsers)
+		api.POST("/users", routes.ApiPostUsers)
 	}
 }

@@ -1,5 +1,5 @@
 {{ define "head" }}
-<link rel="stylesheet" type="text/css" href="/static/user.css">
+<link rel="stylesheet" type="text/css" href="/static/users.css">
 <title>{{ .title }}</title>
 {{ end }}
 
@@ -43,42 +43,34 @@
 -->
 
 {{ define "body" }}
-<div class="card">
-  <div>
-    <a href="/web/user/edit">编辑</a>
+<div class="users">
+  <div class="add">
+    <a href="/web/users/new">添加</a>
   </div>
-  <div class="section">
-    <div class="label">姓名:</div>
-    <div class="value">{{ .user.Name }}</div>
-  </div>
-  <div class="section">
-    <div class="label">性别:</div>
-    <div class="value">
-      <!-- 可以通过 eq, ne, lt, le, gt 和 ge 函数进行值比较 -->
-      {{- if eq .user.Gender "M" -}}
-      男
-      {{- else -}}
-      女
-      {{- end }}
-    </div>
-  </div>
-  <div class="section">
-    <div class="label">生日:</div>
-    <!-- data 为自定义函数, 参考 server/misc.go:SetupTemplate 函数 -->
-    <div class="value">{{ date .user.Birthday }}</div>
-  </div>
-  <div class="section">
-    <div class="label">列表:</div>
-    <div class="value">
-      <ul>
-        <!-- 通过 range 函数可以遍历指定的列表, 并通过 $i 和 $v 两个变量返回每次遍历的索引和列表项 -->
-        {{ range $i, $v := .list }}
-        <li>{{ $i }}. {{ $v }}</li>
-        {{ else }}
-        <li>Empty</li>
-        {{ end }}
-      </ul>
-    </div>
-  </div>
+  <table>
+    <thead>
+      <th>姓名</th>
+      <th>性别</th>
+      <th>生日</th>
+      <th></th>
+    </thead>
+    <tbody>
+      <!-- 通过 range 函数可以遍历指定的列表, 并通过 $i 和 $user 两个变量返回每次遍历的索引和列表项 -->
+      {{ range $i, $user := .users }}
+      <tr>
+        <td>{{ $user.Name }}</td>
+        <td>
+          <!-- 可以通过 eq, ne, lt, le, gt 和 ge 函数进行值比较 -->
+          {{ if eq $user.Gender "M" }} 男 {{ else }} 女 {{ end }}
+        </td>
+        <!-- data 为自定义函数, 参考 server/misc.go:SetupTemplate 函数 -->
+        <td>{{ date $user.Birthday }}</td>
+        <td>
+          <a href="/web/users/{{ $user.Id }}">编辑</a>
+        </td>
+      </tr>
+      {{ end }}
+    </tbody>
+  </table>
 </div>
 {{ end }}

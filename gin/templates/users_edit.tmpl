@@ -1,11 +1,19 @@
 {{ define "head" }}
-<link rel="stylesheet" type="text/css" href="/static/user.css">
+<link rel="stylesheet" type="text/css" href="/static/users.css">
 <title>{{ .title }}</title>
 {{ end }}
 
 {{ define "body" }}
+<nav>
+  <a href="/web/users">返回</a>
+</nav>
+
 <div class="card">
-  <form method="post" action="/web/user">
+  <form method="post" action="/web/users/{{ .id }}">
+    <div class="section">
+      <div class="label">Id:</div>
+      <div class="value">{{ .id }}</div>
+    </div>
     <div class="section">
       <div class="label">姓名:</div>
       <div class="value">

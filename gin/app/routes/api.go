@@ -9,7 +9,7 @@ import (
 )
 
 // 获取用户 API, 返回 `User` 类型 JSON 对象
-func ApiGetUser(ctx *gin.Context) {
+func ApiGetUsers(ctx *gin.Context) {
 	name := ctx.DefaultQuery("name", "Alvin")
 
 	// 返回 JSON 结果
@@ -22,7 +22,7 @@ func ApiGetUser(ctx *gin.Context) {
 }
 
 // 创建用户 API, 返回 `User` 类型 JSON 对象
-func ApiPostUser(ctx *gin.Context) {
+func ApiPostUsers(ctx *gin.Context) {
 	var form UserForm
 	// 将请求 body 转为 `UserForm` 类型对象
 	if err := ctx.ShouldBindJSON(&form); err != nil {
@@ -33,5 +33,7 @@ func ApiPostUser(ctx *gin.Context) {
 
 	// 返回 JSON 结果
 	// `PureJSON` 表示 JSON 为纯文本, 不使用 `\uXXXX` 这类的编码
-	ctx.PureJSON(http.StatusOK, form.toUser())
+	ctx.PureJSON(http.StatusOK, form.toUser("003"))
 }
+
+func ApiGetUserById(ctx *gin.Context) {}

@@ -18,6 +18,7 @@ const (
 
 // 定义表示拥护的结构体
 type User struct {
+	Id       string    `json:"id"`
 	Name     string    `json:"name"`
 	Gender   Gender    `json:"gender"`
 	Birthday time.Time `json:"birthday"`
@@ -38,10 +39,14 @@ type UserForm struct {
 
 // 将当前 `UserForm` 结构体变量转为 `User` 结构体变量
 //
+// 参数:
+//   - `id` (`string`): 用户 Id
+//
 // 返回:
 //   - `User` 结构体变量指针
-func (u *UserForm) toUser() *User {
+func (u *UserForm) toUser(id string) *User {
 	return &User{
+		Id:     id,
 		Name:   u.Name,
 		Gender: u.Gender,
 		Birthday: time.Date(
