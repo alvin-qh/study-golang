@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
+	"time"
 )
 
 const (
@@ -160,4 +162,73 @@ func JoinAny(elems any, sep string) string {
 	}
 	// 返回生成的字符串
 	return b.String()
+}
+
+var (
+	timeType = reflect.TypeOf(time.Time{})
+)
+
+func MapToStruct(m map[string]any, target any) (err error) {
+	v := reflect.ValueOf(target)
+
+	if v.Kind() != reflect.Pointer && v.Elem().Kind() != reflect.Struct {
+		return fmt.Errorf("target not a struct")
+	}
+
+	v = v.Elem()
+	tagMap := make(map[string]reflect.Value)
+
+	tv := v.Type()
+	for i := 0; i < v.NumField(); i++ {
+		fv := v.Field(i)
+		if !fv.IsValid() && !fv.CanSet() {
+			continue
+		}
+
+		ft := tv.Field(i)
+		tag := ft.Tag.Get("json")
+		if len(tag) == 0 {
+			tag = strings.ToLower(ft.Name)
+		} else {
+			tag = strings.TrimSpace(strings.Split(tag, ",")[0])
+		}
+
+		tagMap[tag] = v.Field(i)
+	}
+
+	for k, v := range m {
+		if fv, ok := tagMap[strings.ToLower(k)]; ok {
+			ft := fv.Type()
+
+			switch ft {
+			case timeType:
+				switch tv := v.(type) {
+				case string:
+					v, err = time.Parse(time.RFC3339, tv)
+					if err != nil {
+						v, err = time.Parse(time.DateOnly, tv)
+						if err != nil {
+							v, err = time.Parse(time.TimeOnly, tv)
+						}
+					}
+					if err != nil {
+						return
+					}
+				case float64:
+					v = time.Unix(0, int64(v.(float64))*int64(time.Millisecond))
+				case int64:
+					v = time.Unix(0, v.(int64)*int64(time.Millisecond))
+				}
+			}
+
+			rv := reflect.ValueOf(v)
+			if rv.Kind() == reflect.Interface {
+				rv = rv.Elem()
+			}
+
+			fv.Set(rv.Convert(ft))
+		}
+	}
+
+	return nil
 }

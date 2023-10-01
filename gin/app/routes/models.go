@@ -18,7 +18,7 @@ const (
 
 // 定义表示拥护的结构体
 type User struct {
-	Id       string    `json:"id"`
+	Id       string    `json:"id,omitempty"`
 	Name     string    `json:"name"`
 	Gender   Gender    `json:"gender"`
 	Birthday time.Time `json:"birthday"`
@@ -60,8 +60,15 @@ func (u *UserForm) toUser(id string) *User {
 
 // 错误代码
 const (
+	OkCode         = "ok"
 	InputErrorCode = "input_error"
 )
+
+// 响应结果负载结构体
+type ResponseData struct {
+	Code    string `json:"code"`
+	Payload any    `json:"payload"`
+}
 
 // 表示字段错误的结构体
 type ErrorField struct {
@@ -71,21 +78,37 @@ type ErrorField struct {
 
 // 错误结构体
 type ErrorResult struct {
-	Code        string       `json:"code"`
-	ErrorFields []ErrorField `json:"errorFields"`
+	Error       string       `json:"error,omitempty"`
+	ErrorFields []ErrorField `json:"errorFields,omitempty"`
+}
+
+// 创建结果负载
+func NewResponseData(payload any) *ResponseData {
+	return &ResponseData{
+		Code:    OkCode,
+		Payload: payload,
+	}
 }
 
 // 创建输入错误对象
-func NewInputError(errs validator.ValidationErrors, target any) *ErrorResult {
-	fs := make([]ErrorField, 0)
-	for k, v := range server.MappedValidatorErrors(errs, target, "json") {
-		fs = append(fs, ErrorField{
-			Name:  k,
-			Error: v,
-		})
+func NewInputError(err error, target any) *ResponseData {
+	er := new(ErrorResult)
+
+	if e, ok := err.(validator.ValidationErrors); ok {
+		fs := make([]ErrorField, 0)
+		for k, v := range server.MappedValidatorErrors(e, target, "json") {
+			fs = append(fs, ErrorField{
+				Name:  k,
+				Error: v,
+			})
+		}
+		er.ErrorFields = fs
+	} else {
+		er.Error = err.Error()
 	}
-	return &ErrorResult{
-		Code:        InputErrorCode,
-		ErrorFields: fs,
+
+	return &ResponseData{
+		Code:    InputErrorCode,
+		Payload: er,
 	}
 }
