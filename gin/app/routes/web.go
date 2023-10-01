@@ -12,7 +12,7 @@ import (
 // 获取用户信息页面
 //
 // gin 框架使用了 Golang 内置的 `html/template` 包进行 HTML 模板渲染
-func GetUser(ctx *gin.Context) {
+func WebGetUser(ctx *gin.Context) {
 	// 通过 gin.Context 的 HTML 方法渲染一个 HTML 模板
 	// 传入响应状态, 模板名称和模板参数, 其中:
 	//   - 模板参数是一个 `map[string]any` 集合, 该集合在模板中使用 `.` 引用, 即 `title` 表示为 `.title`
@@ -20,7 +20,7 @@ func GetUser(ctx *gin.Context) {
 		"title": "User",
 		"user": &User{
 			Name:     "Alvin",
-			Gender:   "M",
+			Gender:   GenderM,
 			Birthday: time.Date(1981, 3, 17, 0, 0, 0, 0, time.UTC),
 		},
 		"list": []string{"A", "B", "C"},
@@ -28,12 +28,12 @@ func GetUser(ctx *gin.Context) {
 }
 
 // 获取用户编辑页面
-func GetUserEditor(ctx *gin.Context) {
+func WebGetUserEditor(ctx *gin.Context) {
 	// 渲染用户编辑页面
 	ctx.HTML(http.StatusOK, "user_editor.tmpl", gin.H{
 		"title": "User Editor",
 		"user": &UserForm{
-			Gender:     "M",
+			Gender:     GenderM,
 			BirthYear:  1960,
 			BirthMonth: 1,
 			BirthDay:   1,
@@ -42,7 +42,7 @@ func GetUserEditor(ctx *gin.Context) {
 }
 
 // 提交用户信息
-func PostUser(ctx *gin.Context) {
+func WebPostUser(ctx *gin.Context) {
 	var user UserForm
 
 	// 提交表单转为 `UserForm` 类型结构体

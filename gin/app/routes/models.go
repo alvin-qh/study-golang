@@ -10,6 +10,12 @@ import (
 // 定义表示性别的类型
 type Gender string
 
+// 定义性别常量
+const (
+	GenderF Gender = "F"
+	GenderM Gender = "M"
+)
+
 // 定义表示拥护的结构体
 type User struct {
 	Name     string    `json:"name"`
@@ -47,22 +53,10 @@ func (u *UserForm) toUser() *User {
 	}
 }
 
+// 错误代码
 const (
 	InputErrorCode = "input_error"
 )
-
-// 定义打招呼的请求结构体
-type Agreeing struct {
-	Name   string `json:"name" binding:"required"`
-	Gender Gender `json:"gender" binding:"required,oneof=F M"`
-	Age    int    `json:"age" binding:"min=10,max=99"`
-}
-
-// 打招呼的响应结构体
-type Answer struct {
-	Ok     bool   `json:"ok"`
-	Answer string `json:"answer"`
-}
 
 // 表示字段错误的结构体
 type ErrorField struct {
@@ -76,7 +70,8 @@ type ErrorResult struct {
 	ErrorFields []ErrorField `json:"errorFields"`
 }
 
-func (e* ErrorResult) FromValidator(errs validator.ValidationErrors, target any) {
+// 创建输入错误对象
+func NewInputError(errs validator.ValidationErrors, target any) *ErrorResult {
 	fs := make([]ErrorField, 0)
 	for k, v := range server.MappedValidatorErrors(errs, target, "json") {
 		fs = append(fs, ErrorField{
@@ -84,5 +79,8 @@ func (e* ErrorResult) FromValidator(errs validator.ValidationErrors, target any)
 			Error: v,
 		})
 	}
-	e.ErrorFields = fs
+	return &ErrorResult{
+		Code:        InputErrorCode,
+		ErrorFields: fs,
+	}
 }
