@@ -3,7 +3,6 @@ package routes
 import (
 	"fmt"
 	"net/http"
-	"study-gin/core/server"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -20,10 +19,11 @@ func GetHello(ctx *gin.Context) {
 func PostHello(ctx *gin.Context) {
 	var agreeing Agreeing
 	if err := ctx.ShouldBindJSON(&agreeing); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, &ErrorResult{
-			Code:   InputErrorCode,
-			Errors: server.MappedValidatorErrors(err.(validator.ValidationErrors), &agreeing, "json"),
-		})
+		var er ErrorResult
+		er.Code = InputErrorCode
+
+		er.FromValidator(err.(validator.ValidationErrors), &agreeing)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, &er)
 		return
 	}
 

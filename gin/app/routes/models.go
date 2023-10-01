@@ -1,7 +1,10 @@
 package routes
 
 import (
+	"study-gin/core/server"
 	"time"
+
+	"github.com/go-playground/validator/v10"
 )
 
 // 定义表示性别的类型
@@ -61,8 +64,25 @@ type Answer struct {
 	Answer string `json:"answer"`
 }
 
+// 表示字段错误的结构体
+type ErrorField struct {
+	Name  string `json:"name"`
+	Error any    `json:"error"`
+}
+
 // 错误结构体
 type ErrorResult struct {
-	Code   string         `json:"code"`
-	Errors map[string]any `json:"errors"`
+	Code        string       `json:"code"`
+	ErrorFields []ErrorField `json:"errorFields"`
+}
+
+func (e* ErrorResult) FromValidator(errs validator.ValidationErrors, target any) {
+	fs := make([]ErrorField, 0)
+	for k, v := range server.MappedValidatorErrors(errs, target, "json") {
+		fs = append(fs, ErrorField{
+			Name:  k,
+			Error: v,
+		})
+	}
+	e.ErrorFields = fs
 }

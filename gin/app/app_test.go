@@ -60,6 +60,7 @@ func TestPostHelloWithWrongData(t *testing.T) {
 	json.Unmarshal(w.Body.Bytes(), &er)
 
 	assert.Equal(t, "input_error", er.Code)
-	assert.Len(t, er.Errors, 1)
-	assert.Equal(t, "Gender必须是[F M]中的一个", er.Errors["gender"])
+	assert.Len(t, er.ErrorFields, 1)
+	assert.Equal(t, "gender", er.ErrorFields[0].Name)
+	assert.Equal(t, "Gender必须是[F M]中的一个", er.ErrorFields[0].Error)
 }
