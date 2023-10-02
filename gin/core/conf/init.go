@@ -57,7 +57,7 @@ var (
 	Config = &_Config{}
 )
 
-// 将配置
+// 将配置内容转为字符串
 func configToString() string {
 	// data, err := json.MarshalIndent(viper.AllSettings(), "", "  ")
 	// if err != nil {

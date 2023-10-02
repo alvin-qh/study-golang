@@ -168,14 +168,27 @@ var (
 	timeType = reflect.TypeOf(time.Time{})
 )
 
-func MapToStruct(m map[string]any, target any) (err error) {
-	v := reflect.ValueOf(target)
+// 判断一个反射值对象是否表示结构体指针
+//
+// 参数:
+//   - `v` (`*reflect.Value`): 反射值对象指针
+//
+// 返回:
+//   - `bool` 返回 `v` 参数是否表示结构体指针
+func checkIfStructPointer(v *reflect.Value) bool {
+	return v.Kind() == reflect.Pointer && v.Elem().Kind() == reflect.Struct
+}
 
-	if v.Kind() != reflect.Pointer && v.Elem().Kind() != reflect.Struct {
+func MapToStruct(m map[string]any, target any) (err error) {
+	// 获取给定变量的反射值
+	rVal := reflect.ValueOf(target)
+
+	// 判断 target 参数的类型是否为结构体指针
+	if !checkIfStructPointer(&rVal) {
 		return fmt.Errorf("target not a struct")
 	}
 
-	v = v.Elem()
+	rVal = rVal.Elem()
 	tagMap := make(map[string]reflect.Value)
 
 	tv := v.Type()
