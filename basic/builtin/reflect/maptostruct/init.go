@@ -128,6 +128,14 @@ func toReflectValue(v any) reflect.Value {
 	return rv
 }
 
+// 将 map 集合内容填充到结构体对象
+//
+// 参数:
+//   - `data` (`map[string]any`): map 集合对象
+//   - `target` (`any`): 结构体对象指针
+//
+// 返回
+//   - `error`: 错误对象
 func Decode(data map[string]any, target any) error {
 	// 获取 target 参数的反射值
 	tv := reflect.ValueOf(target)

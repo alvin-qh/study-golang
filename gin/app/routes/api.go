@@ -56,7 +56,7 @@ func ApiPostUsers(ctx *gin.Context) {
 
 	// 返回 JSON 结果
 	// `PureJSON` 表示 JSON 为纯文本, 不使用 `\uXXXX` 这类的编码
-	ctx.PureJSON(http.StatusOK, form.toUser("003"))
+	ctx.PureJSON(http.StatusOK, NewResponseData(form.toUser("003")))
 }
 
 func ApiGetUserById(ctx *gin.Context) {}

@@ -47,7 +47,7 @@ func TestMapToStruct(t *testing.T) {
 
 	assert.Equal(t, 100, u.Id)
 	assert.Equal(t, "Alvin", u.Name)
-	assert.Equal(t, Gender("M"), u.Gender)
+	assert.Equal(t, GenderM, u.Gender)
 	assert.Equal(t, time.Date(1981, 3, 17, 0, 0, 0, 0, time.UTC), u.Birthday)
 	assert.Equal(t, []string{"Manager", "Engineer"}, u.Titles)
 	assert.Equal(t, "China", u.Locale.Country)
