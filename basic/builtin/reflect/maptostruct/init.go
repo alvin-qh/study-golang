@@ -7,182 +7,205 @@ import (
 	"time"
 )
 
-var (
-	// 注册自定义类型的 Map
-	registerTypes = map[reflect.Type]func(any) (any, error){
-		// 为 time.Time 类型注册默认的处理函数
-		reflect.TypeOf(time.Time{}): func(v any) (rv any, err error) {
-			// 根据值的不同类型进行不同的转换
-			switch _v := v.(type) {
-			case string:
-				// 将字符串表示的时间转为 time.Time 类型
-				rv, err = time.Parse(time.RFC3339, _v)
-				if err != nil {
-					rv, err = time.Parse(time.TimeOnly, _v)
-					if err != nil {
-						rv, err = time.Parse(time.DateOnly, _v)
-					}
-				}
-				if err != nil {
-					return
-				}
-			case float64:
-				// 将 float64 表示的时间转为 time.Time 类型
-				rv = time.Unix(0, int64(v.(float64))*int64(time.Millisecond))
-			case int64:
-				// 将 int64 表示的时间转为 time.Time 类型
-				rv = time.Unix(0, v.(int64)*int64(time.Millisecond))
-			default:
-				// 其它类型, 不做任何转换
-				rv = v
-			}
-			return
-		},
-	}
-)
-
-// 为指定类型注册转换函数
-func RegisterTypeConverter(t reflect.Type, converter func(any) (any, error)) {
-	registerTypes[t] = converter
-}
-
-// 判断一个反射值对象是否表示结构体指针
+// 定义转换函数类型, 用于将一个值转为另一个类型值
 //
 // 参数:
-//   - `v` (`*reflect.Value`): 反射值对象指针
+//   - `v` (`any`): 原始类型值
+//
+// 返回：
+//   - `r` (`any`): 转换后的值
+//   - `err` (`error`): 转换错误对象
+type MapperFn func(v any) (r any, err error)
+
+// 结构体转换类型
+type MapToStruct struct {
+	tagKey  string                    // 结构体字段注解的 Key
+	mappers map[reflect.Type]MapperFn // 指定类型的转换函数
+}
+
+// 创建 `MapToStruct` 对象
+//
+// 参数:
+//   - `tagKey` (`string`): 结构体字段注解 Key
 //
 // 返回:
-//   - `bool` 返回 `v` 参数是否表示结构体指针
-func checkIfStructPointer(v *reflect.Value) bool {
-	return v.Kind() == reflect.Pointer && v.Elem().Kind() == reflect.Struct
-}
-
-type fieldDefine struct {
-	isStruct bool
-	value    reflect.Value
-	fieldMap map[string]*fieldDefine
-}
-
-// 将结构体反射值转为字段 + 字段反射值
-func structFieldsToMap(v reflect.Value) map[string]*fieldDefine {
-	// 获取结构体类型
-	t := v.Type()
-
-	// 定义递归闭包函数, 对当前结构体 (以及其结构体字段) 逐级进行处理
-	var fieldsToMap func(v reflect.Value, t reflect.Type) map[string]*fieldDefine
-	fieldsToMap = func(v reflect.Value, t reflect.Type) map[string]*fieldDefine {
-		// 创建结构体字段 map 集合
-		fm := make(map[string]*fieldDefine)
-
-		// 遍历结构体的所有字段反射值
-		for i := 0; i < v.NumField(); i++ {
-			// 获取结构体字段的反射值
-			fv := v.Field(i)
-			if !fv.IsValid() || !fv.CanSet() {
-				continue
-			}
-
-			// 获取结构体字段类型
-			ft := t.Field(i)
-
-			// 获取字段上定义的 tag
-			tag := ft.Tag.Get("json")
-			if len(tag) == 0 {
-				tag = strings.ToLower(ft.Name)
-			} else {
-				tag = strings.TrimSpace(strings.Split(tag, ",")[0])
-			}
-
-			// 查询字段类型是否已被注册
-			_, reg := registerTypes[ft.Type]
-
-			// 对于未注册的类型, 且类型为结构体, 则递归处理结构体内的内容
-			if !reg && fv.Kind() == reflect.Struct {
-				fm[tag] = &fieldDefine{
-					isStruct: true,
-					fieldMap: fieldsToMap(fv, fv.Type()),
-				}
-			} else {
-				// 将结构体字段反射值和 tag 对应
-				fm[tag] = &fieldDefine{
-					value: fv,
-				}
-			}
-		}
-
-		return fm
+//   - `*MapToStruct`: `MapToStruct` 结构体指针
+func New(tagKey string) *MapToStruct {
+	return &MapToStruct{
+		tagKey: tagKey,
+		mappers: map[reflect.Type]MapperFn{
+			reflect.TypeOf(time.Time{}): mapTime, // 设置默认的类型转换函数
+		},
 	}
-
-	return fieldsToMap(v, t)
 }
 
-// 将一个值转为反射值
-func toReflectValue(v any) reflect.Value {
-	// 获取 value 值的反射值
-	rv := reflect.ValueOf(v)
-
-	// 如果该值为 interface{} 类型, 则进一步获取其原始类型
-	if rv.Kind() == reflect.Interface {
-		rv = rv.Elem()
-	}
-	return rv
-}
-
-// 将 map 集合内容填充到结构体对象
+// 为指定类型添加转换函数
 //
 // 参数:
-//   - `data` (`map[string]any`): map 集合对象
-//   - `target` (`any`): 结构体对象指针
-//
-// 返回
-//   - `error`: 错误对象
-func Decode(data map[string]any, target any) error {
-	// 获取 target 参数的反射值
-	tv := reflect.ValueOf(target)
+//   - `t` (`reflect.Type`): 类型对象, 对于此类型的值进行转换
+//   - `mapper` (`MapperFn`): 转换函数
+func (m *MapToStruct) AddMapper(t reflect.Type, mapper MapperFn) {
+	m.mappers[t] = mapper
+}
 
-	// 判断 target 参数的类型是否为结构体指针
-	if !checkIfStructPointer(&tv) {
-		return fmt.Errorf("target not a struct")
+// 从结构体字段获取注解的 tag
+//
+// 参数:
+//   - `f` (`*reflect.StructField`): 结构体字段反射值
+//
+// 返回:
+//   - `string`: 找到的 tag 值
+func (m *MapToStruct) findTag(f *reflect.StructField) string {
+	if len(m.tagKey) > 0 {
+		// 查找预设 tag key 对应的 tag
+		if tag, ok := f.Tag.Lookup(m.tagKey); ok {
+			// 获取 tag 的第一部分并返回
+			return strings.Split(tag, ",")[0]
+		}
 	}
 
-	// 获取 target 参数指针指向的实际类型
-	tv = tv.Elem()
+	// 如果没有找到 tag, 则将字段名称转为 tag, 即字段名称的首字母小写
+	name := []rune(f.Name)
+	return fmt.Sprintf("%v%v", strings.ToLower(string(name[0])), string(f.Name[1:]))
+}
 
-	var mapToStruct func(map[string]any, map[string]*fieldDefine) error
-	mapToStruct = func(data map[string]any, m map[string]*fieldDefine) (err error) {
-		// 遍历保存 key/value 的 map 集合
-		for k, v := range data {
-			// 根据 key 值查询结构体对应的字段反射值
-			fv, ok := m[strings.ToLower(k)]
-			if !ok {
-				continue
+// 将指定的值设置到指定的值反射对象中
+//
+// 参数:
+//   - `v` (`reflect.Value`): 被设置值的值反射对象
+//   - `val` (`any`): 要设置的值
+//
+// 返回:
+//   - `err` (`error`): 错误对象
+func (m *MapToStruct) assign(v reflect.Value, val any) (err error) {
+	// 如果发生 panic 错误, 则进行恢复, 不中断程序
+	defer func() {
+		if e, ok := recover().(error); ok {
+			// 设置错误对象
+			err = e
+		}
+	}()
+
+	// 如果两边类型一致, 则直接设置值
+	if reflect.TypeOf(val) == v.Type() {
+		v.Set(reflect.ValueOf(val).Convert(v.Type()))
+	} else {
+		// 根据值反射对象的类型选择不同的方式设置值
+		switch v.Kind() {
+		case reflect.Struct:
+			// 对于值反射对象为结构体类型的, 要求 val 参数必须为 map 集合
+			if err = m.assignToStruct(v, val.(map[string]any)); err != nil {
+				return
 			}
+		case reflect.Slice:
+			// 对于值反射对象为切片类型的, 要求 val 参数必须也为切片类型
+			if err = m.assignToSlice(v, val.([]any)); err != nil {
+				return
+			}
+		default:
+			// 设置值
+			v.Set(reflect.ValueOf(val).Convert(v.Type()))
+		}
+	}
+	return
+}
 
-			if fv.isStruct {
-				// 进一步递归字段为结构体的内容
-				if err = mapToStruct(v.(map[string]any), fv.fieldMap); err != nil {
-					return err
-				}
-			} else {
-				// 获取结构体字段类型
-				ft := fv.value.Type()
+// 将指定的切片对象设置到指定的值反射对象中
+//
+// 参数:
+//   - `v` (`reflect.Value`): 被设置值的值反射对象
+//   - `s` (`[]any`): 要设置的切片类型对象
+//
+// 返回:
+//   - `err` (`error`): 错误对象
+func (m *MapToStruct) assignToSlice(v reflect.Value, s []any) error {
+	// 为值反射对象设置切片长度
+	sv := reflect.MakeSlice(v.Type(), len(s), len(s))
 
-				// 查找注册的转换函数
-				fn, ok := registerTypes[ft]
-				if ok {
-					if v, err = fn(v); err != nil {
-						return err
-					}
-				}
+	// 将切片的每一项设置到值反射对象的每一项中
+	for i := 0; i < sv.Len(); i++ {
+		if err := m.assign(sv.Index(i), s[i]); err != nil {
+			return err
+		}
+	}
 
-				vv := toReflectValue(v)
+	// 赋值切片
+	v.Set(sv)
+	return nil
+}
 
-				// 将 value 设置到结构体字段中
-				fv.value.Set(vv.Convert(ft))
+// 将指定的结构体对象设置到指定的值反射对象中
+//
+// 参数:
+//   - `v` (`reflect.Value`): 被设置值的值反射对象
+//   - `data` (`map[string]any`): 要设置的结构体类型对象
+//
+// 返回:
+//   - `err` (`error`): 错误对象
+func (m *MapToStruct) assignToStruct(v reflect.Value, data map[string]any) error {
+	// 获取值对象的类型
+	t := v.Type()
+
+	// 遍历值对象的各字段
+	for i := 0; i < v.NumField(); i++ {
+		// 获取指定字段的值对象
+		fv := v.Field(i)
+
+		// 如果字段值对象无效或者不允许设置值, 则忽略当前字段
+		if !fv.IsValid() || !fv.CanSet() {
+			continue
+		}
+
+		// 获取指定字段的字段类型
+		ft := t.Field(i)
+		// 查找字段的 tag
+		tag := m.findTag(&ft)
+
+		// 根据 tag 在 map 中查询目标值
+		dv, ok := data[tag]
+		if !ok {
+			continue
+		}
+
+		// 根据字段类型查找预设的转换函数
+		mapper, ok := m.mappers[ft.Type]
+		if ok {
+			var err error
+			// 对目标值进行转换
+			if dv, err = mapper(dv); err != nil {
+				return err
 			}
 		}
-		return
-	}
 
-	return mapToStruct(data, structFieldsToMap(tv))
+		// 将目标值设置到结构体字段中
+		if err := m.assign(fv, dv); err != nil {
+			return fmt.Errorf("error field \"%v\": %v", ft.Name, err)
+		}
+	}
+	return nil
+}
+
+// 将 map 对象内容解码到结构体对象中
+//
+// 参数:
+//   - `data` (`map[string]any`): map 对象
+//   - `target` (`any`): 结构体对象指针
+//
+// 返回:
+//   - `err` (`error`): 错误对象
+func (m *MapToStruct) Decode(data any, target any) error {
+	tv := reflect.ValueOf(target)
+	if tv.Kind() != reflect.Pointer {
+		return fmt.Errorf("\"target\" argument must be a struct or slice pointer")
+	}
+	tv = tv.Elem()
+
+	switch tv.Kind() {
+	case reflect.Slice:
+		return m.assignToSlice(tv, data.([]any))
+	case reflect.Struct:
+		return m.assignToStruct(tv, data.(map[string]any))
+	default:
+		return fmt.Errorf("\"target\" argument must be a struct pointer")
+	}
 }
