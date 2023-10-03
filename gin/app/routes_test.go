@@ -9,7 +9,6 @@ import (
 	"net/url"
 	"study-gin/app/routes"
 	"study-gin/core/server"
-	"study-gin/core/utils"
 	"testing"
 	"time"
 
@@ -43,13 +42,13 @@ func TestGetUser(t *testing.T) {
 	assert.Len(t, payloads, 2)
 
 	var user routes.User
-	utils.MapToStruct(payloads[0].(map[string]any), &user)
+	MapToStruct.Decode(payloads[0].(map[string]any), &user)
 	assert.Equal(t, "001", user.Id)
 	assert.Equal(t, "Alvin", user.Name)
 	assert.Equal(t, routes.GenderM, user.Gender)
 	assert.Equal(t, "1981-03-17", user.Birthday.Format(time.DateOnly))
 
-	utils.MapToStruct(payloads[1].(map[string]any), &user)
+	MapToStruct.Decode(payloads[1].(map[string]any), &user)
 	assert.Equal(t, "002", user.Id)
 	assert.Equal(t, "Emma", user.Name)
 	assert.Equal(t, routes.GenderF, user.Gender)
@@ -87,7 +86,7 @@ func TestGetUserWithParameters(t *testing.T) {
 	assert.Len(t, payloads, 1)
 
 	var user routes.User
-	utils.MapToStruct(payloads[0].(map[string]any), &user)
+	MapToStruct.Decode(payloads[0].(map[string]any), &user)
 	assert.Equal(t, "001", user.Id)
 	assert.Equal(t, "Emma", user.Name)
 	assert.Equal(t, routes.GenderM, user.Gender)
@@ -124,7 +123,11 @@ func TestPostUser(t *testing.T) {
 	assert.Equal(t, routes.OkCode, resp.Code)
 
 	var user routes.User
-	utils.MapToStruct(resp.Payload.(map[string]any), &user)
+
+	// 将 Payload 反序列化为 user 结构体
+	MapToStruct.Decode(resp.Payload.(map[string]any), &user)
+
+	// 确认 Payload 符合预期
 	assert.Equal(t, "003", user.Id)
 	assert.Equal(t, "Emma", user.Name)
 	assert.Equal(t, routes.GenderF, user.Gender)
@@ -137,7 +140,7 @@ func TestPostUser(t *testing.T) {
 func TestPostUserByWrongData(t *testing.T) {
 	data, _ := json.Marshal(&routes.UserForm{
 		Name:       "Emma",
-		Gender:     routes.Gender("X"),
+		Gender:     routes.Gender("X"), // 传递错误的请求参数
 		BirthYear:  1985,
 		BirthMonth: 3,
 		BirthDay:   29,
@@ -145,7 +148,9 @@ func TestPostUserByWrongData(t *testing.T) {
 
 	req, _ := http.NewRequest(http.MethodPost, "/api/users", bytes.NewBuffer(data))
 
+	// 创建一个测试用的 `ResponseRecorder` 对象
 	w := httptest.NewRecorder()
+	// 启动 http 服务并发送请求
 	server.Engine.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -154,10 +159,16 @@ func TestPostUserByWrongData(t *testing.T) {
 	var resp routes.ResponseData
 	json.Unmarshal(w.Body.Bytes(), &resp)
 
-	// 确认返回正确的 code
+	// 确认返回 code 400
 	assert.Equal(t, routes.InputErrorCode, resp.Code)
 
 	var er routes.ErrorResult
-	utils.MapToStruct(resp.Payload.(map[string]any), &er)
+
+	// 将 Payload 反序列化为 ErrorResult 结构体
+	MapToStruct.Decode(resp.Payload.(map[string]any), &er)
+
+	// 确认 Payload 符合预期
 	assert.Len(t, er.ErrorFields, 1)
+	assert.Equal(t, "gender", er.ErrorFields[0].Name)
+	assert.Equal(t, "Gender必须是[F M]中的一个", er.ErrorFields[0].Error)
 }

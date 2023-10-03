@@ -3,6 +3,11 @@ package app
 import (
 	"study-gin/app/routes"
 	"study-gin/core/server"
+	"study-gin/core/utils/maptostruct"
+)
+
+var (
+	MapToStruct = maptostruct.New("json")
 )
 
 // 在此注册其它的路由函数

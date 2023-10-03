@@ -9,7 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"study-gin/core/conf"
-	"study-gin/core/utils"
+	"study-gin/core/utils/callstack"
+	"study-gin/core/utils/value"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -90,7 +91,7 @@ func RecoveryMiddleware(handles ...gin.RecoveryFunc) gin.HandlerFunc {
 					log.Errorf("%s\n%s", err, headersToStr)
 				} else {
 					// 输出 panic 错误以及调用栈信息
-					log.Errorf("[Recovery] panic recovered: %s\n%s", err, utils.CallStack(3))
+					log.Errorf("[Recovery] panic recovered: %s\n%s", err, callstack.CallStack(3))
 				}
 
 				if brokenPipe {
@@ -133,13 +134,13 @@ const headerLogFormat = "\t%v=%v"
 // 返回:
 //   - gin 框架路由处理函数
 func CORSOptionsRoute() gin.HandlerFunc {
-	allowMethods := utils.JoinAny(conf.Config.Server.Cors.AllowMethods, ",")
+	allowMethods := value.JoinAny(conf.Config.Server.Cors.AllowMethods, ",")
 	log.Infof(headerLogFormat, headerAllowMethods, allowMethods)
 
-	allowHeaders := utils.JoinAny(conf.Config.Server.Cors.AllowHeaders, ",")
+	allowHeaders := value.JoinAny(conf.Config.Server.Cors.AllowHeaders, ",")
 	log.Infof(headerLogFormat, headerAllowHeaders, allowHeaders)
 
-	exposeHeaders := utils.JoinAny(conf.Config.Server.Cors.ExposeHeaders, ",")
+	exposeHeaders := value.JoinAny(conf.Config.Server.Cors.ExposeHeaders, ",")
 	log.Infof(headerLogFormat, headerExposeHeaders, exposeHeaders)
 
 	allowCredentials := conf.Config.Server.Cors.AllowCredentials
@@ -173,7 +174,7 @@ func CORSMiddleware() gin.HandlerFunc {
 	log.Info("middleware \"cors\" enabled")
 
 	// 获取配置的跨域 HTTP 头设置
-	allowOrigin := utils.JoinAny(conf.Config.Server.Cors.AllowOrigin, ",")
+	allowOrigin := value.JoinAny(conf.Config.Server.Cors.AllowOrigin, ",")
 	log.Infof("\t%v=%v", headerAllowOrigin, allowOrigin)
 
 	// 返回中间件函数, 用于为所有响应增加跨域 HTTP 头

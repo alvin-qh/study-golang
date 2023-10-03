@@ -1,4 +1,4 @@
-package utils
+package signal
 
 import (
 	"os"
@@ -13,7 +13,7 @@ import (
 //
 // 确认是否可以正确的接收到 `SIGINT` 信号
 func TestWaitInterruptSignal(t *testing.T) {
-    t.Skip("One process cannot have two signal notify")
+	t.Skip("One process cannot have two signal notify")
 
 	var until time.Duration = 0
 

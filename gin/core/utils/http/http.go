@@ -1,8 +1,9 @@
-package utils
+package http
 
 import (
 	"context"
 	"net/http"
+	"study-gin/core/utils/signal"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -54,7 +55,7 @@ func HttpStart(address string, handler http.Handler) {
 	go server.listen()
 
 	// 在主线程等待进程结束信号
-	WaitInterruptSignal()
+	signal.WaitInterruptSignal()
 
 	log.Infof("shutdown server...")
 	// 关闭服务

@@ -1,4 +1,4 @@
-package utils
+package callstack
 
 import (
 	"runtime"
@@ -76,7 +76,7 @@ func TestFunction(t *testing.T) {
 func TestCallStack(t *testing.T) {
 	stack := CallStack(0)
 
-	assert.Contains(t, string(stack), "/core/utils/stack.go")
-	assert.Contains(t, string(stack), "gin/core/utils/stack_test.go")
+	assert.Contains(t, string(stack), "/core/utils/callstack/stack.go")
+	assert.Contains(t, string(stack), "gin/core/utils/callstack/stack_test.go")
 	assert.Contains(t, string(stack), "TestCallStack: stack := CallStack(0)")
 }
