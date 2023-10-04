@@ -25,5 +25,6 @@ func init() {
 	{
 		api.GET("/users", routes.ApiGetUsers)
 		api.POST("/users", routes.ApiPostUsers)
+		api.GET("/users/:id", routes.ApiGetUserById)
 	}
 }

@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -59,4 +60,34 @@ func ApiPostUsers(ctx *gin.Context) {
 	ctx.PureJSON(http.StatusOK, NewResponseData(form.toUser("003")))
 }
 
-func ApiGetUserById(ctx *gin.Context) {}
+// 获取用户 API, 根据 URL 中的 `:id` 参数, 返回 `User` 类型 JSON 对象
+func ApiGetUserById(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	var user *User
+
+	// 根据 id 值获取不同的 UserForm 对象
+	switch id {
+	case "001":
+		user = &User{
+			Id:       "001",
+			Name:     "Alvin",
+			Gender:   GenderM,
+			Birthday: time.Date(1981, 3, 17, 0, 0, 0, 0, time.UTC),
+		}
+	case "002":
+		user = &User{
+			Id:       "002",
+			Name:     "Emma",
+			Gender:   GenderF,
+			Birthday: time.Date(1985, 3, 29, 0, 0, 0, 0, time.UTC),
+		}
+	default:
+		// id 参数错误, 返回 404 页面
+		ctx.AbortWithError(http.StatusNotFound, fmt.Errorf("user not exit by id \"%v\"", id))
+		return
+	}
+
+	// 返回 JSON 结果
+	ctx.PureJSON(http.StatusOK, NewResponseData(user))
+}

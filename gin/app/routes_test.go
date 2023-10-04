@@ -172,3 +172,32 @@ func TestPostUserByWrongData(t *testing.T) {
 	assert.Equal(t, "gender", er.ErrorFields[0].Name)
 	assert.Equal(t, "Gender必须是[F M]中的一个", er.ErrorFields[0].Error)
 }
+
+// 测试 `ApiGetUserById` 路由方法
+//
+// 发送 `GET` 请求, 通过用户 ID 获取 User 对象
+func TestApiGetUserById(t *testing.T) {
+	req, _ := http.NewRequest(http.MethodGet, "/api/users/002", nil)
+
+	// 创建一个测试用的 `ResponseRecorder` 对象
+	w := httptest.NewRecorder()
+	// 启动 http 服务并发送请求
+	server.Engine.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	// 结果反序列化
+	var resp routes.ResponseData
+	json.Unmarshal(w.Body.Bytes(), &resp)
+
+	// 确认返回结果正确
+	assert.Equal(t, routes.OkCode, resp.Code)
+
+	var user routes.User
+
+	MapToStruct.Decode(resp.Payload, &user)
+	assert.Equal(t, "002", user.Id)
+	assert.Equal(t, "Emma", user.Name)
+	assert.Equal(t, routes.GenderF, user.Gender)
+	assert.Equal(t, "1985-03-29", user.Birthday.Format(time.DateOnly))
+}
