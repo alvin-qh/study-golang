@@ -1,8 +1,6 @@
 package server
 
 import (
-	"study-gin/core/conf"
-
 	_ "study-gin/core/logger"
 
 	"github.com/gin-gonic/gin"
@@ -27,10 +25,4 @@ func init() {
 		LogMiddleware(),      // 记录日志的中间件
 		CORSMiddleware(),     // 跨域中间件
 	)
-
-	// 如果启用跨域配置, 则对 OPTIONS 请求启用响应
-	if conf.Config.Server.Cors.Enable {
-		// 对所有 OPTIONS 请求进行处理
-		Engine.OPTIONS("/*path", CORSOptionsRoute())
-	}
 }

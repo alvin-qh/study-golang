@@ -3,9 +3,11 @@ package server
 import (
 	"html/template"
 	"io"
+	"reflect"
 	"time"
 
 	"study-gin/core/conf"
+	"study-gin/core/utils/conv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,4 +42,25 @@ func SetupTemplate() {
 		// 多模板渲染, 加载多模板渲染对象
 		Engine.HTMLRender = LoadTemplates()
 	}
+}
+
+func MakeAllowOrigin(conf any) map[string]struct{} {
+	v := reflect.ValueOf(conf)
+	r := make(map[string]struct{})
+
+	switch v.Kind() {
+	case reflect.String:
+		r[conf.(string)] = struct{}{}
+	case reflect.Slice:
+		for _, url := range conf.([]any) {
+			if url == "*" {
+				r = map[string]struct{}{
+					"*": {},
+				}
+				break
+			}
+			r[conv.AnyToString(url)] = struct{}{}
+		}
+	}
+	return r
 }

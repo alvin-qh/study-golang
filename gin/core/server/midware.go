@@ -116,6 +116,7 @@ func RecoveryMiddleware(handles ...gin.RecoveryFunc) gin.HandlerFunc {
 
 // 定义跨域的 http 请求头常量
 const (
+	headerOrigin           = "Origin"
 	headerAllowOrigin      = "Access-Control-Allow-Origin"
 	headerAllowMethods     = "Access-Control-Allow-Methods"
 	headerAllowHeaders     = "Access-Control-Allow-Headers"
@@ -143,19 +144,15 @@ func CORSOptionsRoute() gin.HandlerFunc {
 	exposeHeaders := value.JoinAny(conf.Config.Server.Cors.ExposeHeaders, ",")
 	log.Infof(headerLogFormat, headerExposeHeaders, exposeHeaders)
 
-	allowCredentials := conf.Config.Server.Cors.AllowCredentials
-	log.Infof(headerLogFormat, headerAllowCredentials, allowCredentials)
-
 	maxAge := conf.Config.Server.Cors.MaxAge
 	log.Infof(headerLogFormat, headerMaxAge, maxAge)
 
 	return func(ctx *gin.Context) {
 		header := ctx.Writer.Header()
-
 		header.Set(headerAllowMethods, allowMethods)
 		header.Set(headerAllowHeaders, allowHeaders)
 		header.Set(headerExposeHeaders, exposeHeaders)
-		header.Set(headerAllowCredentials, strconv.FormatBool(allowCredentials))
+		header.Set(headerMaxAge, strconv.FormatInt(int64(maxAge), 10))
 	}
 }
 
@@ -174,14 +171,32 @@ func CORSMiddleware() gin.HandlerFunc {
 	log.Info("middleware \"cors\" enabled")
 
 	// 获取配置的跨域 HTTP 头设置
-	allowOrigin := value.JoinAny(conf.Config.Server.Cors.AllowOrigin, ",")
+	allowOrigin := MakeAllowOrigin(conf.Config.Server.Cors.AllowOrigin)
 	log.Infof("\t%v=%v", headerAllowOrigin, allowOrigin)
+
+	allowCredentials := strconv.FormatBool(conf.Config.Server.Cors.AllowCredentials)
+	log.Infof(headerLogFormat, headerAllowCredentials, allowCredentials)
 
 	// 返回中间件函数, 用于为所有响应增加跨域 HTTP 头
 	return func(ctx *gin.Context) {
-		header := ctx.Writer.Header()
-		header.Set(headerAllowOrigin, allowOrigin)
+		origin := ctx.Request.Header.Get(headerOrigin)
 
+		if len(origin) > 0 {
+			header := ctx.Writer.Header()
+
+			_, ok := allowOrigin["*"]
+			if !ok {
+				_, ok = allowOrigin[origin]
+			}
+
+			if ok {
+				header.Set(headerAllowOrigin, origin)
+				header.Set(headerAllowCredentials, allowCredentials)
+			} else {
+				ctx.AbortWithStatus(http.StatusForbidden)
+				log.Infof("invalid origin \"%v\", forbidden", origin)
+			}
+		}
 		ctx.Next()
 	}
 }
