@@ -1,4 +1,4 @@
-module logrus
+module study-golang/logrus
 
 go 1.20
 

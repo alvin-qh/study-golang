@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
-	"logrus/logging"
+	"study-golang/logrus/logging"
 	"time"
 
 	nested "github.com/antonfisher/nested-logrus-formatter"
