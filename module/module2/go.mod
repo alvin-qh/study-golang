@@ -1,3 +1,3 @@
-module gitee.com/alvin-qh/study-golang/module2
+module study-golang/module/demo-module
 
 go 1.21.2

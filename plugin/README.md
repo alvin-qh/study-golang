@@ -16,9 +16,3 @@ if err != nil {
     panic(err)
 }
 ```
-
-
-
-replace alvin.study/plugin/proto => ../proto
-
-require alvin.study/plugin/proto v1.0.0
