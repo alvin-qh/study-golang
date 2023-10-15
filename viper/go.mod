@@ -1,4 +1,4 @@
-module viper
+module study-golang/viper
 
 go 1.20
 

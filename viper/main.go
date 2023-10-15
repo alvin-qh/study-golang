@@ -2,12 +2,12 @@ package main
 
 import (
 	"path"
+	"study-golang/viper/logging"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
 	"os"
-	"viper/logging"
 )
 
 const (

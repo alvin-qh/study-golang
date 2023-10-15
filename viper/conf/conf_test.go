@@ -6,8 +6,8 @@ import (
 	"io"
 	"os"
 	"strings"
+	"study-golang/viper/logging"
 	"testing"
-	"viper/logging"
 
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
