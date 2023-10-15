@@ -4,15 +4,12 @@
   - [1. 安装 GO 开发环境](#1-安装-go-开发环境)
     - [1.1. macOS](#11-macos)
     - [1.2. Linux](#12-linux)
-  - [~~2. 设置 `GOROOT` 和 `GOPATH` 环境变量~~](#2-设置-goroot-和-gopath-环境变量)
-  - [~~3. `glide` 包管理器~~](#3-glide-包管理器)
-    - [~~3.1. macOS~~](#31-macos)
-    - [~~3.2. 通过 `glide` 创建工程~~](#32-通过-glide-创建工程)
-  - [4. 使用 `go mod` 包管理](#4-使用-go-mod-包管理)
-    - [4.1. 启用包管理](#41-启用包管理)
-    - [4.2. 创建 go 工程](#42-创建-go-工程)
-    - [4.3. 安装第三方依赖包](#43-安装第三方依赖包)
-    - [4.4. 设置 `go mod` 代理](#44-设置-go-mod-代理)
+  - [3. 使用 go mod 包管理](#3-使用-go-mod-包管理)
+    - [3.1. 启用包管理](#31-启用包管理)
+    - [3.2. 创建 go 工程](#32-创建-go-工程)
+    - [3.3. 安装第三方依赖包](#33-安装第三方依赖包)
+    - [3.4. 设置 `go mod` 代理](#34-设置-go-mod-代理)
+  - [4. 使用 go env 环境变量管理](#4-使用-go-env-环境变量管理)
 
 ![Logo](./assets/logo.jpg)
 
@@ -54,57 +51,9 @@ sudo apt update -y
 sudo apt install golang-go
 ```
 
-## ~~2. 设置 `GOROOT` 和 `GOPATH` 环境变量~~
+## 3. 使用 go mod 包管理
 
-```bash
-export GOROOT=<dir> # 设置为 go 语言安装路径
-export GOPATH=<dir1>:<dir2>:<dir3> # 设置为各个 go 工程路径
-```
-
-## ~~3. `glide` 包管理器~~
-
-### ~~3.1. macOS~~
-
-安装 `glide` 软件包
-
-```bash
-brew install glide
-```
-
-安装 `xcode-select`
-
-```bash
-xcode-select --install
-```
-
-### ~~3.2. 通过 `glide` 创建工程~~
-
-在 `GOPATH` 环境变量指定的路径下, 创建如下目录
-
-```bash
-mkdir src  # 源代码路径
-mkdir pkg  # 第三方包存放路径
-mkdir bin  # 编译结果存放路径
-```
-
-在 `GOPATH` 路径下创建工程目录
-
-```bash
-mkdir my_project
-```
-
-通过 `glide` 创建项目
-
-```bash
-glide create                  # 创建工程
-glide get "<go package url>"  # 安装第三方依赖包
-glide up                      # 更新依赖包
-glide install                 # 锁定包版本
-```
-
-## 4. 使用 `go mod` 包管理
-
-### 4.1. 启用包管理
+### 3.1. 启用包管理
 
 查看 go 版本号
 
@@ -124,23 +73,36 @@ export GO111MODULE=auto
 export GO111MODULE=on
 ```
 
-### 4.2. 创建 go 工程
+### 3.2. 创建 go 工程
 
 ```bash
 mkdir demo-work
 
 cd demo-work
-go mod init demo-work
+go mod init gitee.com/go-libs/demo-work
 ```
 
-### 4.3. 安装第三方依赖包
+### 3.3. 安装第三方依赖包
 
 ```bash
 go get -u github.com/stretchr/testify/
 ```
 
-### 4.4. 设置 `go mod` 代理
+### 3.4. 设置 `go mod` 代理
 
 ```bash
-export GOPROXY=https://goproxy.io
+export GOPROXY="https://goproxy.cn,direct"
 ```
+
+## 4. 使用 go env 环境变量管理
+
+对于上述需要设置环境变量的环节, 如果 Go 版本大于 `1.13` 则可以直接使用 `go env -w` 命令
+
+```bash
+go env -w GO111MODULE="on"
+go env -w GOPROXY="https://goproxy.cn,direct"
+```
+
+`go env -w` 设置的环境变量存储在 `~/.config/go/env` 文件中 (Linux 系统下), 并且可以跨平台使用
+
+通过 `go env` 命令可以列举目前所有 Go 环境变量的值
