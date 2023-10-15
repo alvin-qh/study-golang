@@ -1,4 +1,4 @@
-module basic
+module study-golang/basic
 
 go 1.18
 

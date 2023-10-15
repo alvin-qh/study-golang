@@ -1,9 +1,9 @@
 package oop
 
 import (
-	"basic/oop/errors"
-	"basic/oop/size"
-	"basic/oop/size3d"
+	"study-golang/basic/oop/errors"
+	"study-golang/basic/oop/size"
+	"study-golang/basic/oop/size3d"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

@@ -1,9 +1,9 @@
 package size3d
 
 import (
-	"basic/oop/errors"
-	"basic/oop/size"
 	"fmt"
+	"study-golang/basic/oop/errors"
+	"study-golang/basic/oop/size"
 )
 
 // 定义 Size3D 结构体, 从 Size 结构体继承

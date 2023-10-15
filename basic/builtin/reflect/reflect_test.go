@@ -20,8 +20,8 @@ func TestReflectGetType(t *testing.T) {
 	// 定义 interface{} 类型变量, 实际类型为 User 类型
 	obj = User{Id: 1, Name: "Alvin", Gender: 'M'}
 
-	tp = reflect.TypeOf(obj)                                                   // 获取变量的 类型反射 对象
-	assert.Equal(t, "basic/builtin/reflect.User[struct]", GetFullTypeName(tp)) // 变量的类型是 "User"
+	tp = reflect.TypeOf(obj)                                                                // 获取变量的 类型反射 对象
+	assert.Equal(t, "study-golang/basic/builtin/reflect.User[struct]", GetFullTypeName(tp)) // 变量的类型是 "User"
 
 	// 对于 指针 类型, 类型的名字为 "", 种类为 reflect.Ptr
 	tp = reflect.TypeOf(&obj)
@@ -64,7 +64,7 @@ func TestReflectGetTypeFromPtr(t *testing.T) {
 	assert.Equal(t, ".[ptr]", GetFullTypeName(tp))
 
 	tp = tp.Elem() // 获取指针所指向的对象类型
-	assert.Equal(t, "basic/builtin/reflect.User[struct]", GetFullTypeName(tp))
+	assert.Equal(t, "study-golang/basic/builtin/reflect.User[struct]", GetFullTypeName(tp))
 }
 
 // 通过反射读取对象值
@@ -79,7 +79,7 @@ func TestReflectGetValue(t *testing.T) {
 	// 定义 interface{} 类型变量, 值为 User 类型结构体
 	obj = User{Id: 1, Name: "Alvin", Gender: 'M'}
 	tv = reflect.ValueOf(obj) // 获取变量的 值反射 对象
-	assert.Equal(t, "basic/builtin/reflect.User[struct]", GetFullTypeName(tv.Type()))
+	assert.Equal(t, "study-golang/basic/builtin/reflect.User[struct]", GetFullTypeName(tv.Type()))
 	assert.Equal(t, 1, int(tv.FieldByName("Id").Int()))        // 根据 名称 获取 Id 字段的值, 并转为 int 类型
 	assert.Equal(t, "Alvin", tv.FieldByName("Name").String())  // 根据 名称 获取 Name 字段的值, 并转为 string 类型
 	assert.Equal(t, 'M', rune(tv.FieldByName("Gender").Int())) // 根据 名称 获取 Gender 字段的值, 并转为 rune 类型
@@ -137,9 +137,9 @@ func TestReflectGetValueFromPtr(t *testing.T) {
 	assert.Equal(t, ".[interface]", GetFullTypeName(tv.Type())) // 其类型为 interface{} 类型
 	assert.Equal(t, obj.(User), tv.Interface().(User))          // 其值为 User 对象
 
-	tv = tv.Elem()                                                                    // 再次从 interface{} 类型解除引用, 获取其原始值
-	assert.Equal(t, "basic/builtin/reflect.User[struct]", GetFullTypeName(tv.Type())) // 获取类型为 User 类型
-	assert.Equal(t, 1, int(tv.FieldByName("Id").Int()))                               // 获取对象各字段值
+	tv = tv.Elem()                                                                                 // 再次从 interface{} 类型解除引用, 获取其原始值
+	assert.Equal(t, "study-golang/basic/builtin/reflect.User[struct]", GetFullTypeName(tv.Type())) // 获取类型为 User 类型
+	assert.Equal(t, 1, int(tv.FieldByName("Id").Int()))                                            // 获取对象各字段值
 	assert.Equal(t, "Alvin", tv.FieldByName("Name").String())
 	assert.Equal(t, 'M', rune(tv.FieldByName("Gender").Int()))
 }

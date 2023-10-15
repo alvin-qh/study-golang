@@ -1,6 +1,6 @@
 package function
 
-import "basic/builtin/types"
+import "study-golang/basic/builtin/types"
 
 // 用于 `CreateUser` 函数的可选参数结构体
 type option struct {

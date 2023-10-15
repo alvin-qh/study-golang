@@ -99,8 +99,8 @@ func TestBufferedFileIO(t *testing.T) {
 	pu := NewUser(1, "Alvin", "alvin@fake.com", []string{"13999912345", "13000056789"})
 	enc := gob.NewEncoder(bufW)            // 在 bufio.Writer 对象的基础上, 包装一个 gob.Encoder 对象
 	enc.Encode(pu)                         // 将对象编码后写入 bufio.Writer 对象
-	assert.Equal(t, 116, bufW.Available()) // 缓存剩余大小
-	assert.Equal(t, 140, bufW.Buffered())  // 写入数据后, 已缓存数据大小, 共 140 字节
+	assert.Equal(t, 117, bufW.Available()) // 缓存剩余大小
+	assert.Equal(t, 139, bufW.Buffered())  // 写入数据后, 已缓存数据大小, 共 140 字节
 
 	err = bufW.Flush() // 将缓存的内容写入文件
 	assert.NoError(t, err)
@@ -120,7 +120,7 @@ func TestBufferedFileIO(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Hello", string(line)) // 读取 1 行的内容
 	assert.False(t, prefix)                // prefix 返回 false, 表示以读完一行, 否则表示一行尚未读完, 需要再次调用 ReadLine 函数, 直到读完一行
-	assert.Equal(t, 134, bufR.Buffered())  // 缓冲区使用 134 字节. 具体情况为: 当第一次读取时, 先读入缓存 140 字节, 读走 1 行 6 字节后, 剩余 134 字节
+	assert.Equal(t, 133, bufR.Buffered())  // 缓冲区使用 134 字节. 具体情况为: 当第一次读取时, 先读入缓存 140 字节, 读走 1 行 6 字节后, 剩余 134 字节
 
 	u := User{}
 	dec := gob.NewDecoder(bufR) // 在 bufio.Reader 对象基础上创建 gob.Decoder 对象

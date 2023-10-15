@@ -1,8 +1,8 @@
 package long
 
 import (
-	"basic/oop/errors"
 	"strconv"
+	"study-golang/basic/oop/errors"
 )
 
 // 定义 int64 为 Long 类型

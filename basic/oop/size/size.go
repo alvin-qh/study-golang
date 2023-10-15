@@ -1,8 +1,8 @@
 package size
 
 import (
-	"basic/oop/errors"
 	"fmt"
+	"study-golang/basic/oop/errors"
 )
 
 // 定义 Size 结构体
