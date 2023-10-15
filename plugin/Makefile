@@ -1,24 +1,21 @@
-BINARY_NAME=dist/app
+TARGET_DIR=dist
 
-.PHONY: all
-all:
-	build test
+.PHONY: build-plugin1
+build-plugin1:
+	cd ./plugins/plugin1 && go build -buildmode=plugin -o ../../${TARGET_DIR}/p1.so
+
+.PHONY: build-plugin2
+build-plugin2:
+	cd ./plugins/plugin2 && go build -buildmode=plugin -o ../../${TARGET_DIR}/p2.so
+
+.PHONY: build-app
+build-app:
+	cd ./app && go build -o ../dist/app
 
 .PHONY: build
-build:
-	go build -buildmode=plugin -o dist/p1.so plugins/plugin1/main.go
-	go build -buildmode=plugin -o dist/p2.so plugins/plugin2/main.go
-	go build -o ${BINARY_NAME} app/main.go
-
-.PHONY: test
-test:
-	go test -v ./...
-
-.PHONY: run
-run:
-	go run main.go
+build: build-plugin1 build-plugin2 build-app
 
 .PHONY: clean
 clean:
 	go clean
-	rm -rf "$(dir ${BINARY_NAME})"
+	rm -rf "${TARGET_DIR}"

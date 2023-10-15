@@ -1,0 +1,24 @@
+# 插件系统
+
+插件系统为 Go 语言提供了动态加载模块的能力, 相当于 C/C++ 语言的"动态链接库", 即模块可以在"运行时加载", 并可以随时替换
+
+> 插件系统从 Go 1.8 以上版本开始提供, 1.10 以上版本可以编译 macOS 系统上的插件
+
+## 1. 介绍
+
+和 C/C++ 类似, Go 语言的插件的编译结果也为一个 `.so` (或 `.dll`) 动态库文件, 主应用加载此动态库文件, 并通过查找动态库中的"符号"来导出动态库中定义的内容, 可以为一个"函数" 或 "类型" ("接口" 或 "结构体")
+
+```golang
+plug, err := plugin.Open("<插件文件名>")
+
+symb, err := plug.Lookup("Create")
+if err != nil {
+    panic(err)
+}
+```
+
+
+
+replace alvin.study/plugin/proto => ../proto
+
+require alvin.study/plugin/proto v1.0.0

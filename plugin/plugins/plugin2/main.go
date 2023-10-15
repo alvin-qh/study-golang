@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-
-	"alvin.study/plugin/proto"
 )
 
 type Plugin2 struct{}
@@ -13,6 +11,6 @@ func (p *Plugin2) Run(args string) int {
 	return 0
 }
 
-func Create() proto.Runnable {
+func Create() interface{} {
 	return new(Plugin2)
 }
