@@ -1,10 +1,10 @@
 package main
 
 import (
-	_ "study-gin/app"
-	"study-gin/core/conf"
-	"study-gin/core/server"
-	"study-gin/core/utils/http"
+	_ "study-golang/gin/app"
+	"study-golang/gin/core/conf"
+	"study-golang/gin/core/server"
+	"study-golang/gin/core/utils/http"
 )
 
 const (

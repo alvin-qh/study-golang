@@ -2,10 +2,10 @@ package app
 
 import (
 	"net/http"
-	"study-gin/app/routes"
-	"study-gin/core/conf"
-	"study-gin/core/server"
-	"study-gin/core/utils/maptostruct"
+	"study-golang/gin/app/routes"
+	"study-golang/gin/core/conf"
+	"study-golang/gin/core/server"
+	"study-golang/gin/core/utils/maptostruct"
 
 	"github.com/gin-gonic/gin"
 )

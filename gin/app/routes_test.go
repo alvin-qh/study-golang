@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"study-gin/app/routes"
-	"study-gin/core/server"
+	"study-golang/gin/app/routes"
+	"study-golang/gin/core/server"
 	"testing"
 	"time"
 

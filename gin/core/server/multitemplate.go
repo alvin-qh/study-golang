@@ -2,7 +2,7 @@ package server
 
 import (
 	"path/filepath"
-	"study-gin/core/conf"
+	"study-golang/gin/core/conf"
 
 	"github.com/gin-contrib/multitemplate"
 )

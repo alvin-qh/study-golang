@@ -8,9 +8,9 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"study-gin/core/conf"
-	"study-gin/core/utils/callstack"
-	"study-gin/core/utils/value"
+	"study-golang/gin/core/conf"
+	"study-golang/gin/core/utils/callstack"
+	"study-golang/gin/core/utils/value"
 	"time"
 
 	"github.com/gin-gonic/gin"

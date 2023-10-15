@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"study-gin/core/conf"
+	"study-golang/gin/core/conf"
 	"time"
 
 	nested "github.com/antonfisher/nested-logrus-formatter"

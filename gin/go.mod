@@ -1,4 +1,4 @@
-module study-gin
+module study-golang/gin
 
 go 1.21.1
 

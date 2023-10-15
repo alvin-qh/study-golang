@@ -3,7 +3,7 @@ package routes
 import (
 	"fmt"
 	"net/http"
-	"study-gin/core/server"
+	"study-golang/gin/core/server"
 	"time"
 
 	"github.com/gin-gonic/gin"

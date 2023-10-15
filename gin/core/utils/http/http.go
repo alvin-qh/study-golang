@@ -3,7 +3,7 @@ package http
 import (
 	"context"
 	"net/http"
-	"study-gin/core/utils/signal"
+	"study-golang/gin/core/utils/signal"
 	"time"
 
 	log "github.com/sirupsen/logrus"
