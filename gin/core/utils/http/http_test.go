@@ -2,6 +2,7 @@ package http
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -11,6 +12,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+)
+
+const (
+	TEST_PORT = "15000"
 )
 
 // 测试 `HttpStart` 函数
@@ -32,7 +37,7 @@ func TestStartAndShutdown(t *testing.T) {
 		})
 
 		// 启动 http 服务器, 并等待 `SIGINT` 信号后停止服务器
-		HttpStart(":5000", engine)
+		HttpStart(fmt.Sprintf(":%v", TEST_PORT), engine)
 
 		// http 服务器停止后, 发送协程结束事件
 		ch <- struct{}{}
@@ -41,7 +46,7 @@ func TestStartAndShutdown(t *testing.T) {
 	time.Sleep(500 * time.Millisecond)
 
 	// 访问测试地址
-	resp, err := http.Get("http://localhost:5000")
+	resp, err := http.Get(fmt.Sprintf("http://localhost:%v", TEST_PORT))
 	assert.NoError(t, err)
 
 	// 读取响应结果

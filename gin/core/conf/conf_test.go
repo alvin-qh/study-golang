@@ -18,6 +18,6 @@ func TestDefault(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 86400, v)
 
-	_, err = Default("server.cors.max-age", "Unknow")
+	_, err = Default("server.cors.max-age", "Unknown")
 	assert.EqualError(t, err, "value by key \"server.cors.max-age\" not match type \"string\"")
 }
