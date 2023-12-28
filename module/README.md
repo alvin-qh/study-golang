@@ -12,6 +12,7 @@
         - [设置私有仓库的用户名密码](#设置私有仓库的用户名密码)
         - [仓库地址不合规处理](#仓库地址不合规处理)
       - [2.3.3. 使用本地依赖](#233-使用本地依赖)
+    - [2.4. 依赖不一致](#24-依赖不一致)
 
 Go 语言通过"模块"来组织代码, 一个 Go 项目即一个"模块", 根据"模块"的组织形式, 又可以分为:
 
@@ -150,7 +151,7 @@ go get -u git.my-private-git.com/go-libs/sub1
 
 在主程序模块中添加本地依赖模块, 需要在引入模块 (执行 `go get` 命令) 前, 在主程序模块的 `go.mod` 文件中增加一行说明
 
-```plainttext
+```plaintext
 replace study-golang/module/sub1 => ../module2
 ```
 
@@ -163,3 +164,12 @@ go get -v -u study-golang/module/sub1
 ```
 
 此时会返回 `go: added study-golang/module/sub1 v0.0.0-00010101000000-000000000000` 表示添加成功, 但因为目标代码不在 git 仓库中, 没有表示版本的 tag, 所以随机给了一个版本号. 如果觉得这个随即版本号比较奇怪, 可以在主程序模块的 `go.mod` 文件中将其改为任意版本号, 不影响正常执行
+
+### 2.4. 依赖不一致
+
+如果在获取依赖是报告 "go module xxxx found but does not contain package", 一般是因为远端依赖的 go 代码发生了改动, 但并未升级版本号, 导致本地缓存和远端代码不一致, 此时清空本地缓存即可
+
+```bash
+go clean -cache
+go clean -modcache
+```

@@ -120,9 +120,9 @@ func TestReflectGetValueFromPtr(t *testing.T) {
 	assert.Equal(t, ".[ptr]", GetFullTypeName(tv.Type()))               // 其类型为一个指针类型
 	assert.Equal(t, uintptr(unsafe.Pointer(obj.(*User))), tv.Pointer()) // 其值为一个地址, 指向 User 对象
 
-	tv = tv.Elem()                                                                    // 获取指针指向的对象值对象
-	assert.Equal(t, "basic/builtin/reflect.User[struct]", GetFullTypeName(tv.Type())) // 其类型为结构体类型
-	assert.Equal(t, 1, int(tv.FieldByName("Id").Int()))                               // 获取结构体各字段值
+	tv = tv.Elem()                                                                                 // 获取指针指向的对象值对象
+	assert.Equal(t, "study-golang/basic/builtin/reflect.User[struct]", GetFullTypeName(tv.Type())) // 其类型为结构体类型
+	assert.Equal(t, 1, int(tv.FieldByName("Id").Int()))                                            // 获取结构体各字段值
 	assert.Equal(t, "Alvin", tv.FieldByName("Name").String())
 	assert.Equal(t, 'M', rune(tv.FieldByName("Gender").Int()))
 
@@ -322,8 +322,8 @@ func TestReflectMethod(t *testing.T) {
 
 	// 通过反射调用 User 类型的方法
 
-	tv = tv.Elem()                                                                    // 通过 ptr 解引获取反射值
-	assert.Equal(t, "basic/builtin/reflect.User[struct]", GetFullTypeName(tv.Type())) // 类型为 User 类型
+	tv = tv.Elem()                                                                                 // 通过 ptr 解引获取反射值
+	assert.Equal(t, "study-golang/basic/builtin/reflect.User[struct]", GetFullTypeName(tv.Type())) // 类型为 User 类型
 
 	f = tv.MethodByName("AsString")                       // 获取 AsString 方法的反射值
 	assert.Equal(t, ".[func]", GetFullTypeName(f.Type())) // 类型为 func 类型
