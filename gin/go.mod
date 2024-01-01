@@ -4,7 +4,7 @@ go 1.21.1
 
 require (
 	github.com/antonfisher/nested-logrus-formatter v1.3.1
-	github.com/gin-contrib/multitemplate v0.0.0-20231211133547-5f8f48f9d29f
+	github.com/gin-contrib/multitemplate v0.0.0-20231230012943-32b233489a81
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-playground/locales v0.14.1
 	github.com/go-playground/universal-translator v0.18.1

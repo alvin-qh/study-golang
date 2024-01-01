@@ -24,6 +24,8 @@ github.com/gabriel-vasile/mimetype v1.4.3 h1:in2uUcidCuFcDKtdcBxlR0rJ1+fsokWf+uq
 github.com/gabriel-vasile/mimetype v1.4.3/go.mod h1:d8uq/6HKRL6CGdk+aubisF/M5GcPfT7nKyLpA0lbSSk=
 github.com/gin-contrib/multitemplate v0.0.0-20231211133547-5f8f48f9d29f h1:kbYhvxSG7QmFvDQLGvM1gXtSDflLLQkvuy6knT3NQ8I=
 github.com/gin-contrib/multitemplate v0.0.0-20231211133547-5f8f48f9d29f/go.mod h1:XLLtIXoP9+9zGcEDc7gAGV3AksGPO+vzv4kXHMJSdU0=
+github.com/gin-contrib/multitemplate v0.0.0-20231230012943-32b233489a81 h1:hQ/WeoPMTbN8NHk5i96dWy3D4uF7yCU+kORyWG+P4oU=
+github.com/gin-contrib/multitemplate v0.0.0-20231230012943-32b233489a81/go.mod h1:XLLtIXoP9+9zGcEDc7gAGV3AksGPO+vzv4kXHMJSdU0=
 github.com/gin-contrib/sse v0.1.0 h1:Y/yl/+YNO8GZSjAhjMsSuLt29uWRFHdHYUb5lYOV9qE=
 github.com/gin-contrib/sse v0.1.0/go.mod h1:RHrZQHXnP2xjPF+u1gW/2HnVO7nvIa9PG3Gm+fLHvGI=
 github.com/gin-gonic/gin v1.8.1/go.mod h1:ji8BvRH1azfM+SYow9zQ6SZMvR8qOMZHmsCuWR9tTTk=
