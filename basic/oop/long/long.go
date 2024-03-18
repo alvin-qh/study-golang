@@ -2,7 +2,7 @@ package long
 
 import (
 	"strconv"
-	"study-golang/basic/oop/errors"
+	"study-golang/basic/oop/err"
 )
 
 // 定义 int64 为 Long 类型
@@ -13,7 +13,7 @@ type Long int64
 func (i Long) Compare(other interface{}) int {
 	val, ok := other.(Long)
 	if !ok {
-		panic(errors.ErrType)
+		panic(err.ErrType)
 	}
 	return int(i - val)
 }

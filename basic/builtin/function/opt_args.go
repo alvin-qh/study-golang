@@ -9,10 +9,10 @@ type option struct {
 	Gender rune
 }
 
-// # 用于设置 `CreateUser` 可选参数的回调类型
+// 用于设置 `CreateUser` 可选参数的回调类型
 type UserOption = func(*option)
 
-// # 用于设置 `Id` 属性的回调函数
+// 用于设置 `Id` 属性的回调函数
 //
 // 参数:
 //   - `id`: 可选参数值

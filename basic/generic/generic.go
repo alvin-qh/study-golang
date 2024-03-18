@@ -1,10 +1,10 @@
 package generic
 
 // 定义泛型方法
-// 该方法接受 `int` 和 `float64` 类型参数, 并返回相同类型结果, 其中:
 //
-//	`T ~int | float64` 表示定义一个泛型参数 `T`, 类型可为 `int` 或 `float64`
-//	`~int` 表示接受 `int` 及其衍生类型
+// 该方法接受 `int` 和 `float64` 类型参数, 并返回相同类型结果, 其中:
+//   - `T ~int | float64` 表示定义一个泛型参数 `T`, 类型可为 `int` 或 `float64`
+//   - `~int` 表示接受 `int` 及其衍生类型
 func GenericIntFloatAdd[T ~int | float64](a T, b T) T {
 	return a + b
 }

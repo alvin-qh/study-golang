@@ -1,4 +1,4 @@
-package panics
+package errors
 
 type List struct {
 	slice []string

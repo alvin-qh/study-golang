@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// # 测试创建数组
+// 测试创建数组
 //
 // 通过 `[<n>]<type>` 或 `[...]<type>{<v1>, <v2>, ...}` 声明一个数组, 对于 Go 语言来说, 数组必须具备确定的长度,
 // 所以要么给数组一个长度值, 要么初始化时指定数组的元素
@@ -21,7 +21,7 @@ func TestCreateArray(t *testing.T) {
 	assert.ElementsMatch(t, [...]int{0, 0, 0, 0, 0}, arr) // 数组元素的初始值均为 0
 }
 
-// # 测试通过循环遍历数组
+// 测试通过循环遍历数组
 //
 // 和大多数语言类似, 可以通过 `for` 循环, 并通过下标来遍历数组的每个元素
 func TestLoopForArray(t *testing.T) {
@@ -34,7 +34,7 @@ func TestLoopForArray(t *testing.T) {
 	assert.ElementsMatch(t, [...]int{1, 2, 3, 4, 5}, arr) // 数组实际的结果值
 }
 
-// # 测试数组的 `range` 操作
+// 测试数组的 `range` 操作
 //
 // Go 语言支持通过 `for n, v := range <array>` 的语法对数组进行迭代, 其中 `n` 为迭代过程中每个元素的下标,
 // `v` 表示迭代过程中每个元素的值
@@ -47,7 +47,7 @@ func TestRangeForArray(t *testing.T) {
 	}
 }
 
-// # 测试数组赋值
+// 测试数组赋值
 //
 // 如果声明数组变量时, 同时指定了数组长度和初始化元素列表, 则初始化列表中的元素必须小于等于指定的数组长度
 //
@@ -58,7 +58,7 @@ func TestAssignArray(t *testing.T) {
 	assert.ElementsMatch(t, [...]int{1, 0, 0}, arr) // 除了显式初始化的元素外, 其余元素值为 0
 }
 
-// # 测试多维数组
+// 测试多维数组
 //
 // Go 语言的多维数组和大多数语言类似, 需要同时指定各个维度的长度 (或初始化元素列表)
 func TestMultiDimensionalArray(t *testing.T) {
@@ -87,7 +87,7 @@ func TestMultiDimensionalArray(t *testing.T) {
 	}
 }
 
-// # 测试任意类型数组项
+// 测试任意类型数组项
 //
 // 如果数组元素类型为 `interface{}`, 则意味着这个数组可以存储各类元素值
 func TestGenericArrayItem(t *testing.T) {
@@ -99,7 +99,7 @@ func TestGenericArrayItem(t *testing.T) {
 	assert.Equal(t, "bool", reflect.TypeOf(arr[2]).Name())
 }
 
-// # 测试数组指针
+// 测试数组指针
 //
 // 通过 `&<数组变量>` 可以获取数组的指针, 通过 `*<数组指针>` 可以得到数组本身
 //
@@ -115,7 +115,7 @@ func TestPointerOfArray(t *testing.T) {
 	assert.ElementsMatch(t, [...]int{10, 2, 3}, arr)
 }
 
-// # 测试数组复制
+// 测试数组复制
 //
 // Go 语言的赋值运算符 `=` 对于数组变量, 相当于"复制", 但是 Go 语言的数组复制是 "Copy on Write" 模式的,
 // 即赋值后, 新数组变量和原数组变量指向同一个数组, 但修改其中任意一个后, 就会产生新数组, 以保证一个数组变量的修改不会影响到另一个

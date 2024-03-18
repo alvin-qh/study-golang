@@ -1,4 +1,4 @@
-package panics
+package errors
 
 import (
 	"testing"

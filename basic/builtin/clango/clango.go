@@ -48,7 +48,7 @@ import (
 	"unsafe"
 )
 
-// # 测试内嵌 C 代码
+// 测试内嵌 C 代码
 //
 // 调用 `create_string` 函数, 创建 C 字符串
 //
@@ -63,7 +63,7 @@ func CreateCString(s string) unsafe.Pointer {
 	return unsafe.Pointer(ptr) // 将指针包装为 Go 对象返回
 }
 
-// # 将 C 字符串转为 Go 字符串
+// 将 C 字符串转为 Go 字符串
 //
 // 调用 `GoString` C 函数进行转换, `GoString` 函数是 Go 语言框架为了方便和 C 语言集成提供的工具方法, 位于 `unistd.h` 头文件中
 //
@@ -77,7 +77,7 @@ func ConvertCString(ptr unsafe.Pointer) string {
 	return C.GoString((*C.char)(ptr))
 }
 
-// # 显示 C 字符串
+// 显示 C 字符串
 //
 // 调用 `show_string` C 函数显示 C 字符串
 //
@@ -88,7 +88,7 @@ func ShowCString(ptr unsafe.Pointer) {
 	C.show_string((*C.char)(ptr))
 }
 
-// # 释放 C 指针
+// 释放 C 指针
 //
 // 调用 `free_string` C 函数释放内存, 在调用 `free_string` 函数时需转为 `*C.char` 指针类型, 表示一个 C 语言 `char` 类型指针
 //
@@ -105,7 +105,7 @@ func FreeCString(ptr unsafe.Pointer) {
 // 为 C 结构体重新映射一个类型名称
 type Point C.point
 
-// # 创建 `Point` 对象
+// 创建 `Point` 对象
 //
 // 通过调用 `create_point` C 函数创建 `point` C 结构体
 //
@@ -120,7 +120,7 @@ func CreatePoint(x float64, y float64) *Point {
 	return &pt
 }
 
-// # 获取 C `point` 结构体的 `x` 成员变量值
+// 获取 C `point` 结构体的 `x` 成员变量值
 //
 // 可以看到, 对于 C 语言定义的结构体, 可以在 Go 中直接访问其成员变量
 //
@@ -129,14 +129,14 @@ func (p *Point) GetX() float64 {
 	return float64(Point(*p).x) // Go 中可以直接访问 C 结构体 中的字段
 }
 
-// # 获取 C `point` 结构体的 `y` 成员变量值
+// 获取 C `point` 结构体的 `y` 成员变量值
 //
 // 返回 `y` 成员变量值
 func (p *Point) GetY() float64 {
 	return float64(Point(*p).y) // Go 中可以直接访问 C 结构体 中的字段
 }
 
-// # 计算两个 `Point` 变量之间的距离
+// 计算两个 `Point` 变量之间的距离
 //
 // 调用 `distance` C 函数, 计算两个点之间的距离
 //
@@ -157,14 +157,14 @@ func (p *Point) Distance(op *Point) float64 {
 // 1. 假设具备: test.c 和 test.h 文件
 // 2. 编译库文件:
 //      2.1. 编译静态库文件
-//          $ gcc -c main.c            # 编译 main.c 文件, 生成 main.o 目标文件, '-c' 选项表示只编译, 不进行链接
-//          $ ar rcs libtest.a main.o  # 将 main.o 打包为静态库, 库名称必须为 libxxx.a, xxx 为任意名称, 另外, 如果有多个 '.o' 文件, 可以在末尾继续追加, 或者使用 '*.o'
-//                                     # 参数: 'r' 替换库中已有的目标文件, 或加入新的目标文件; 'c' 不管库否存在都将创建; 's' 创建文件索引, 能提高速度
+//          $ gcc -c main.c            编译 main.c 文件, 生成 main.o 目标文件, '-c' 选项表示只编译, 不进行链接
+//          $ ar rcs libtest.a main.o  将 main.o 打包为静态库, 库名称必须为 libxxx.a, xxx 为任意名称, 另外, 如果有多个 '.o' 文件, 可以在末尾继续追加, 或者使用 '*.o'
+//                                     参数: 'r' 替换库中已有的目标文件, 或加入新的目标文件; 'c' 不管库否存在都将创建; 's' 创建文件索引, 能提高速度
 //      2.2. 编译动态库文件
-//          $ gcc -fPIC -shared test.c -o libtest.so   # 将源文件直接编译为动态库
-//          # 或者
-//          $ gcc -fPIC -c test.c -o test.o            # 先进行编译, 生成二进制结果, 不链接
-//          $ gcc -shared test.o -o libtest.so         # 将编译的二进制文件链接成动态库
+//          $ gcc -fPIC -shared test.c -o libtest.so   将源文件直接编译为动态库
+//          或者
+//          $ gcc -fPIC -c test.c -o test.o            先进行编译, 生成二进制结果, 不链接
+//          $ gcc -shared test.o -o libtest.so         将编译的二进制文件链接成动态库
 // 3. 链接库文件
 //          #cgo CFLAGS: -I./include               // 设置头文件位置, 假设 test.h 在 ./include 目录下
 //          #cgo LDFLAGS: -L${SRCDIR}/lib -l test  // 设置要链接的静态库, 表示 ./lib/libtest.a 或 ./lib/libtest.so 文件. 注意, 由于链接路径必须为绝对路径, 所以需要用 ${SRCDIR} 变量
