@@ -118,7 +118,7 @@ func TestClosureFunction(t *testing.T) {
 		x = a
 		y = b
 	}
-    
+
 	f2(100, 200)
 	assert.Equal(t, 100, x)
 	assert.Equal(t, 200, y)
@@ -126,4 +126,16 @@ func TestClosureFunction(t *testing.T) {
 	// 定义闭包并直接执行
 	r = func() int { return x * y }()
 	assert.Equal(t, 20000, r)
+}
+
+// 测试同时设置 `UserId`, `UserName` 参数的情形
+func TestOptionArgsIdName(t *testing.T) {
+	u := CreateUser(
+		WithUserId(2),
+		WithUserName("Emma"),
+		WithUserGender('F'),
+	)
+	assert.Equal(t, 2, u.Id)
+	assert.Equal(t, "Emma", u.Name)
+	assert.Equal(t, 'F', u.Gender)
 }

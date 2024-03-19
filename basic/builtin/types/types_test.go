@@ -8,17 +8,24 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// 定义结构体, 所有成员字段为 public
+type user struct {
+	Id     int
+	Name   string
+	Gender rune
+}
+
 // 测试结构体类型
 func TestStructType(t *testing.T) {
 	// 定义结构体变量并进行初始化
-	var u1 User = User{Id: 1, Name: "Alvin", Gender: 'M'}
-	assert.Equal(t, "User", reflect.TypeOf(u1).Name()) // 查看变量类型
+	var u1 user = user{Id: 1, Name: "Alvin", Gender: 'M'}
+	assert.Equal(t, "user", reflect.TypeOf(u1).Name()) // 查看变量类型
 	assert.Equal(t, 1, u1.Id)
 	assert.Equal(t, "Alvin", u1.Name)
 	assert.Equal(t, 'M', u1.Gender)
 
 	// 定义结构体并跳过初始化
-	u1 = User{}
+	u1 = user{}
 	u1.Id = 2 // 为结构体字段赋值
 	u1.Name = "Emma"
 	u1.Gender = 'F'
@@ -26,8 +33,8 @@ func TestStructType(t *testing.T) {
 	assert.Equal(t, "Emma", u1.Name)
 	assert.Equal(t, 'F', u1.Gender)
 
-	// 通过 new 操作符产生 User 类型的指针变量
-	pu1 := new(User)
+	// 通过 new 操作符产生 user 类型的指针变量
+	pu1 := new(user)
 	(*pu1) = u1 // 为指针指向的结构体赋值
 	assert.Equal(t, 2, pu1.Id)
 	assert.Equal(t, "Emma", pu1.Name)
@@ -36,18 +43,25 @@ func TestStructType(t *testing.T) {
 	// 赋值语句可以 copy 结构体
 	u2 := u1
 	u2.Id = 3
-	assert.Equal(t, 2, u1.Id) // userCopy 和 user 两个变量表示两个不同的 User 对象
+	assert.Equal(t, 2, u1.Id) // userCopy 和 user 两个变量表示两个不同的 user 对象
 	assert.Equal(t, 3, u2.Id)
 
 	pu1 = &u1 // 指针指向 user 变量结构体
 	pu1.Id = 3
-	assert.Equal(t, 3, u1.Id) // pUser 指向 user 结构体
+	assert.Equal(t, 3, u1.Id) // puser 指向 user 结构体
 	assert.Equal(t, 3, pu1.Id)
 }
 
+// 测试类型转换
+//
 // go 语言的类型转化基于非常简单的规则: 值类型转换
-// go 语言具备非常简单的类型系统: 基本值类型, 结构体类型, 指针类型和 interface{} 类型
-// 基本值类型包括: 数字类型和布尔类型, 数字类型包括: int8~64, float32~64, complex64~128, rune, 数值类型之间可以直接转换, bool 类型只能是 true, false
+//
+// go 语言具备非常简单的类型系统: 基本值类型, 结构体类型, 指针类型和 `interface{}` 类型
+//
+// 基本值类型包括数字类型和布尔类型,
+//   - 数字类型包括: int8~64, float32~64, complex64~128, rune, 数值类型之间可以直接转换;
+//   - `bool` 类型只能是 `true`, `false`
+//
 // 结构体之间无法进行转换, 只能依赖接口对类型进行处理
 func TestTypeConvert(t *testing.T) {
 	// 对于值类型, 可以通过类型运算符进行类型转换
@@ -91,10 +105,14 @@ func TestTypeConvert(t *testing.T) {
 }
 
 // 指针运算
+//
 // 默认情况下, go 语言不允许指针执行运算操作
-// 要对指针进行运算, 需要使用 unsafe.Pointer 类型, 并将得到的结果转为 uintptr 类型
-// 要将指针运算结果转回原始指针类型, 需要对 uintptr 类型再次作转换为 unsafe.Pointer 类型, 在转换回所需指针类型
-// 和 C 语言不同的是, uintptr 类型的运算不能按照类型本身的大小进行计算, 只能按 byte 大小进行, 所以需要测量类型的大小
+//
+// 要对指针进行运算, 需要使用 `unsafe.Pointer` 类型, 并将得到的结果转为 `uintptr` 类型
+//
+// 要将指针运算结果转回原始指针类型, 需要对 `uintptr` 类型再次作转换为 `unsafe.Pointer` 类型, 在转换回所需指针类型
+//
+// 和 C 语言不同的是, `uintptr` 类型的运算不能按照类型本身的大小进行计算, 只能按 byte 大小进行, 所以需要测量类型的大小
 func TestPointerCalculation(t *testing.T) {
 	slice := []int{1, 2, 3, 4, 5}
 
