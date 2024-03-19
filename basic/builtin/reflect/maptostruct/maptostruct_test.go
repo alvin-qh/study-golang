@@ -1,7 +1,7 @@
 package maptostruct
 
 import (
-	"reflect"
+	"study-golang/basic/builtin/reflect/structure"
 	"testing"
 	"time"
 
@@ -32,8 +32,13 @@ type user struct {
 
 // 测试查找结构体字段的 tag
 func TestFindTag(t *testing.T) {
+	// 生成结构体反射工具类型对象
+	stu, err := structure.New(&user{})
+	assert.NoError(t, err)
+
 	// 找到 user 结构体对象的 Id 字段
-	f, _ := reflect.TypeOf(new(user)).Elem().FieldByName("Id")
+	f, err := stu.FindField("Id")
+	assert.NoError(t, err)
 
 	// 实例化 MapToStruct 对象, 以 json 为 tag key
 	mts := New("json")

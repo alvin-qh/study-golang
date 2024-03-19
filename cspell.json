@@ -64,6 +64,7 @@
     "unaddressable",
     "unistd",
     "Unpatch",
+    "Vals",
     "Varargs",
     "varuint",
     "Wrapable"
