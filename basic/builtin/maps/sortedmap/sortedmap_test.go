@@ -1,4 +1,4 @@
-package maps
+package sortedmap
 
 import (
 	"testing"
@@ -10,7 +10,7 @@ import (
 func TestSortedMap(t *testing.T) {
 	// 测试基本的 key/value 存储
 
-	sm := NewSortedMap(func(a, b interface{}) int { return b.(int) - a.(int) }) // 新建对象
+	sm := New(func(a, b interface{}) int { return b.(int) - a.(int) }) // 新建对象
 	assert.Equal(t, 0, sm.Len())
 
 	sm.Put(100, "A")
@@ -38,7 +38,7 @@ func TestSortedMap(t *testing.T) {
 
 // 测试迭代内容
 func TestSortedMapRange(t *testing.T) {
-	sm := NewSortedMap(func(a, b interface{}) int { return b.(int) - a.(int) })
+	sm := New(func(a, b interface{}) int { return b.(int) - a.(int) })
 
 	sm.Put(100, "B")
 	sm.Put(1000, "C")
@@ -59,7 +59,7 @@ func TestSortedMapRange(t *testing.T) {
 
 // 测试删除 key 和清空集合
 func TestSortedMapRemoveAndClear(t *testing.T) {
-	sm := NewSortedMap(func(a, b interface{}) int { return b.(int) - a.(int) })
+	sm := New(func(a, b interface{}) int { return b.(int) - a.(int) })
 
 	sm.Put(100, "B")
 	sm.Put(1000, "C")

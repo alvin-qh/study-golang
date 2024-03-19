@@ -53,6 +53,7 @@
     "oneof",
     "semap",
     "sirupsen",
+    "sortedmap",
     "SRCDIR",
     "stdlib",
     "strcpy",

@@ -1,4 +1,4 @@
-package maps
+package sortedmap
 
 import "sort"
 
@@ -19,7 +19,7 @@ type SortedMap struct {
 }
 
 // 创建 SortedMap 对象
-func NewSortedMap(comparator ComparatorFunc) *SortedMap {
+func New(comparator ComparatorFunc) *SortedMap {
 	sm := &SortedMap{}
 	sm.init(comparator) // 初始化对象
 	return sm
