@@ -95,6 +95,7 @@ func TestRecordProfile(t *testing.T) {
 
 	heapf, err := os.Create(HEAP_PROFILE_FILENAME)
 	assert.NoError(t, err)
+	defer heapf.Close()
 
 	err = pprof.WriteHeapProfile(heapf) // 记录堆内存使用情况
 	assert.NoError(t, err)

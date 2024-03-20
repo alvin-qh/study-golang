@@ -19,6 +19,7 @@
     "errorgroup",
     "fastcsv",
     "fflush",
+    "filelock",
     "fmap",
     "gitee",
     "GOINSECURE",

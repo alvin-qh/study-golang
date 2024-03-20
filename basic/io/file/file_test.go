@@ -40,7 +40,7 @@ func TestLookupExecutableFile(t *testing.T) {
 	var exeFile, target string
 	if runtime.GOOS == "windows" {
 		exeFile = "cmd.exe"
-		target = "C:\\WINDOWS\\system32\\cmd.exe"
+		target = "C:\\Windows\\system32\\cmd.exe"
 	} else {
 		exeFile = "bash"
 		target = "/bin/bash"
@@ -49,7 +49,7 @@ func TestLookupExecutableFile(t *testing.T) {
 	// 获取 bash 文件的位置, 该位置定义在 $PATH 环境变量中
 	path, err := exec.LookPath(exeFile)
 	assert.NoError(t, err)
-	assert.Equal(t, target, path)
+	assert.True(t, strings.EqualFold(target, path))
 
 	// 创建一个可执行文件并查找它, 这里需要明确的绝对或相对路径, 否则将在 $PATH 变量中查找
 	f, err := os.OpenFile("./temp.exe", os.O_CREATE|os.O_RDWR, 0777)
@@ -208,8 +208,6 @@ func TestPipe(t *testing.T) {
 // 截取文件, 即将文件截断为指定长度, 多余的部分将被丢弃
 // go 提供了两种截取文件的方法: 1. 通过 os.File 对象的 Truncate 函数; 2. 通过 os.Truncate 函数. 前者需要打开文件, 得到一个 os.File 对象
 func TestTruncateAttributes(t *testing.T) {
-	defer os.Remove(`d.txt`)
-
 	// 获取文件长度
 	fileLength := func(file *os.File) int {
 		if stat, err := file.Stat(); err == nil {
@@ -220,10 +218,10 @@ func TestTruncateAttributes(t *testing.T) {
 
 	// 方法 1: 通过 os.File 对象的 Truncate 函数截断文件
 	// 创建文件
-	file, err := os.Create(`d.txt`)
+	file, err := os.Create("d.txt")
 	assert.NoError(t, err)
 
-	defer file.Close()
+	defer os.Remove("d.txt")
 
 	// 写入10个字符
 	count, err := file.WriteString("1234567890")
@@ -246,13 +244,15 @@ func TestTruncateAttributes(t *testing.T) {
 	file.Close()
 
 	// 方法 2: 通过 os.Truncate 函数对文件直接进行截断
-	os.Truncate(`d.txt`, 3) // 将文件进一步截取到剩余 3 字节
+	os.Truncate("d.txt", 3) // 将文件进一步截取到剩余 3 字节
 
-	file, err = os.Open(`d.txt`) // 打开文件
+	file, err = os.Open("d.txt") // 打开文件
 	assert.NoError(t, err)
 	assert.Equal(t, 3, fileLength(file)) // 文件长度只剩余 3 字节
 
 	s, err = io.ReadAll(file) // 读取文件内容, 只剩余 3 个字符
 	assert.NoError(t, err)
 	assert.Equal(t, "123", string(s))
+
+	file.Close()
 }
