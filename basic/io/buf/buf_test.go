@@ -58,9 +58,12 @@ func TestBufferSize(t *testing.T) {
 }
 
 // 测试 Buffer 的读写
-// 数据读写依赖 bytes.Buffer 类型, 其实现了 io.Reader 和 io.Writer 接口, 可以同时进行读写操作
+//
+// 数据读写依赖 `bytes.Buffer` 类型, 其实现了 `io.Reader` 和 `io.Writer` 接口, 可以同时进行读写操作
+//
 // 字符串类型通过编码为 utf8 编码, 进行读取和写入
-// 对于 int, float, bool, rune, slice 等类型, 需要借助 binary 包, 转换为 byte 类型后进行读写
+//
+// 对于基本类型数据, 需要借助 `binary` 包, 转换为字节串后进行读写
 func TestBufferRW(t *testing.T) {
 	// 创建空 Buffer 以供写入
 	buf := bytes.NewBuffer(make([]byte, 0, 20))

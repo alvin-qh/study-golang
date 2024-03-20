@@ -1,4 +1,4 @@
-package archive
+package zip
 
 import (
 	"archive/zip"
@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"study-golang/basic/io/archive/common"
 )
 
 // Zip 归档文件结构体
@@ -14,7 +15,7 @@ type Zip struct {
 }
 
 // 创建一个新的 Zip 对象
-func NewZip(zipFile string) (*Zip, error) {
+func New(zipFile string) (*Zip, error) {
 	// 创建用于归档的 tar 文件
 	file, err := os.OpenFile(zipFile, os.O_CREATE|os.O_RDWR, 0755)
 	if err != nil {
@@ -55,7 +56,12 @@ func (z *Zip) Archive(srcFiles []string) error {
 }
 
 // 归档一个文件
-// 归档的基本动作为: 1. 写入归档文件头 (`FileInfoHeader` 结构体); 2. 写入归档文件内容 (`[]byte`); 其中, 归档文件头可以从待归档文件的 `Stat` 状态得到
+//
+// 归档的基本动作为:
+//  1. 写入归档文件头 (`FileInfoHeader` 结构体);
+//  2. 写入归档文件内容 (`[]byte`);
+//
+// 其中, 归档文件头可以从待归档文件的 `Stat` 状态得到
 func zipArchiveEachFile(zw *zip.Writer, filename string) error {
 	// 打开待归档文件
 	file, err := os.Open(filename)
@@ -91,7 +97,7 @@ func zipArchiveEachFile(zw *zip.Writer, filename string) error {
 
 // 恢复归档文件
 func (z *Zip) Unarchive(unarchivePath string) error {
-	err := createDirIfNotExists(unarchivePath)
+	err := common.CreateDirIfNotExists(unarchivePath)
 	if err != nil {
 		return err
 	}
@@ -116,7 +122,6 @@ func (z *Zip) Unarchive(unarchivePath string) error {
 			return err
 		}
 	}
-
 	return nil
 }
 

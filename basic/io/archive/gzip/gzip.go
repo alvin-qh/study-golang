@@ -1,9 +1,11 @@
-package archive
+package gzip
 
 import (
 	"compress/gzip"
 	"os"
 	"runtime"
+	"study-golang/basic/io/archive/common"
+	"study-golang/basic/io/archive/tar"
 )
 
 // GZip 归档文件结构体
@@ -12,7 +14,7 @@ type GZip struct {
 }
 
 // 创建一个新的 GZip 对象
-func NewGZip(gzFile string) (*GZip, error) {
+func New(gzFile string) (*GZip, error) {
 	// 创建用于归档的 gzip 文件
 	file, err := os.OpenFile(gzFile, os.O_CREATE|os.O_RDWR, 0755)
 	if err != nil {
@@ -44,12 +46,12 @@ func (gz *GZip) Archive(srcFiles []string) error {
 	}()
 
 	// 调用 ta.go 中的函数进行归档
-	return tarArchiveFiles(gw, srcFiles)
+	return tar.TarArchiveFiles(gw, srcFiles)
 }
 
 // 恢复归档文件
 func (gz *GZip) Unarchive(targetPath string) error {
-	err := createDirIfNotExists(targetPath)
+	err := common.CreateDirIfNotExists(targetPath)
 	if err != nil {
 		return err
 	}
@@ -59,5 +61,5 @@ func (gz *GZip) Unarchive(targetPath string) error {
 	if err != nil {
 		return err
 	}
-	return tarUnarchiveFile(gr, targetPath)
+	return tar.TarUnarchiveFile(gr, targetPath)
 }

@@ -1,7 +1,8 @@
-package archive
+package gzip
 
 import (
 	"os"
+	"study-golang/basic/io/archive/common"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,6 +11,13 @@ import (
 const (
 	GZ_ARCHIVE_FILE   = "test.tar.gz"
 	GZ_UNARCHIVE_PATH = "unarchive"
+)
+
+var (
+	fileList = []string{ // 待归档文件列表
+		"gzip_test.go",
+		"gzip.go",
+	}
 )
 
 // 在 tar 归档的基础上, 通过 gzip 压缩算法对 tar 归档文件进行压缩, 产生 tar.gz 归档文件
@@ -22,25 +30,27 @@ func TestArchiveWithGZip(t *testing.T) {
 	}()
 
 	// 创建一个用于归档的 gz 对象
-	gz, err := NewGZip(GZ_ARCHIVE_FILE)
+	gz, err := New(GZ_ARCHIVE_FILE)
 	assert.NoError(t, err)
 
 	// 归档指定文件
-	err = gz.Archive(FileList)
+	err = gz.Archive(fileList)
 	assert.NoError(t, err)
 
 	gz.Close()
 
 	// 创建一个用于恢复归档的 tar 对象
-	gz, err = NewGZip(GZ_ARCHIVE_FILE)
+	gz, err = New(GZ_ARCHIVE_FILE)
 	assert.NoError(t, err)
 
 	// 恢复归档中的文件
 	err = gz.Unarchive(GZ_UNARCHIVE_PATH)
 	assert.NoError(t, err)
 
+	gz.Close()
+
 	// 判断归档前后文件是否一致
-	eq, err := CheckUnarchiveFiles(GZ_UNARCHIVE_PATH)
+	eq, err := common.CheckUnarchiveFiles(GZ_UNARCHIVE_PATH, fileList)
 	assert.NoError(t, err)
 	assert.True(t, eq)
 }

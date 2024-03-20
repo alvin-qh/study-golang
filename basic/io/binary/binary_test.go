@@ -8,49 +8,40 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// 测试整数和 bytes 间转换
+// 测试字节流转换到其它数据类型
 func TestValueToBytes(t *testing.T) {
 	// 用于存放 byte 的集合
 	data := make([]byte, 28)
 
-	be := binary.BigEndian
-	assert.Equal(t, "binary.BigEndian", be.GoString())
-	assert.Equal(t, "BigEndian", be.String())
-
+	// 获取小端字节序实例, 序列化 3 个整数
 	le := binary.LittleEndian
-	assert.Equal(t, "binary.LittleEndian", le.GoString())
-	assert.Equal(t, "LittleEndian", le.String())
+	le.PutUint16(data[0:], 100) // 16 位整数, 2 字节
+	le.PutUint32(data[2:], 200) // 32 位整数, 4 字节
+	le.PutUint64(data[6:], 400) // 64 位整数, 8 字节, 共 14 字节
 
-	// 存入整数
-	le.PutUint16(data[0:], 100)
-	le.PutUint32(data[2:], 200)
-	le.PutUint64(data[6:], 400)
+	// 获取大端字节序实例, 序列化 3 个整数
+	be := binary.BigEndian
+	be.PutUint16(data[14:], 1000) // 16 位整数, 从第 15 字节开始, 2 字节
+	be.PutUint32(data[16:], 2000) // 32 位整数, 4 字节
+	be.PutUint64(data[20:], 4000) // 64 位整数, 8 字节, 共 28 字节
 
-	be.PutUint16(data[14:], 1000)
-	be.PutUint32(data[16:], 2000)
-	be.PutUint64(data[20:], 4000)
+	// 从字节串中读取数据
+	// 读取小端字节序数据
+	assert.Equal(t, uint16(100), le.Uint16(data[0:])) // 16 位整数, 2 字节
+	assert.Equal(t, uint32(200), le.Uint32(data[2:])) // 32 位整数, 4 字节
+	assert.Equal(t, uint64(400), le.Uint64(data[6:])) // 64 位整数, 8 字节
 
-	// 获取数据
-	u16 := le.Uint16(data[0:])
-	assert.Equal(t, int16(100), int16(u16))
-
-	u32 := le.Uint32(data[2:])
-	assert.Equal(t, int32(200), int32(u32))
-
-	u64 := le.Uint64(data[6:])
-	assert.Equal(t, int64(400), int64(u64))
-
-	u16 = be.Uint16(data[14:])
-	assert.Equal(t, int16(1000), int16(u16))
-
-	u32 = be.Uint32(data[16:])
-	assert.Equal(t, int32(2000), int32(u32))
-
-	u64 = be.Uint64(data[20:])
-	assert.Equal(t, int64(4000), int64(u64))
+	// 读取大端字节序数据
+	assert.Equal(t, uint16(1000), be.Uint16(data[14:])) // 16 位整数, 从第 15 字节开始, 2 字节
+	assert.Equal(t, uint32(2000), be.Uint32(data[16:])) // 32 位整数, 4 字节
+	assert.Equal(t, uint64(4000), be.Uint64(data[20:])) // 64 位整数, 8 字节
 }
 
-// 利用 binary 可以向 io.Writer 写入任意类型数据, 或从 io.Reader 读取任意类型数据
+// 测试字节流的读取和写入
+//
+// 利用 binary 可以向 `io.Writer` 接口类型写入任意类型数据, 或从 `io.Reader`
+// 接口类型读取任意类型数据
+//
 // binary 内部通过 BigEndian 和 LittleEndian 对象在数据和 bytes 之间进行转换
 func TestBufferRW(t *testing.T) {
 	// 写入操作
@@ -105,18 +96,21 @@ func TestBufferRW(t *testing.T) {
 	assert.Equal(t, []float64{1.1, 2.2, 3.3}, s)
 }
 
-// varint 和 varuint 表示可变长度整数
+// 测试可变长度整数
+//
+// `varint` 和 `varuint` 表示可变长度整数
+//
 // 使用可变长度整数可以减少对存储空间的消耗, 存储将根据数值的实际大小变化存储长度
 func TestVarint(t *testing.T) {
 	// 存放二进制的 bytes
 	data := make([]byte, 5)
 
 	// 写入 varuint
-	n := binary.PutVarint(data, int64(100)) // 将 int64 以 "可变长度" (变体) 形式存入 byte 数组. 变体  (varint) 可以根据数值的大小变化编码长度, 可以节省存储空间
-	assert.Equal(t, 2, n)                   // 变体长度为 2, 较 int64 原本长度 (长度8) 减少 6 个字节
+	n := binary.PutVarint(data, int64(100)) // 将 int64 以 "可变长度" (变体) 形式存入 byte 数组
+	assert.Equal(t, 2, n)                   // 变体长度为 2, 较 int64 原本长度 (长度 8) 减少 6 个字节
 
 	n = binary.PutUvarint(data[n:], uint64(123456)) // 将 uint64 以变体形式存入 byte 数组
-	assert.Equal(t, 3, n)                           // 变体长度为 2, 较 uint64 原本长度 (长度 8) 减少 6 个字节
+	assert.Equal(t, 3, n)                           // 变体长度为 3, 较 uint64 原本长度 (长度 8) 减少 6 个字节
 
 	reader := bytes.NewReader(data)
 

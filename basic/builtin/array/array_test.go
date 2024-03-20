@@ -82,7 +82,7 @@ func TestMultiDimensionalArray(t *testing.T) {
 			(i + 1) * 6,
 			(i + 1) * 7,
 			(i + 1) * 8,
-			(i + 1) * 9, // 注意, 这里要多一个 逗号, 表示参数换行
+			(i + 1) * 9,
 		}, arr[i])
 	}
 }
