@@ -12,9 +12,39 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// 字符类型
-// string([]byte), []byte(string), string([]rune), []rune(string)
-// utf8.EncodeRune, utf8.DecodeRune, utf8.RuneLen, utf8.DecodeRuneInString, utf8.DecodeLastRune, utf8.DecodeLastRuneInString
+// 测试字符类型
+//
+// # Go 语言的字符串是一组 `rune` 类型组成的串, `rune` 类型表示一个 UTF-8 类型字符
+//
+// 通过如下方法可以生成字符串对象
+//
+//   - 通过字节串生成字符串, 要求字节串为 UTF-8 编码
+//   - 通过 `rune` 类型串生成字符串
+//
+// 例如:
+//
+//	bs := []byte("Hello World") // 将字符串转为字节串
+//	s := string(bs) // 将字节串转为字符串
+//
+//	rs := []rune{'a', 'b', 'c'} // 将 rune 串转为字符串
+//	s = string(rs) // 将字符串转为 rune 串
+//
+// 另外, 可以通过 `unicode/utf8` 包提供的函数库, 对 `rune` 类型数据进行操作, 包括:
+//
+//	c := '好'
+//	n := utf8.RuneLen(s) // 计算一个字符编码后的字节长度
+//	bs := make([]byte, n)
+//	utf8.EncodeRune(bs, c) // 将字符 c 编码为字节, 存储到 bs 数组中
+//
+//	c, n = utf8.DecodeRune(bs) // 从字节串中解码第一个 rune 字符
+//
+//	bs = []byte("你好")
+//	c, n = utf8.DecodeLastRune(bs) // 从字节串中解码最后一个 rune 字符
+//
+// 进一步的, 可以通过 `unicode/utf8` 包提供的函数库, 对字符串进行操作, 包括:
+//
+//	c, n := utf8.DecodeRuneInString("Hello") // 从字符串中解码最后一个 rune 字符
+//	c, n := utf8.DecodeLastRuneInString("Hello") // 从字符串中解码最后一个 rune 字符
 func TestRune(t *testing.T) {
 	// 定义字符类型
 	r := 'H'
@@ -59,12 +89,15 @@ func TestRune(t *testing.T) {
 	assert.Equal(t, 3, size)
 }
 
-// 测试求字符串长度
-// 字符串在内存中默认是以 UTF-8 编码存储的 byte 集合
-// rune 类型表示一个完整的 UTF-8 字符, 可能占据 1~4 个 byte
-// 所以获取字符串长度, 实际需要得到字符串中 rune 元素的数量
-// len(string) 返回的是字符串的 byte 数量, 不能作为字符串的真实长度
-// len([]rune(string)) 则是字符串真实的字符个数
+// 测试字符串长度
+//
+// 字符串在内存中默认是以 UTF-8 编码存储的字节串
+//
+// `rune` 类型表示一个完整的 UTF-8 字符, 可能占据 1~4 个字节
+//
+// 获取字符串长度, 包括如下两种方式:
+//   - `len(string)`: 返回的是字符串的字节数量, 对于非 ASCII 编码的字符串, 不能作为字符串的真实长度
+//   - `len([]rune(string))` 为字符串 UTF-8 字符个数, 即字符串的真正长度
 func TestStringLength(t *testing.T) {
 	s := "Hello, 大家好"
 
@@ -82,77 +115,98 @@ func TestStringLength(t *testing.T) {
 }
 
 // 测试字符串转换
-// 其它类型和字符串类型之间的转换, 主要是通过 strconv 包来完成
+//
+// 其它类型和字符串类型之间的转换, 主要是通过 `strconv` 包来完成
 func TestConvertToString(t *testing.T) {
-	// 整数转换
 	n := int64(-100)
-	s := strconv.FormatInt(n, 10) // 将 int64 转为 10 进制字符表示
+
+	// 将整数转为字符串, 以十进制表示
+	s := strconv.FormatInt(n, 10)
 	assert.Equal(t, "-100", s)
 
-	n, ok := strconv.ParseInt(s, 10, 64) // 字符串按 10进制 形式转为 64位 整数
-	assert.Nil(t, ok)
+	// 将字符串转为 64 位整数, 按十进制处理
+	n, err := strconv.ParseInt(s, 10, 64)
+	assert.NoError(t, err)
 	assert.Equal(t, int64(-100), n)
 
-	s = strconv.FormatInt(n, 8) // 将 n 转为 8 进制表示
+	// 将整数转为字符串, 以八进制表示
+	s = strconv.FormatInt(n, 8)
 	assert.Equal(t, "-144", s)
 
-	n, ok = strconv.ParseInt(s, 8, 64) // 将字符串按 8 进制 形式转为 64位 整数
-	assert.Nil(t, ok)
+	// 将字符串转为 64 位整数, 按八进制处理
+	n, err = strconv.ParseInt(s, 8, 64)
+	assert.NoError(t, err)
 	assert.Equal(t, int64(-100), n)
 
-	s = strconv.FormatUint(uint64(n), 10) // 将 n 作为 无符号整型 转为字符串表示
+	// 将无符号整数转为字符串, 以十进制表示
+	s = strconv.FormatUint(uint64(n), 10)
 	assert.Equal(t, "18446744073709551516", s)
 
-	un, ok := strconv.ParseUint(s, 10, 64) // 将字符串按 10进 制形式转为 64位 无符号整数
-	assert.Nil(t, ok)
+	// 将字符串转为 64 位整数, 按十进制处理
+	un, err := strconv.ParseUint(s, 10, 64)
+	assert.NoError(t, err)
 	assert.Equal(t, int64(-100), int64(un))
 
-	// 浮点数转换
 	f := 123.456
-	s = strconv.FormatFloat(f, 'f', -1, 32) // 'f' 表示转为 浮点数值 形式, -1 表示保留所有小数位
+
+	// 将浮点数转为字符串, 以小数形式表示 ('f'), 保留所有小数位 (-1), 按 32 位浮点数处理 (32)
+	s = strconv.FormatFloat(f, 'f', -1, 32)
 	assert.Equal(t, "123.456", s)
 
-	f, ok = strconv.ParseFloat(s, 64) // 将字符串转为 64 位浮点数
-	assert.Nil(t, ok)
+	// 将字符串转为浮点数, 按 64 位浮点数处理
+	f, err = strconv.ParseFloat(s, 64)
+	assert.NoError(t, err)
 	assert.Equal(t, float64(123.456), f)
 
-	s = strconv.FormatFloat(f, 'e', -1, 32) // 'e' 表示转为 科学计数法 形式
+	// 将浮点数转为字符串, 以科学计数法形式表示 ('e'), 保留所有小数位 (-1), 按 32 位浮点数处理 (64)
+	s = strconv.FormatFloat(f, 'e', -1, 64)
 	assert.Equal(t, "1.23456e+02", s)
 
-	f, ok = strconv.ParseFloat(s, 64) // 将 科学计数法 形式的字符串转为 64 位浮点数
-	assert.Nil(t, ok)
+	// 将字符串 (科学计数法形式) 转为浮点数, 按 64 位浮点数处理
+	f, err = strconv.ParseFloat(s, 64)
+	assert.NoError(t, err)
 	assert.Equal(t, float64(123.456), f)
 
-	s = strconv.FormatFloat(f, 'f', 1, 32) // 1 表示保留 1位 小数位数, 并进行四舍五入
+	// 将浮点数转为字符串, 以小数形式表示 ('f'), 保留 1 位小数位 (1), 按 32 位浮点数处理 (32)
+	s = strconv.FormatFloat(f, 'f', 1, 32)
 	assert.Equal(t, "123.5", s)
 
-	f, ok = strconv.ParseFloat(s, 64) // 将 科学计数法 形式的字符串转为 64 位浮点数
-	assert.Nil(t, ok)
+	// 将字符串转为浮点数, 按 64 位浮点数处理
+	f, err = strconv.ParseFloat(s, 64)
+	assert.NoError(t, err)
 	assert.Equal(t, float64(123.5), f)
 
+	// 将浮点数转为字符串, 以小数形式表示 ('f'), 保留所有小数位 (-1), 按 64 位浮点数处理 (64)
 	s = strconv.FormatFloat(f, 'f', -1, 64) // 64 表示按 float64 长度进行转换
 	assert.Equal(t, "123.5", s)
 
-	// 布尔值转换
 	b := true
-	s = strconv.FormatBool(b) // 将布尔类型值转为字符串
+
+	// 将布尔类型值转为字符串
+	s = strconv.FormatBool(b)
 	assert.Equal(t, "true", s)
 
-	b, ok = strconv.ParseBool(s) // 将字符串转化为 布尔类型 值
-	assert.Nil(t, ok)
+	// 将字符串转化为布尔类型值
+	b, err = strconv.ParseBool(s)
+	assert.NoError(t, err)
 	assert.Equal(t, true, b)
 
-	// 复数类型转换, 转换 complex128 到 string
+	// 复数类型转换
 	c := complex(100, 20)
-	s = strconv.FormatComplex(c, 'f', -1, 128) // 'f', -1, 128 含义和 FormatFloat 类似
+
+	// 将复数转为字符串, 'f', -1, 128 含义和 strconv.FormatFloat 函数类似
+	s = strconv.FormatComplex(c, 'f', -1, 128)
 	assert.Equal(t, "(100+20i)", s)
 
-	c, ok = strconv.ParseComplex(s, 128) // 将字符串转化为 128 位复数类型
-	assert.Nil(t, ok)
+	// 将字符串转化为 128 位复数类型
+	c, err = strconv.ParseComplex(s, 128)
+	assert.NoError(t, err)
 	assert.Equal(t, (100 + 20i), c)
 }
 
-// rune 表示一个 "字符" 而非 "byte",  所以要正确的从字符串获取指定位置的字符, 需要将字符串类型转为 []rune 来处理
+// 测试字符串和字符
+//
+// `rune` 表示一个"字符"而非"字节", 所以要正确的从字符串获取指定位置的字符, 需要将字符串类型转为 `[]rune` 类型来处理
 func TestRuneOfString(t *testing.T) {
 	s := "Hello, 大家好"
 	assert.Equal(t, rune(s[1]), 'e')   // 一个 rune 类型表示一个字符, 用单引号 ' 包围
@@ -165,8 +219,11 @@ func TestRuneOfString(t *testing.T) {
 	assert.Equal(t, '家', rs[8])
 }
 
-// 字符串比较是通过 strings 包来完成
-// strings.EqualFold, strings.Compare
+// 测试比较字符串
+//
+// 字符串比较是通过 `strings` 包下的函数来完成, 包括:
+//   - `strings.Compare`: 比较两个字符串, 返回整数表示比较结果
+//   - `strings.EqualFold`: 忽略大小写比较两个字符串, 返回整数表示比较结果
 func TestStringCompare(t *testing.T) {
 	s := "abc"
 
@@ -177,14 +234,19 @@ func TestStringCompare(t *testing.T) {
 	assert.True(t, strings.EqualFold(s, "ABC")) // 对两个字符串进行忽略大小写的比较, 返回是否相等
 }
 
-// 对子字符串的操作, 是通过 strings 包下面的
-// strings.Contains
-// strings.Index, strings.LastIndex, strings.IndexAny, strings.LastIndexAny, strings.IndexByte, strings.LastIndexByte, strings.IndexFunc, strings.LastIndexFunc
-// strings.HasPrefix, strings.HasSuffix
-// strings.Count
-// strings.Replace, strings.ReplaceAll
-// strings.Trim, strings.TrimSpace, strings.TrimLeft, strings.TrimRight, strings.TrimLeftFunc, strings.TrimRightFunc, strings.TrimPrefix, strings.TrimSuffix
-// strings.Split, strings.SplitN, strings.SplitAfter, strings.SplitAfterN
+// 测试子字符串处理
+//
+// 所谓"子字符串", 即字符串的一部分, 通过 `strings` 包下的函数来完成, 包括:
+//   - `strings.Contains`, 是否包含子字符串
+//   - `strings.Index`, `strings.LastIndex`, `strings.IndexAny`, `strings.LastIndexAny`, 查找子字符串在字符串中出现的位置
+//   - `strings.IndexByte`, `strings.LastIndexByte`, 查找一个字节在字符串中出现的位置
+//   - `strings.IndexFunc`, `strings.LastIndexFunc`, 通过一个回调函数来查找字符串内容, 并返回查找位置
+//   - `strings.HasPrefix`, `strings.HasSuffix`, 判断字符串是否包含指定前缀或后缀
+//   - `strings.Count`, 统计字符串中指定的子字符出现的次数
+//   - `strings.Replace`, `strings.ReplaceAll`, 替换子字符串
+//   - `strings.Trim`, `strings.TrimSpace`, `strings.TrimLeft`, `strings.TrimRight`,
+//     `strings.TrimLeftFunc`, `strings.TrimRightFunc`, `strings.TrimPrefix`, `strings.TrimSuffix`, 字符串截断
+//   - `strings.Split`, `strings.SplitN`, `strings.SplitAfter`, `strings.SplitAfterN`, 字符串切分
 func TestSubString(t *testing.T) {
 	s := "Hello,大家好"
 
@@ -306,10 +368,14 @@ func TestSubString(t *testing.T) {
 	assert.Equal(t, []string{"Hello,", "大家好"}, ss) // 分割为 2 个子字符串
 }
 
-// 字符串连接, 将若干个子字符串连接成一个完整的字符
-// '+'
-// strings.Join
-// strings.Repeat
+// 字符串连接
+//
+// 字符串连接, 即将若干个子字符串连接成一个完整的字符串
+//
+// Go 语言中提供了三种字符串连接方式:
+//   - `+`, 通过 `+` 运算符连接字符串, 得到新字符串
+//   - `strings.Join`, 将多个字符串进行连接, 组成新字符串
+//   - `strings.Repeat`, 将一个字符串重复指定次数, 组成新字符串
 func TestStringConcat(t *testing.T) {
 	s := "Hello"
 
@@ -326,28 +392,39 @@ func TestStringConcat(t *testing.T) {
 	assert.Equal(t, "HelloHello", sc)
 }
 
-// 对于复杂的字符串拼接, 使用 bytes.Buffer 可以获得更高的效率
-// buffer.WriteString, buffer.WriteRune, buffer.Write
+// 通过内存缓冲区连接字符串
+//
+// 对于复杂的字符串拼接, 可通过 `bytes.Buffer` 类型进行, 使用其如下方法:
+//   - `WriteString`, 写入字符串
+//   - `WriteRune`, 写入字符
+//   - `Write`, 写入字节
+//
+// 完成内容写入后, 可通过 `String` 方法获取结果字符串
 func TestStringBuffer(t *testing.T) {
-	buffer := bytes.Buffer{}
+	buffer := bytes.NewBuffer([]byte{})
 
+	// 写入字符串
 	buffer.WriteString("Hello ")
 	buffer.WriteString("World")
 
 	assert.Equal(t, 11, buffer.Len())
-	assert.Equal(t, "Hello World", buffer.String())
+	assert.Equal(t, "Hello World", buffer.String()) // 获取结果字符串
 
+	// 写入字符
 	buffer.WriteRune(' ')
+	// 写入字节
 	buffer.Write([]byte("ABC"))
 	assert.Equal(t, "Hello World ABC", buffer.String())
 
+	// 将其它类型转为字符串后写入
 	buffer.WriteString(strconv.FormatInt(123, 10))
 	assert.Equal(t, "Hello World ABC123", buffer.String())
 }
 
 // 字符串格式化
-// 通过 fmt.Sprint, fmt.Sprintf, fmt.Sprintln 函数, 可以将一组参数组成一个字符串
-// 其中, fmt.Sprintf 函数可以按所给的字符串格式以及参数, 产生格式化后的字符串
+//
+// 通过 `fmt.Sprint`, `fmt.Sprintf`, `fmt.Sprintln` 等函数, 可以将一组参数组成一个字符串;
+// 其中, `fmt.Sprintf` 函数可以按所给的字符串格式以及参数, 产生格式化后的字符串
 func TestStringFormat(t *testing.T) {
 	// 将一组参数组成字符串
 	s := fmt.Sprint("Hello", "World", 123)
