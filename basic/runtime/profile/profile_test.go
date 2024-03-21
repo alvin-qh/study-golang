@@ -65,9 +65,9 @@ const (
 
 // 测试记录 Profile 数据
 func TestRecordProfile(t *testing.T) {
-	defer os.Remove(MEM_PROFILE_FILENAME)
-	defer os.Remove(CPU_PROFILE_FILENAME)
-	defer os.Remove(HEAP_PROFILE_FILENAME)
+	// defer os.Remove(MEM_PROFILE_FILENAME)
+	// defer os.Remove(CPU_PROFILE_FILENAME)
+	// defer os.Remove(HEAP_PROFILE_FILENAME)
 
 	memf, err := os.Create(MEM_PROFILE_FILENAME) // 创建记录 NewMemProfile 信息的文件
 	assert.NoError(t, err)

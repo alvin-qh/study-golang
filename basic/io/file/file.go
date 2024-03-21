@@ -15,7 +15,7 @@ func FileLength(file *os.File) int {
 	return 0
 }
 
-// 获取文件指针位置
+// 获取文件指针的当前位置
 func GetFileCursor(file *os.File) int64 {
 	cur, err := file.Seek(0, io.SeekCurrent)
 	if err != nil {

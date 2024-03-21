@@ -122,7 +122,7 @@ func TestFileStat(t *testing.T) {
 	file.Close()
 }
 
-// 获取一个目录下的内容列表
+// 获取一个目录下所有内容的信息
 //
 // 当 `os.File` 实例表示路径时, 可以通过其 `Readdir` 方法读取其包括的所有文件 (或子目录) 的信息
 func TestReadDir(t *testing.T) {
@@ -156,7 +156,9 @@ func TestReadDir(t *testing.T) {
 	assert.Len(t, expected, 0)
 }
 
-// 当打开的 os.File 对象表示一个 路径 时, 可以读取其包括的所有文件 (或子目录) 的名称
+// 获取一个目录下所有内容的名称
+//
+// 当打开的 `os.File` 对象表示一个路径时, 可以读取其包括的所有文件 (或子目录) 的名称
 func TestReadDirnames(t *testing.T) {
 	// 打开路径为 os.File 对象
 	dir, err := os.Open(`.`)
@@ -174,54 +176,16 @@ func TestReadDirnames(t *testing.T) {
 	assert.Equal(t, expected, names)
 }
 
-// 利用管道进行数据传输
-// 创建管道即得到一对 io.Reader 和 io.Writer 对象, 对 io.Writer 对象进行写操作, 则可随后从 io.Reader 读出所写的内容
-func TestPipe(t *testing.T) {
-	// 创建一个管道, 得到一对 io.Reader 和 io.Writer 对象
-	r, w, err := os.Pipe()
-	defer func() { // 在函数结束后关闭 io.Reader 和 io.Writer 对象
-		r.Close()
-		w.Close()
-	}()
+// 测试文件截取
+//
+// 文件截取即将文件截断为指定长度, 多余的部分将被丢弃
+//
+// Go 提供了两种截取文件的方法:
+//  1. 通过 `os.File` 实例的 `Truncate` 方法, 需要打开文件, 得到一个 `os.File` 对象;
+//  2. 通过 `os.Truncate` 函数. 无需打开文件;
+func TestFileTruncate(t *testing.T) {
+	// 方法 1: 通过 `os.File` 对象的 `Truncate` 函数截断文件
 
-	assert.NoError(t, err)
-	assert.Equal(t, "|0", r.Name()) // 管道创建的文件也具有名称
-	assert.Equal(t, "|1", w.Name())
-
-	rs, err := r.Stat() // 获取 io.Reader 对象的 文件属性
-	assert.NoError(t, err)
-	assert.False(t, rs.IsDir()) // 判断为文件对象
-
-	ws, err := r.Stat() // 获取 io.Writer 对象的 文件属性
-	assert.NoError(t, err)
-	assert.False(t, ws.IsDir()) // 判断为文件对象
-
-	br := bufio.NewReader(r) // 利用 bufio 给 io.Reader 和 io.Writer 增加缓存
-	bw := bufio.NewWriter(w)
-
-	// 通过 io.Writer 对象对管道进行写操作
-	bw.WriteString("Hello world!\n")
-	bw.Flush()
-
-	// 通过 io.Reader 对象从管道进行读操作
-	s, prefix, err := br.ReadLine()
-	assert.NoError(t, err)
-	assert.False(t, prefix)
-	assert.Equal(t, "Hello world!", string(s))
-}
-
-// 截取文件, 即将文件截断为指定长度, 多余的部分将被丢弃
-// go 提供了两种截取文件的方法: 1. 通过 os.File 对象的 Truncate 函数; 2. 通过 os.Truncate 函数. 前者需要打开文件, 得到一个 os.File 对象
-func TestTruncateAttributes(t *testing.T) {
-	// 获取文件长度
-	fileLength := func(file *os.File) int {
-		if stat, err := file.Stat(); err == nil {
-			return int(stat.Size())
-		}
-		return 0
-	}
-
-	// 方法 1: 通过 os.File 对象的 Truncate 函数截断文件
 	// 创建文件
 	file, err := os.Create("d.txt")
 	assert.NoError(t, err)
@@ -232,13 +196,15 @@ func TestTruncateAttributes(t *testing.T) {
 	count, err := file.WriteString("1234567890")
 	assert.NoError(t, err)
 	assert.Equal(t, 10, count)
-	assert.Equal(t, 10, fileLength(file)) // 此时文件长度为 10 字节
+	assert.Equal(t, 10, FileLength(file)) // 此时文件长度为 10 字节
 
-	err = file.Truncate(5) // 截断文件, 为原始长度的一半
+	// 截断文件, 为原始长度的一半
+	err = file.Truncate(5)
 	assert.NoError(t, err)
-	assert.Equal(t, 5, fileLength(file)) // 此时文件长度为 5
+	assert.Equal(t, 5, FileLength(file)) // 此时文件长度为 5
 
-	_, err = file.Seek(0, io.SeekStart) // 指针移动到文件开头
+	// 指针移动到文件开头
+	_, err = file.Seek(0, io.SeekStart)
 	assert.NoError(t, err)
 
 	// 读取全部文件内容, 只剩下写入内容的一半
@@ -248,14 +214,18 @@ func TestTruncateAttributes(t *testing.T) {
 
 	file.Close()
 
-	// 方法 2: 通过 os.Truncate 函数对文件直接进行截断
-	os.Truncate("d.txt", 3) // 将文件进一步截取到剩余 3 字节
+	// 方法 2: 通过 `os.Truncate` 函数对文件直接进行截断
 
-	file, err = os.Open("d.txt") // 打开文件
+	// 将文件进一步截取到剩余 3 字节
+	os.Truncate("d.txt", 3)
+
+	// 打开文件
+	file, err = os.Open("d.txt")
 	assert.NoError(t, err)
-	assert.Equal(t, 3, fileLength(file)) // 文件长度只剩余 3 字节
+	assert.Equal(t, 3, FileLength(file)) // 文件长度只剩余 3 字节
 
-	s, err = io.ReadAll(file) // 读取文件内容, 只剩余 3 个字符
+	// 读取文件内容, 只剩余 3 个字符
+	s, err = io.ReadAll(file)
 	assert.NoError(t, err)
 	assert.Equal(t, "123", string(s))
 
@@ -275,31 +245,43 @@ type user struct {
 }
 
 // 文件读写测试
+//
+// `os.File` 类型实现了 `io.Reader` 和 `io.Writer` 接口, 可以直接对文件进行读写
+//
+// 除了可以通过 `os.Create` 函数创建 `os.File` 实例外, `os.OpenFile` 函数也可以创建新文件或打开一个现有文件,
+// 返回 `os.File` 实例, 且如果是新建文件, 还可以指定文件的访问权限
 func TestFileIO(t *testing.T) {
 	// 测试文件写
-	file, err := os.OpenFile(FILE_NAME, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0755) // 打开 (或截断) 一个文件
+
+	// 打开 (或截断) 一个文件
+	file, err := os.OpenFile(FILE_NAME, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0755)
 	assert.NoError(t, err)
 	assert.Equal(t, FILE_NAME, file.Name())
 
 	defer os.Remove(FILE_NAME)
 
-	n, err := file.WriteString("Hello World") // 在文件 0 位置写入字符串, 共 11 字节. 写指针指向 11 位置
+	// 在文件 0 位置写入字符串, 共 11 字节. 写指针指向 11 位置
+	n, err := file.WriteString("Hello World")
 	assert.NoError(t, err)
 	assert.Equal(t, 11, n)
 	assert.Equal(t, 11, FileLength(file))
 
 	data := []byte{1, 2, 3, 4, 5}
-	n, err = file.WriteAt(data, 16) // 指定在文件 16 位置写入 5 个字节, 写指针不变, 仍指向 11 位置, 文件长度变为 21 字节
+
+	// 指定在文件 16 位置写入 5 个字节, 写指针不变, 仍指向 11 位置, 文件长度变为 21 字节
+	n, err = file.WriteAt(data, 16)
 	assert.NoError(t, err)
 	assert.Equal(t, 5, n)
 	assert.Equal(t, 21, FileLength(file))
 	assert.Equal(t, int64(11), GetFileCursor(file)) // 获取当前文件指针, 仍为 11
 
-	cur, err := file.Seek(-10, io.SeekEnd) // 写指针从文件末尾移动 -10 个偏移, 指向 11 位置
+	// 写指针从文件末尾移动 -10 个偏移, 指向 11 位置
+	cur, err := file.Seek(-10, io.SeekEnd)
 	assert.NoError(t, err)
 	assert.Equal(t, int64(11), cur)
 
-	n, err = file.Write([]byte{5, 4, 3, 2, 1}) // 从 11 位置写入 5 字节, 写指针指向 16 位置
+	// 从 11 位置写入 5 字节, 写指针指向 16 位置
+	n, err = file.Write([]byte{5, 4, 3, 2, 1})
 	assert.NoError(t, err)
 	assert.Equal(t, 5, n)
 	assert.Equal(t, 21, FileLength(file))
@@ -308,28 +290,33 @@ func TestFileIO(t *testing.T) {
 
 	// 测试文件读
 
-	file, err = os.OpenFile(FILE_NAME, os.O_RDONLY, 0) // 打开一个只读文件
+	// 打开一个只读文件
+	file, err = os.OpenFile(FILE_NAME, os.O_RDONLY, 0)
 	assert.NoError(t, err)
 	assert.Equal(t, FILE_NAME, file.Name())
 
-	data = make([]byte, FileLength(file)) // 读取文件的 bytes 缓冲区
+	// 读取文件的 bytes 缓冲区
+	data = make([]byte, FileLength(file))
 
 	n, err = file.Read(data[0:11]) // 从 0 位置读取 11 字节, 读指针移动到 11
 	assert.NoError(t, err)
 	assert.Equal(t, 11, n)
 	assert.Equal(t, "Hello World", string(data[0:11])) // 读出字符串内容
 
-	n, err = file.ReadAt(data[16:21], 16) // 在文件 16 位置读取 5 字节, 读指针不变
+	// 在文件 16 位置读取 5 字节, 读指针不变
+	n, err = file.ReadAt(data[16:21], 16)
 	assert.NoError(t, err)
 	assert.Equal(t, 5, n)
 	assert.Equal(t, []byte{1, 2, 3, 4, 5}, data[16:21])
 	assert.Equal(t, int64(11), GetFileCursor(file)) // 读指针仍在 11
 
-	cur, err = file.Seek(11, io.SeekStart) // 从文件开始位置, 将读指针移动到 11 位置
+	// 从文件开始位置, 将读指针移动到 11 位置
+	cur, err = file.Seek(11, io.SeekStart)
 	assert.NoError(t, err)
 	assert.Equal(t, int64(11), cur)
 
-	n, err = file.Read(data[11:16]) // 在 11 位置读取 5 字节, 读指针移动到 16
+    // 在 11 位置读取 5 字节, 读指针移动到 16
+	n, err = file.Read(data[11:16])
 	assert.NoError(t, err)
 	assert.Equal(t, 5, n)
 	assert.Equal(t, []byte{5, 4, 3, 2, 1}, data[11:16])
@@ -448,4 +435,46 @@ func TestBufferedFileIO(t *testing.T) {
 
 	fw.Close()
 	fr.Close()
+}
+
+// 利用管道进行数据传输
+//
+// 创建管道即得到一对 `io.Reader` 和 `io.Writer` 对象, 对 `io.Writer` 对象进行写操作, 则可随后从 `io.Reader` 读出所写的内容
+func TestPipe(t *testing.T) {
+	// 创建一个管道, 得到一对 `io.Reader` 和 `io.Writer` 对象
+	r, w, err := os.Pipe()
+
+	assert.NoError(t, err)
+	assert.Equal(t, "|0", r.Name()) // 管道创建的文件也具有名称
+	assert.Equal(t, "|1", w.Name())
+
+	// 在函数结束后关闭 `io.Reader` 和 `io.Writer` 对象
+	defer func() {
+		r.Close()
+		w.Close()
+	}()
+
+	// 获取 io.Reader 对象的 文件属性
+	rs, err := r.Stat()
+	assert.NoError(t, err)
+	assert.False(t, rs.IsDir()) // 判断为文件对象
+
+	// 获取 io.Writer 对象的 文件属性
+	ws, err := r.Stat()
+	assert.NoError(t, err)
+	assert.False(t, ws.IsDir()) // 判断为文件对象
+
+	// 利用 bufio 给 io.Reader 和 io.Writer 增加缓存
+	br := bufio.NewReader(r)
+	bw := bufio.NewWriter(w)
+
+	// 通过 io.Writer 对象对管道进行写操作
+	bw.WriteString("Hello world!\n")
+	bw.Flush()
+
+	// 通过 io.Reader 对象从管道进行读操作
+	s, prefix, err := br.ReadLine()
+	assert.NoError(t, err)
+	assert.False(t, prefix)
+	assert.Equal(t, "Hello world!", string(s))
 }

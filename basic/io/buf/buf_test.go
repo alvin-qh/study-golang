@@ -111,21 +111,21 @@ func TestBufferRW(t *testing.T) {
 
 // 测试 Buffer 对象的相互复制
 func TestBufferCopy(t *testing.T) {
-	buf := bytes.NewBufferString("Hello World")
-	assert.Equal(t, "Hello World", buf.String())
+	buf1 := bytes.NewBufferString("Hello World")
+	assert.Equal(t, "Hello World", buf1.String())
 
-	// 将 buf 拷贝到 newBuf
-	newBuf := bytes.NewBuffer([]byte{}) // 创建目标对象
-	n, err := newBuf.ReadFrom(buf)      // 将源对象拷贝到目标对象
+	// 将 buf1 拷贝到 buf2
+	buf2 := bytes.NewBuffer([]byte{}) // 创建目标对象
+	n, err := buf2.ReadFrom(buf1)     // 将源对象拷贝到目标对象
 	assert.NoError(t, err)
 	assert.Equal(t, int64(11), n)
-	assert.Equal(t, "Hello World", newBuf.String())
+	assert.Equal(t, "Hello World", buf2.String())
 
-	// 将 newBuf 拷贝到 buf
-	newBuf.WriteString(", Welcome")
+	buf2.WriteString(", Welcome")
 
-	n, err = newBuf.WriteTo(buf)
+	// 将 buf2 拷贝到 buf1
+	n, err = buf2.WriteTo(buf1)
 	assert.NoError(t, err)
 	assert.Equal(t, int64(20), n)
-	assert.Equal(t, "Hello World, Welcome", buf.String())
+	assert.Equal(t, "Hello World, Welcome", buf1.String())
 }

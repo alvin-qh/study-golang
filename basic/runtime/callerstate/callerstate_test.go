@@ -13,12 +13,12 @@ func TestGetCallerInfo(t *testing.T) {
 	dir, err := os.Getwd()
 	assert.NoError(t, err)
 
-	dir = filepath.Join(dir, "caller_test.go")
+	dir = filepath.Join(dir, "callerstate_test.go")
 
 	// 输出当前调用信息
 	cs, err := Where()
 	assert.NoError(t, err)
-	assert.Equal(t, "study-golang/basic/runtime/caller.TestGetCallerInfo", cs.FuncName)
+	assert.Equal(t, "study-golang/basic/runtime/callerstate.TestGetCallerInfo", cs.FuncName)
 	assert.Equal(t, 19, cs.LineNo)
 	assert.Equal(t, dir, cs.FileName)
 
@@ -26,7 +26,7 @@ func TestGetCallerInfo(t *testing.T) {
 		// 输出当前调用信息
 		cs, err = Where()
 		assert.NoError(t, err)
-		assert.Equal(t, "study-golang/basic/runtime/caller.TestGetCallerInfo.func1", cs.FuncName)
+		assert.Equal(t, "study-golang/basic/runtime/callerstate.TestGetCallerInfo.func1", cs.FuncName)
 		assert.Equal(t, 27, cs.LineNo)
 		assert.Equal(t, dir, cs.FileName)
 	}()
@@ -34,11 +34,11 @@ func TestGetCallerInfo(t *testing.T) {
 	// 输出当前调用信息
 	cs, err = Where()
 	assert.NoError(t, err)
-	assert.Equal(t, "study-golang/basic/runtime/caller.TestGetCallerInfo", cs.FuncName)
+	assert.Equal(t, "study-golang/basic/runtime/callerstate.TestGetCallerInfo", cs.FuncName)
 	assert.Equal(t, 35, cs.LineNo)
 	assert.Equal(t, dir, cs.FileName)
 
-	assert.Equal(t, "study-golang/basic/runtime/caller.TestGetCallerInfo:"+dir+"(35)", cs.String())
+	assert.Equal(t, "study-golang/basic/runtime/callerstate.TestGetCallerInfo:"+dir+"(35)", cs.String())
 }
 
 // 测试通过闭包获取
@@ -46,36 +46,36 @@ func TestGetCallerStackInfo(t *testing.T) {
 	dir, err := os.Getwd()
 	assert.NoError(t, err)
 
-	dir = filepath.Join(dir, "caller_test.go")
+	dir = filepath.Join(dir, "callerstate_test.go")
 
 	// 输出当前调用信息
-	cs := ListStackInfo()
-	assert.Equal(t, "study-golang/basic/runtime/caller.TestGetCallerStackInfo", cs[0].FuncName)
+	cs := ListStackInfo(10)
+	assert.Equal(t, "study-golang/basic/runtime/callerstate.TestGetCallerStackInfo", cs[0].FuncName)
 	assert.Equal(t, 52, cs[0].LineNo)
 	assert.Equal(t, dir, cs[0].FileName)
 
 	assert.Equal(t, "testing.tRunner", cs[1].FuncName)
-	assert.Regexp(t, ".+?/src/testing/testing.go", cs[1].FileName)
+	assert.Regexp(t, `.+?[\\/]testing[\\/]testing.go`, cs[1].FileName)
 
 	func() {
 		// 输出当前调用信息
-		cs := ListStackInfo()
-		assert.Equal(t, "study-golang/basic/runtime/caller.TestGetCallerStackInfo.func1", cs[0].FuncName)
-		assert.Equal(t, 62, cs[0].LineNo)
+		cs := ListStackInfo(10)
+		assert.Equal(t, "study-golang/basic/runtime/callerstate.TestGetCallerStackInfo.func1", cs[0].FuncName)
+		assert.Equal(t, 63, cs[0].LineNo)
 		assert.Equal(t, dir, cs[0].FileName)
 
-		assert.Equal(t, "study-golang/basic/runtime/caller.TestGetCallerStackInfo", cs[1].FuncName)
-		assert.Regexp(t, ".+?/basic/runtime/caller/caller_test.go", cs[1].FileName)
+		assert.Equal(t, "study-golang/basic/runtime/callerstate.TestGetCallerStackInfo", cs[1].FuncName)
+		assert.Regexp(t, `.+?[\\/]basic[\\/]runtime[\\/]callerstate[\\/]callerstate_test.go`, cs[1].FileName)
 	}()
 
 	// 输出当前调用信息
-	cs = ListStackInfo()
-	assert.Equal(t, "study-golang/basic/runtime/caller.TestGetCallerStackInfo", cs[0].FuncName)
+	cs = ListStackInfo(10)
+	assert.Equal(t, "study-golang/basic/runtime/callerstate.TestGetCallerStackInfo", cs[0].FuncName)
 	assert.Equal(t, 72, cs[0].LineNo)
 	assert.Equal(t, dir, cs[0].FileName)
 
 	assert.Equal(t, "testing.tRunner", cs[1].FuncName)
-	assert.Regexp(t, ".+?/src/testing/testing.go", cs[1].FileName)
+	assert.Regexp(t, `.+?[\\/]src[\\/]testing[\\/]testing.go`, cs[1].FileName)
 }
 
 // 测试获取当前文件名称
@@ -83,8 +83,9 @@ func TestGetCurrentGoFile(t *testing.T) {
 	dir, err := os.Getwd()
 	assert.NoError(t, err)
 
-	dir = filepath.Join(dir, "caller_test.go")
+	dir = filepath.Join(dir, "callerstate_test.go")
 
+	// 获取当前文件路径名称
 	fn, err := GetCurrentGoFile()
 	assert.NoError(t, err)
 	assert.Equal(t, dir, fn)

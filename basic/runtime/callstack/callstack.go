@@ -10,9 +10,9 @@ var (
 	lineBreak   = []byte("\n")            // 换行标记
 )
 
-// 获取调用堆栈
-// 调用堆栈的第 1 行为: 协程信息
-// 之后内容为:
+// 获取调用堆栈信息
+//
+// 调用堆栈的第一条内容为协程信息, 之后内容为:
 //
 //	调用函数
 //	      调用位置
@@ -20,10 +20,14 @@ var (
 //	      调用位置
 //	...
 func CallStack() string {
-	stack := make([]byte, 16<<10) // 创建 16kb buffer
+	// 创建 16kb buffer
+	stack := make([]byte, 16<<10)
 
-	length := runtime.Stack(stack, true) // 获取完整的调用堆栈
-	stack = stack[:length]               // 截取调用堆栈的有效长度
+	// 获取完整的调用堆栈
+	length := runtime.Stack(stack, true)
+
+	// 截取调用堆栈的有效长度
+	stack = stack[:length]
 
 	// 查找结束标记是否存在
 	// 如果在 panic 之后获取调用堆栈, 则可以去掉 "\ngoroutine" 这一行以及之后的消息
