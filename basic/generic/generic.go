@@ -1,5 +1,7 @@
 package generic
 
+import "fmt"
+
 // 定义泛型方法
 //
 // 该方法接受 `int` 和 `float64` 类型参数, 并返回相同类型结果, 其中:
@@ -23,3 +25,17 @@ func GenericAdd[T Number](a T, b T) T {
 
 // 定义一个泛型切片
 type GenericSlice[T ~string | ~int | ~float32 | ~float64] []T
+
+// 将表示字符串切片的 `interface{}` 类型转换为字符串切片
+func InterfaceToSlice[T any](obj interface{}) ([]T, error) {
+	is, ok := obj.([]interface{})
+	if !ok {
+		return nil, fmt.Errorf("invalid type")
+	}
+
+	os := make([]T, len(is))
+	for i, v := range is {
+		os[i] = v.(T)
+	}
+	return os, nil
+}

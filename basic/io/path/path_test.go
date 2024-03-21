@@ -11,107 +11,108 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// 获取路径中的各个部分
+// 测试获取路径中的各个部分
 func TestGetPathPart(t *testing.T) {
-	srcPath := `a/b/c/d.xml`
+	srcPath := "a/b/c/d.xml"
 
 	// 获取路径中的 "目录" 部分
 	// 即获取路径 "最后一个分隔符之前" 的部分, 例如 "a/b/c" 的结果为 "a/b"
 	targetPath := filepath.Dir(srcPath)
-	assert.Equal(t, `a/b/c`, targetPath)
+	assert.Equal(t, filepath.Clean("a/b/c"), filepath.Clean(targetPath))
 
 	// 获取路径中的 "文件" 部分
 	// 即获取路径 "最后一个分隔符之后" 的部分, 例如 "a/b/c" 的结果为 "c"
 	targetPath = filepath.Base(srcPath)
-	assert.Equal(t, `d.xml`, targetPath)
+	assert.Equal(t, "d.xml", targetPath)
 
 	// 将路径分割为 "路径" 部分和 "文件" 部分, 相当于同时调用 Dir 函数和 Base 函数
 	dir, file := filepath.Split(srcPath)
-	assert.Equal(t, `a/b/c/`, dir)
-	assert.Equal(t, `d.xml`, file)
+	assert.Equal(t, filepath.Clean("a/b/c"), filepath.Clean(dir))
+	assert.Equal(t, "d.xml", file)
 
 	// 获取路径中文件的扩展名 (如果存在)
 	ext := filepath.Ext(srcPath)
-	assert.Equal(t, `.xml`, ext)
+	assert.Equal(t, ".xml", ext)
 }
 
 // 计算相对路径
+//
 // 即假设当前所在位置为 第一个路径, 则计算结果为 到达第二个路径的 相对路径
 // 计算时, 两个路径必须同为 绝对路径 (即以 `/` 开始) 或 相对路径
 func TestRelativePaths(t *testing.T) {
 	// `/a` 相对于 `/` 的路径为 `a`
-	s, err := filepath.Rel(`/`, `/a`)
+	s, err := filepath.Rel("/", "/a")
 	assert.NoError(t, err)
-	assert.Equal(t, `a`, s)
+	assert.Equal(t, "a", s)
 
 	// `/a` 相对于 `/a` 的路径为 `.`
-	s, err = filepath.Rel(`/a`, `/a`)
+	s, err = filepath.Rel("/a", "/a")
 	assert.NoError(t, err)
-	assert.Equal(t, `.`, s)
+	assert.Equal(t, ".", s)
 
 	// `/b` 相对于 `/a` 的路径为 `../b`
-	s, err = filepath.Rel(`/a`, `/b`)
+	s, err = filepath.Rel("/a", "/b")
 	assert.NoError(t, err)
-	assert.Equal(t, `../b`, s)
+	assert.Equal(t, filepath.Clean("../b"), filepath.Clean(s))
 
 	// `/a/b` 相对于 `/a` 的路径为 `b`
-	s, err = filepath.Rel(`/a`, `/a/b`)
+	s, err = filepath.Rel("/a", "/a/b")
 	assert.NoError(t, err)
-	assert.Equal(t, `b`, s)
+	assert.Equal(t, "b", s)
 
 	// `/a/b/c` 相对于 `/a` 的路径为 `b/c`
-	s, err = filepath.Rel(`/a`, `/a/b/c`)
+	s, err = filepath.Rel("/a", "/a/b/c")
 	assert.NoError(t, err)
-	assert.Equal(t, `b/c`, s)
+	assert.Equal(t, filepath.Clean("b/c"), filepath.Clean(s))
 
 	// 错误: 第一个参数为绝对路径, 第二个参数为相对路径
-	_, err = filepath.Rel(`/a`, `b`)
+	_, err = filepath.Rel("/a", "b")
 	assert.Error(t, err)
-	assert.Equal(t, `Rel: can't make b relative to /a`, err.Error())
+	assert.Equal(t, "Rel: can't make b relative to /a", err.Error())
 
 	// 错误: 第一个参数为相对路径, 第二个参数为绝对路径
-	_, err = filepath.Rel(`a`, `/d`)
+	_, err = filepath.Rel("a", "/d")
 	assert.Error(t, err)
-	assert.Equal(t, `Rel: can't make /d relative to a`, err.Error())
+	assert.Equal(t, "Rel: can't make /d relative to a", err.Error())
 
 	// `b` 相对于 `a` 的路径为 `../b`
-	s, err = filepath.Rel(`a`, `b`)
+	s, err = filepath.Rel("a", "b")
 	assert.NoError(t, err)
-	assert.Equal(t, `../b`, s)
+	assert.Equal(t, filepath.Clean("../b"), filepath.Clean(s))
 
 	// `c` 相对于 `a/b` 的路径为 `../../c`
-	s, err = filepath.Rel(`a/b`, `c`)
+	s, err = filepath.Rel("a/b", "c")
 	assert.NoError(t, err)
-	assert.Equal(t, `../../c`, s)
+	assert.Equal(t, filepath.Clean("../../c"), filepath.Clean(s))
 
 	// `a/b/c` 相对于 `a/b` 的路径为 `c`
-	s, err = filepath.Rel(`a/b`, `a/b/c`)
+	s, err = filepath.Rel("a/b", "a/b/c")
 	assert.NoError(t, err)
-	assert.Equal(t, `c`, s)
+	assert.Equal(t, "c", s)
 
 	// `a/../c` 相对于 `a/b` 的路径为 `../../c`
 	// `a/../c` 即 `c`; `c` 相对于 `a/b` 的路径为 `../../c`
-	s, err = filepath.Rel(`a/b`, `a/../c`)
+	s, err = filepath.Rel("a/b", "a/../c")
 	assert.NoError(t, err)
-	assert.Equal(t, `../../c`, s)
+	assert.Equal(t, filepath.Clean("../../c"), filepath.Clean(s))
 }
 
 // 将多个部分的路径连接为一个完整的路径
 func TestJoinPath(t *testing.T) {
 	// 空字符串将被忽略
-	s := filepath.Join(`/a`, `b`, ``, `c.txt`)
-	assert.Equal(t, `/a/b/c.txt`, s)
+	s := filepath.Join("/a", "b", "", "c.txt")
+	assert.Equal(t, filepath.Clean("/a/b/c.txt"), filepath.Clean(s))
 
 	// `..` 会退回上一级目录
-	s = filepath.Join(`/a`, `b`, `c`, `..`, `d.txt`)
-	assert.Equal(t, `/a/b/d.txt`, s)
+	s = filepath.Join("/a", "b", "c", "..", "d.txt")
+	assert.Equal(t, filepath.Clean("/a/b/d.txt"), filepath.Clean(s))
 
-	s = filepath.Join(`a`, `b`, `c.txt`)
-	assert.Equal(t, `a/b/c.txt`, s)
+	s = filepath.Join("a", "b", "c.txt")
+	assert.Equal(t, filepath.Clean("a/b/c.txt"), s)
 
 	// `/` 或者 `//` 等路径分隔符会被忽略
-	s = filepath.Join(`a`, `/b`, `//c`, `d.txt`)
-	assert.Equal(t, `a/b/c/d.txt`, s)
+	s = filepath.Join("a", "/b", "//c", "d.txt")
+	assert.Equal(t, filepath.Clean("a/b/c/d.txt"), filepath.Clean(s))
 }
 
 // 删除多余的路径分隔符, 遵循的规则为:
@@ -121,47 +122,60 @@ func TestJoinPath(t *testing.T) {
 //  4. 剔除开始一个根路径的 `..` 路径名元素, 即将路径开始处的 `/..` 替换为 `/` (假设路径分隔符是 `/`)
 func TestCleanPath(t *testing.T) {
 	// 将路径中的 `..`, `/` 字符移除, 避免错误的路径字符影响路径
-	s := filepath.Clean(`/a/./b/.//c/..///d.txt///`)
-	assert.Equal(t, `/a/b/d.txt`, s)
+	s := filepath.Clean("/a/./b/.//c/..///d.txt///")
+	assert.Equal(t, filepath.Clean("/a/b/d.txt"), s)
 }
 
 // 获取路径的绝对路径
 func TestGetAbsolutePath(t *testing.T) {
 	// `/` 的绝对路径为 `/`
-	s, err := filepath.Abs(`/`)
+	s, err := filepath.Abs("/")
 	assert.NoError(t, err)
-	assert.Equal(t, `/`, s)
+	if runtime.GOOS == "windows" {
+		assert.Regexp(t, `[cCdDeE]:\\`, s)
+	} else {
+		assert.Regexp(t, "/", s)
+	}
 	assert.True(t, filepath.IsAbs(s)) // 判断路径是否为绝对路径
 
 	// `.` 的绝对路径为 当前路径
 	s, err = filepath.Abs(`.`)
 	assert.NoError(t, err)
-	assert.True(t, strings.HasSuffix(s, `study-golang/basic/io/path`))
+	assert.True(t, strings.HasSuffix(s, filepath.Clean("study-golang/basic/io/path")))
 	assert.True(t, filepath.IsAbs(s))
 
 	// `..` 的绝对路径为 当前路径 的上一级路径
 	s, err = filepath.Abs(`..`)
 	assert.NoError(t, err)
-	assert.True(t, strings.HasSuffix(s, `study-golang/basic/io`))
+	assert.True(t, strings.HasSuffix(s, filepath.Clean("study-golang/basic/io")))
 	assert.True(t, filepath.IsAbs(s))
 
 	// `./a` (即 `a`) 的绝对路径为 当前路径 下的 `a` 目录
 	s, err = filepath.Abs(`./a`)
 	assert.NoError(t, err)
-	assert.True(t, strings.HasSuffix(s, `study-golang/basic/io/path/a`))
+	assert.True(t, strings.HasSuffix(s, filepath.Clean("study-golang/basic/io/path/a")))
 	assert.True(t, filepath.IsAbs(s))
 
 	// `a/b/../c` (即 `./a/c`) 的绝对路径为 当前路径下 的 `a/c` 目录
 	s, err = filepath.Abs(`a/b/../c`)
 	assert.NoError(t, err)
-	assert.True(t, strings.HasSuffix(s, `study-golang/basic/io/path/a/c`))
+	assert.True(t, strings.HasSuffix(s, filepath.Clean("study-golang/basic/io/path/a/c")))
 	assert.True(t, filepath.IsAbs(s))
 }
 
-// 通过 `:` 字符将字符串分隔为 切片
-// 如果一组字符从是以 `:` 连接在一起 (例如 Linux 的 $PATH 环境变量), 则可以将它们分隔成数组
+// 通过操作系统定义的分隔符将字符串切分为多个路径
+//
+// 对于 Windows 系统, 分隔符为 `;`, 而 Linux 系统为 `:`
+//
+// 如果一组字符从是以 `:` (或 `;`) 连接在一起 (例如 $PATH 环境变量), 则可以将它们分割成数组
 func TestSplitToPathList(t *testing.T) {
-	s := `a:b/c:d/e::/f/g`
+	var s string
+	if runtime.GOOS == "windows" {
+		s = "a;b/c;d/e;;/f/g"
+	} else {
+		s = "a:b/c:d/e::/f/g"
+	}
+
 	l := filepath.SplitList(s)
 	assert.Equal(t, []string{"a", "b/c", "d/e", "", "/f/g"}, l)
 }
@@ -297,8 +311,6 @@ func TestSlashOperate(t *testing.T) {
 
 // 判断路径是否存在以及其链接的原始路径
 func TestFileSymlinks(t *testing.T) {
-	defer os.Remove("./path_test.go.1")
-
 	// 判断指定的路径是否存在
 	p, err := filepath.EvalSymlinks("./path_test.go")
 	assert.NoError(t, err)             // 未返回错误即路径存在
@@ -307,11 +319,17 @@ func TestFileSymlinks(t *testing.T) {
 	// 判断路径是否存在
 	_, err = filepath.EvalSymlinks("./path_test.go.1")
 	assert.Error(t, err) // 返回错误, 表示路径不存在
-	assert.Equal(t, "lstat path_test.go.1: no such file or directory", err.Error())
+	if runtime.GOOS == "windows" {
+		assert.Equal(t, "CreateFile path_test.go.1: The system cannot find the file specified.", err.Error())
+	} else {
+		assert.Equal(t, "lstat path_test.go.1: no such file or directory", err.Error())
+	}
 
 	// 创建软链接
 	err = os.Symlink("./path_test.go", "./path_test.go.1")
 	assert.NoError(t, err)
+
+	defer os.Remove("./path_test.go.1")
 
 	// 判断软链接是否存在
 	p, err = filepath.EvalSymlinks("./path_test.go.1")
@@ -324,9 +342,6 @@ func TestFileSymlinks(t *testing.T) {
 //	os.Mkdir, os.MkdirAll 分别可以创建子目录或多级子目录
 //	os.Remove, os.RemoveAll 分别可以删除一个空目录或删除路径并同时删除其中的所有内容
 func TestMakeAndRemoveDir(t *testing.T) {
-	// 删除路径以及路径下的所有内容
-	defer os.RemoveAll("./d")
-
 	// 创建路径
 	err := os.Mkdir("./d", 0755)
 	assert.NoError(t, err)
@@ -342,9 +357,12 @@ func TestMakeAndRemoveDir(t *testing.T) {
 	err = os.MkdirAll("./d/e/f", 0755)
 	assert.NoError(t, err)
 
+	// 删除路径以及路径下的所有内容
+	defer os.RemoveAll("./d")
+
 	p, err = filepath.EvalSymlinks("./d/e/f") // 判断路径是否存在
 	assert.NoError(t, err)
-	assert.Equal(t, "d/e/f", p)
+	assert.Equal(t, filepath.Clean("d/e/f"), filepath.Clean(p))
 }
 
 // 修改当前工作路径
@@ -352,7 +370,7 @@ func TestChangeCurrentPath(t *testing.T) {
 	// 获取当前工作路径
 	dir, err := os.Getwd()
 	assert.NoError(t, err)
-	assert.True(t, strings.HasSuffix(dir, "study-golang/basic/io/path"))
+	assert.True(t, strings.HasSuffix(dir, filepath.Clean("study-golang/basic/io/path")))
 
 	// 修改当前工作路径 (向上一级)
 	err = os.Chdir(filepath.Join(dir, "../.."))
@@ -361,5 +379,5 @@ func TestChangeCurrentPath(t *testing.T) {
 	// 获取修改工作路径后, 当前工作路径
 	dir, err = os.Getwd()
 	assert.NoError(t, err)
-	assert.True(t, strings.HasSuffix(dir, "study-golang/basic"))
+	assert.True(t, strings.HasSuffix(dir, filepath.Clean("study-golang/basic")))
 }
