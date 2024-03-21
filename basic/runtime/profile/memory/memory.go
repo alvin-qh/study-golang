@@ -169,7 +169,7 @@ func (r *Profile) record() {
 	n, _ := runtime.MemProfile(nil, true)
 	for {
 		// 分配内存读取 Profile 数据, 为防止读取失败, 需要冗余分配一部分空间
-		p := make([]runtime.MemProfileRecord, n+50)
+		p := make([]runtime.MemProfileRecord, n+10)
 
 		// 读取 Profile 数据
 		n, ok := runtime.MemProfile(p, true)
@@ -181,17 +181,18 @@ func (r *Profile) record() {
 	}
 }
 
-// 开始记录
+// 开始记录内存 Profile
 //
 // 通过一个定时器, 在指定的间隔时间后向 `io.Writer` 中写入内存 Profile 数据
 func (r *Profile) Start() error {
 	if r.w != nil {
+		// 启动异步函数, 在定时器时间到达时进行一次内存 Profile 数据的记录
 		go func() {
 			for {
 				select {
-				case <-time.After(time.Millisecond * time.Duration(r.freq)):
-					r.record()
-				case <-r.ch:
+				case <-time.After(time.Millisecond * time.Duration(r.freq)): // 等待定时器时间到达
+					r.record() // 记录内存 Profile 数据
+				case <-r.ch: // 通道被关闭, 退出循环, 结束协程
 					if r.w != nil {
 						r.w.Flush()
 						r.w = nil

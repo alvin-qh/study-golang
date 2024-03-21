@@ -129,3 +129,12 @@ func TestBufferCopy(t *testing.T) {
 	assert.Equal(t, int64(20), n)
 	assert.Equal(t, "Hello World, Welcome", buf1.String())
 }
+
+// 测试从 `io.Reader` 接口中读取所有行
+func TestReadLines(t *testing.T) {
+	buf := bytes.NewBufferString("Hello\nWorld\n")
+
+	lines, err := ReadLines(buf)
+	assert.NoError(t, err)
+	assert.Equal(t, []string{"Hello", "World"}, lines)
+}
