@@ -14,11 +14,12 @@ const (
 	LOG_FILE_NAME = "log.log" // 保存 log 的文件
 )
 
+// 测试创建日志实例
 func TestLogger(t *testing.T) {
 	defer os.Remove(LOG_FILE_NAME)
 
 	// 创建 log 对象
-	l := NewLogger()
+	l := New()
 	defer l.Close()
 
 	// 创建写入 log 的文件
@@ -37,8 +38,9 @@ func TestLogger(t *testing.T) {
 	l.Info("Test Info Log")
 	l.Warn("Test Warn Log")
 	l.Error("Test Error Log")
-	l.Close() // 关闭日志对象, 等待所有日志都处理完毕
 
+	// 关闭日志对象, 等待所有日志都处理完毕
+	l.Close()
 	f.Close()
 
 	// 验证日志写入情况
@@ -46,7 +48,6 @@ func TestLogger(t *testing.T) {
 	// 打开日志写入文件
 	f, err = os.Open(LOG_FILE_NAME)
 	assert.NoError(t, err)
-	defer f.Close()
 
 	br := bufio.NewReader(f)
 
@@ -71,4 +72,6 @@ func TestLogger(t *testing.T) {
 	assert.NoError(t, err)
 	assert.True(t, strings.HasPrefix(string(line), "ERROR"))
 	assert.True(t, strings.HasSuffix(string(line), "Test Error Log"))
+
+	f.Close()
 }

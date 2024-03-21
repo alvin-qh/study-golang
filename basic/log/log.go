@@ -55,7 +55,7 @@ type Logger struct {
 }
 
 // 创建新的日志结构体对象
-func NewLogger() *Logger {
+func New() *Logger {
 	// 构建日志结构体
 	logger := &Logger{
 		loggers: make(map[LogLevel]([]*log.Logger)),
