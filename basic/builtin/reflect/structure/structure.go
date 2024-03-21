@@ -174,7 +174,7 @@ func (t *Structure) GetFieldTags(fieldName string, tagName string) (string, erro
 //	res := rVal.Addr().MethodByName("GetName").Call()
 func (t *Structure) CallMethodByName(methodName string, args ...interface{}) ([]interface{}, error) {
 	method := t.rValue.MethodByName(methodName)
-	if !method.IsValid() && method.CanAddr() {
+	if !method.IsValid() {
 		method = t.rValue.Addr().MethodByName(methodName)
 		if !method.IsValid() {
 			return nil, ErrInvalidMethodName

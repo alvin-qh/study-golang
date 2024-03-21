@@ -62,6 +62,7 @@ func TestStructure(t *testing.T) {
 	assert.Equal(t, tag, "true")
 
 	u.Name = "Alvin"
+	// 根据方法名调用结构体方法
 	res, err := stu.CallMethodByName("String", 100)
 	assert.NoError(t, err)
 	assert.Equal(t, res[0], "user{Id: 100, Name: \"Alvin\", Gender: 0, Num: 100}")
