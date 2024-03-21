@@ -8,33 +8,53 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// 测试 GC
-// 可以通过 runtime.ReadMemStats 函数来获取 Go 内存状态, 以判断 GC 执行的情况
+// 用于占用内存的结构体
+type memory struct {
+	data []byte
+}
+
+// 用于分配内存
+func allocate(size uint32) *memory {
+	return &memory{make([]byte, size)}
+}
+
+func (m *memory) Clear() {
+	m.data = nil
+}
+
+// 测试 GC 内存回收
+//
+// 本例中通过 `runtime.ReadMemStats` 函数来收集实时内存状态, 以判断 GC 执行的情况
 func TestGc(t *testing.T) {
 	runtime.GC() // 手动唤起 GC 释放堆
 
-	var ms runtime.MemStats // 内存状态结构体
+	// 内存状态结构体
+	var ms runtime.MemStats
 
-	runtime.ReadMemStats(&ms) // 获取内存状态
+	// 获取内存状态
+	runtime.ReadMemStats(&ms)
 	fmt.Printf("Alloc: %d(KB) HeapIdle: %d(KB) HeapReleased: %d(KB)\n", ms.Alloc/1024, ms.HeapIdle/1024, ms.HeapReleased/1024)
 
-	m := Memory{}
+	// 分配内存, 用于测试 GC 回收内存
+	m := allocate(1024 * 100000)
 
 	finalized := false
-	runtime.SetFinalizer(&m, func(m *Memory) { finalized = true }) // 调用 GC 时, 会同时调用设置在对象上的 finalizer 函数, 释放资源
 
-	size := 1024 * 100000
+	// 调用 GC 时, 会同时调用设置在对象上的 finalizer 函数, 释放资源
+	runtime.SetFinalizer(m, func(m *memory) { finalized = true })
 
-	m.Alloc(size) // 分配内存
-	assert.Equal(t, size, m.Size())
-
-	runtime.ReadMemStats(&ms) // 获取内存状态
+	// 获取内存状态
+	runtime.ReadMemStats(&ms)
 	fmt.Printf("Alloc: %d(KB) HeapIdle: %d(KB) HeapReleased: %d(KB)\n", ms.Alloc/1024, ms.HeapIdle/1024, ms.HeapReleased/1024)
 
-	m.Clear()    // 释放内存
-	runtime.GC() // 手动唤起 GC 释放堆
+	// 释放内存
+	m.Clear()
 
-	runtime.ReadMemStats(&ms) // 获取内存状态
+	// 手动唤起 GC 释放堆
+	runtime.GC()
+
+	// 获取内存状态
+	runtime.ReadMemStats(&ms)
 	fmt.Printf("Alloc: %d(KB) HeapIdle: %d(KB) HeapReleased: %d(KB)\n", ms.Alloc/1024, ms.HeapIdle/1024, ms.HeapReleased/1024)
 
 	assert.True(t, finalized)
