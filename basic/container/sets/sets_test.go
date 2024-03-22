@@ -6,11 +6,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// 测试 Set 集合
-func TestSet(t *testing.T) {
+// 测试 Set 集合的创建和添加元素
+func TestSetCreateAndAdd(t *testing.T) {
 	// 初始化并添加元素
-	s1 := New(100)               // 初始化
-	s1.Add(1, 2, 3, 4, 2)        // 批量添加元素
+	s1 := New[int](100)
+
+	// 批量添加元素
+	s1.Add(1, 2, 3, 4, 2)
 	assert.Equal(t, 4, s1.Len()) // 实际添加了 4 个元素, 重复的 2 只存在 1 份
 
 	// 判断集合是否包含指定值
@@ -22,31 +24,46 @@ func TestSet(t *testing.T) {
 
 	ok = s1.Contains(3, 4, 5) // 5 不在集合中, 返回 false
 	assert.False(t, ok)
+}
 
-	// 集合相等判断
-	s2 := New(10) // 产生一个元素相同的集合
+// 集合相等判断
+func TestSetCompare(t *testing.T) {
+	s1 := New[int](10)
+	s1.Add(1, 2, 3, 4)
+
+	// 产生一个元素相同的集合
+	s2 := New[int](10)
 	s2.Add(1, 2, 3, 4)
 
-	ok = s2.Equal(s1) // 两个集合元素是否相同
-	assert.True(t, ok)
+	// 此时两个集合相等
+	assert.True(t, s2.Equal(s1))
 
-	s2.Add("Hello")   // 在其中一个集合中添加新元素
-	ok = s2.Equal(s1) // 此时两个集合不再相同
-	assert.False(t, ok)
+	// 在其中一个集合中添加新元素, 此时两个集合不再相同
+	s2.Add(5)
+	assert.False(t, s2.Equal(s1))
 
-	s2.Remove("Hello") // 移除之前添加的新元素
-	ok = s2.Equal(s1)  // 此时两个集合恢复相同
-	assert.True(t, ok)
+	// 移除之前添加的新元素
+	s2.Remove(5)
+	assert.True(t, s2.Equal(s1))
+}
 
-	// 判断是否为子集
-	ok = s2.IsSubset(s1) // 判断两个相同的集合是否互为子集
-	assert.True(t, ok)
-	ok = s1.IsSubset(s2)
-	assert.True(t, ok)
+// 集合子集判断
+func TestSetSubset(t *testing.T) {
+	s1 := New[int](10)
+	s1.Add(1, 2, 3, 4)
 
-	s1.Remove(2) // 删除集合元素, 此时两个集合不再互为子集
-	ok = s2.IsSubset(s1)
-	assert.False(t, ok)
-	ok = s1.IsSubset(s2)
-	assert.True(t, ok)
+	// 产生一个包含 `s1` 集合部分元素的集合
+	s2 := New[int](10)
+	s2.Add(2, 3, 4)
+
+	// 此时 `s2` 为 `s1` 的子集, 但 `s1` 不是 `s2` 的子集
+	assert.True(t, s2.IsSubset(s1))
+	assert.False(t, s1.IsSubset(s2))
+
+	// 删除 `s1` 集合的部分元素
+	s1.Remove(1, 2)
+
+	// 此时 `s2` 不再是 `s1` 的子集, 但 `s1` 成为了 `s2` 的子集
+	assert.False(t, s2.IsSubset(s1))
+	assert.True(t, s1.IsSubset(s2))
 }

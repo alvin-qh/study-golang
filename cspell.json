@@ -6,6 +6,7 @@
     "antonfisher",
     "Appender",
     "backports",
+    "callerstate",
     "callstack",
     "CFLAGS",
     "clango",
