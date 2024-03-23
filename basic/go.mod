@@ -1,10 +1,10 @@
 module study-golang/basic
 
-go 1.18
+go 1.20
 
-require github.com/stretchr/testify v1.8.4
+require github.com/stretchr/testify v1.9.0
 
-require golang.org/x/sync v0.5.0
+require golang.org/x/sync v0.6.0
 
 require (
 	github.com/kr/pretty v0.2.0 // indirect
