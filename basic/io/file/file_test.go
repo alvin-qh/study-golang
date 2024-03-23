@@ -315,7 +315,7 @@ func TestFileIO(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, int64(11), cur)
 
-    // 在 11 位置读取 5 字节, 读指针移动到 16
+	// 在 11 位置读取 5 字节, 读指针移动到 16
 	n, err = file.Read(data[11:16])
 	assert.NoError(t, err)
 	assert.Equal(t, 5, n)

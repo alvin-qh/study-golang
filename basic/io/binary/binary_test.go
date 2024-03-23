@@ -8,22 +8,25 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// 测试字节流转换到其它数据类型
-func TestValueToBytes(t *testing.T) {
+// 测试将各类数据在字节串中的存储
+func TestBytesStreaming(t *testing.T) {
 	// 用于存放 byte 的集合
-	data := make([]byte, 28)
+	data := make([]byte, 33)
 
 	// 获取小端字节序实例, 序列化 3 个整数
 	le := binary.LittleEndian
 	le.PutUint16(data[0:], 100) // 16 位整数, 2 字节
 	le.PutUint32(data[2:], 200) // 32 位整数, 4 字节
-	le.PutUint64(data[6:], 400) // 64 位整数, 8 字节, 共 14 字节
+	le.PutUint64(data[6:], 400) // 64 位整数, 8 字节, 供 14 字节
 
 	// 获取大端字节序实例, 序列化 3 个整数
 	be := binary.BigEndian
 	be.PutUint16(data[14:], 1000) // 16 位整数, 从第 15 字节开始, 2 字节
 	be.PutUint32(data[16:], 2000) // 32 位整数, 4 字节
 	be.PutUint64(data[20:], 4000) // 64 位整数, 8 字节, 共 28 字节
+
+	// 写入字符串数据
+	copy(data[28:], []byte("hello")) // 写入 5 字节字符串, 共 33 字节
 
 	// 从字节串中读取数据
 	// 读取小端字节序数据
@@ -35,6 +38,14 @@ func TestValueToBytes(t *testing.T) {
 	assert.Equal(t, uint16(1000), be.Uint16(data[14:])) // 16 位整数, 从第 15 字节开始, 2 字节
 	assert.Equal(t, uint32(2000), be.Uint32(data[16:])) // 32 位整数, 4 字节
 	assert.Equal(t, uint64(4000), be.Uint64(data[20:])) // 64 位整数, 8 字节
+
+	// 读取字符串数据
+	assert.Equal(t, "hello", string(data[28:33])) // 5 字节字符串, 共 33 字节
+
+	// 如果转化数据时所给的字节数不足, 则会导致 Panic
+	assert.PanicsWithError(t, "runtime error: index out of range [7] with length 6", func() {
+		le.Uint64(data[27:])
+	})
 }
 
 // 测试字节流的读取和写入
