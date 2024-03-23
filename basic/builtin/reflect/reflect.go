@@ -20,13 +20,11 @@ func GetFullTypeName(t reflect.Type) string {
 	return fmt.Sprintf("%v.%v[%v]", t.PkgPath(), t.Name(), t.Kind().String())
 }
 
-// 通过反射设置值
-// 要对一个对象的值进行设置, 需要操作该对象的地址, 否则会报告"非地址类型异常"
-
 // 通过反射设置变量值
 //
-//	ptr: 要设置的变量的指针
-//	newVal: 要设置的新值
+// 要对一个对象的值进行设置, 需要操作该对象的地址, 否则会报告"非地址类型异常", 即:
+//   - `ptr`: 要设置的变量的指针
+//   - `newVal`: 要设置的新值
 func SetValueByReflect(ptr interface{}, newVal interface{}) (err error) {
 	// ptr 参数转为 Value 类型
 	tv := reflect.ValueOf(ptr)
@@ -36,6 +34,5 @@ func SetValueByReflect(ptr interface{}, newVal interface{}) (err error) {
 
 	// 通过 Elem() 函数解引指针类型, 获取 ptr 指向的变量, 并设置新的值
 	tv.Elem().Set(reflect.ValueOf(newVal))
-
 	return nil
 }

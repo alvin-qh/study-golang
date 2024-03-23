@@ -8,28 +8,28 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// 创建 map 对象
+// 创建 Map 对象
 func TestCreateMap(t *testing.T) {
-	// 定义一个 key 为 string 类型, value 为 int 类型的 map 变量
+	// 定义一个 key 为 string 类型, value 为 int 类型的 Map 变量
 	var m map[string]int
 	assert.Nil(t, m)           // 变量此时为 nil
-	assert.Equal(t, 0, len(m)) // nil map 的长度为 0
+	assert.Equal(t, 0, len(m)) // 值为 nil 的 Map 的长度为 0
 
-	// 定义 map 并初始化
+	// 定义 Map 并初始化
 	m = map[string]int{
 		"a": 100,
 		"b": 200,
 	}
-	assert.Equal(t, 2, len(m))   // map 中包含 2 个 key
+	assert.Equal(t, 2, len(m))   // Map 中包含 2 个 key
 	assert.Equal(t, 100, m["a"]) // 根据 key 获取 value
 	assert.Equal(t, 200, m["b"]) // 根据 key 获取 value
 
-	// 通过 make 函数初始化 map, 第二个参数为 map 的初始容积, 默认为 0
+	// 通过 make 函数初始化 map, 第二个参数为 Map 的初始容积, 默认为 0
 	m = make(map[string]int, 100)
-	assert.Equal(t, 0, len(m)) // 此时 map 长度为 0
+	assert.Equal(t, 0, len(m)) // 此时 Map 长度为 0
 }
 
-// 从 map 中添加或删除 key
+// 从 Map 中添加或删除 key
 func TestAddAndRemoveMapKey(t *testing.T) {
 	m := map[string]int{} // 声明一个空 map
 	m["a"] = 100          // 设置 key "a"
@@ -44,7 +44,7 @@ func TestAddAndRemoveMapKey(t *testing.T) {
 	assert.False(t, exist)
 }
 
-// 遍历 map
+// 遍历 Map
 func TestThroughMap(t *testing.T) {
 	m := map[string]interface{}{
 		"a": 100,
@@ -81,34 +81,36 @@ func TestThroughMap(t *testing.T) {
 	assert.ElementsMatch(t, []interface{}{100, "B", []int{1, 2, 3}}, vs)
 }
 
-// 测试复合类型作为 `map` 的 key
-// 复合类型即结构体 `struct`, 由于 go 语言支持接口体的比较和散列, 所以结构体可以直接作为 `map` 的 key
+// 测试结构体类型作为 Map 的 key
+//
+// 复合类型即结构体 struct, 由于 go 语言支持结构体的比较和散列, 所以结构体可以直接作为 Map 的 key
 func TestComplexMapKey(t *testing.T) {
-	// 定义结构体作为 map key
+	// 定义结构体作为 Map key
 	type Key struct {
 		id   int
 		name string
 	}
 
-	// 定义结构体作为 map value
+	// 定义结构体作为 Map value
 	type Value struct {
 		gender   rune
 		birthday string
 		address  string
 	}
 
-	// 使用复杂类型作为 map key
+	// 使用复杂类型作为 Map key
 	m := map[Key]*Value{}
 	m[Key{1, "Alvin"}] = &Value{gender: 'M', birthday: "1981-03", address: "ShanXi, Xi'an"}
 
 	assert.Equal(t, Value{gender: 'M', birthday: "1981-03", address: "ShanXi, Xi'an"}, *(m[Key{1, "Alvin"}]))
 }
 
-// 测试同步 `sync.Map`
-// 同步 `Map` 用于异步场合, 当多个任务同时访问一个 map 时, 必须使用锁, 否则会导致错误
+// 测试同步 Map
+//
+// 同步 Map, 即 `sync.Map` 类型一般用于并发场景, 当多个任务同时访问一个 Map 时, 必须使用锁, 否则会导致错误
 // 如果需要降低锁对性能的影响, 则需要使用 `sync.Map` 进行操作
 func TestSyncMap(t *testing.T) {
-	// 定义同步 map 对象
+	// 定义同步 Map 对象
 	sm := sync.Map{}
 
 	// 定义一个等待组, 设置 2 个等待任务
