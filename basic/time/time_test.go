@@ -24,9 +24,10 @@ var (
 	TIME_LOCAL        = "2021-11-11 12:00:00.0000"
 )
 
-// 创建时间对象
+// 测试创建时间对象
+//
 // 通过 time.Date 创建时间对象
-func TestCreateTime(t *testing.T) {
+func TestTime_Date(t *testing.T) {
 	// 创建 UTC 时区时间对象
 	tm := time.Date(2012, 11, 11, 12, 0, 0, 0, time.UTC)
 	assert.Equal(t, "2012-11-11 12:00:00 +0000 UTC", tm.String())
@@ -36,85 +37,107 @@ func TestCreateTime(t *testing.T) {
 	assert.Equal(t, "2012-11-11 12:00:00 +0800 CST", tm.String())
 }
 
-// 时区转换
+// 测试时区转换
+//
 // 时间对象的 Location 函数获取该时间的时区对象; In 函数可以在不同时区转换时间; UTC 函数将时间转换为 UTC 时区
-func TestConvertLocalTime(t *testing.T) {
-	tm := time.Date(2012, 11, 11, 12, 0, 0, 0, time.UTC) // UTC 时区时间
+func TestTime_Location(t *testing.T) {
+	// UTC 时区时间
+	tm := time.Date(2012, 11, 11, 12, 0, 0, 0, time.UTC)
 
-	loc := tm.Location() // 获取对应时区
+	// 获取对应时区
+	loc := tm.Location()
 	assert.Equal(t, "UTC", loc.String())
 
-	tm = tm.In(ZONE_LOCAL) // 时区转换到东八区
+	// 时区转换到东八区
+	tm = tm.In(ZONE_LOCAL)
 	assert.Equal(t, "2012-11-11 20:00:00 +0800 CST", tm.String())
 
-	loc = tm.Location() // 获取时区
+	// 获取时区
+	loc = tm.Location()
 	assert.Equal(t, "Asia/Shanghai", loc.String())
 
-	tm = tm.UTC() // 时区再次转换到 UTC
+	// 时区再次转换到 UTC
+	tm = tm.UTC()
 	assert.Equal(t, "2012-11-11 12:00:00 +0000 UTC", tm.String())
 }
 
-// 时间计算
-// 时间对象的 Sub 函数用于求两个时间对象的差, 结果为 Duration 对象
+// 测试一个时间和时间差值相加
+//
 // 时间对象的 Add 函数用于求时间和一个 Duration 对象的结果
-func TestDuration(t *testing.T) {
+func TestTime_Add(t *testing.T) {
+	tm := time.Date(2012, 11, 11, 12, 0, 0, 0, time.UTC)
+
+	// 给一个时间加上时间差值
+	tmAdd := tm.Add(8 * 24 * time.Hour)
+	assert.Equal(t, time.Date(2012, 11, 19, 12, 0, 0, 0, time.UTC), tmAdd)
+
+	// 给一个时间加上负的时间差值
+	tmAdd = tm.Add(-8 * 24 * time.Hour)
+	assert.Equal(t, time.Date(2012, 11, 3, 12, 0, 0, 0, time.UTC), tmAdd)
+}
+
+// 测试两个时间的时间差
+//
+// 时间对象的 Sub 函数用于求两个时间对象的差, 结果为 Duration 对象
+func TestTime_Sub(t *testing.T) {
 	tm1 := time.Date(2012, 11, 11, 12, 0, 0, 0, time.UTC)
 	tm2 := time.Date(2012, 11, 11, 20, 0, 0, 0, time.UTC)
 
 	d := tm2.Sub(tm1) // 求两个时间的时间差
 	assert.Equal(t, float64(8), d.Hours())
 
-	tm3 := tm1.Add(d) // 求一个时间经过一个时间差的结果
-	assert.Equal(t, tm2, tm3)
-
 	d = tm1.Sub(tm2) // 时间差可以为负数
 	assert.Equal(t, float64(-8), d.Hours())
-
-	tm3 = tm2.Add(d)
-	assert.Equal(t, tm3, tm1)
-
-	// 可以用一个字符串解析为时间差对象
-	d, err := time.ParseDuration("1h20m") // 时间差为 1 小时 20 分 0 秒
-	assert.Nil(t, err)
-	assert.Equal(t, int64(4800000000000), int64(d)) // 时间差转换为整数
-	assert.Equal(t, "1h20m0s", d.String())
-
-	// 时间差的 Round 函数获取与指定时间差的最近倍数
-	d, err = time.ParseDuration("1h20m") // 时间差为 1 小时 20 分 0 秒
-	assert.Nil(t, err)
-
-	d = d.Round(time.Hour)                // 求时间差和 1 小时的倍数
-	assert.Equal(t, "1h0m0s", d.String()) // 结果为 1 小时 0 分 0 秒
-
-	mul := float64(d) / float64(time.Hour) // 结果为 1 倍
-	assert.Equal(t, 1.0, mul)
-
-	d, err = time.ParseDuration("1h20m") // 时间差为 1 小时 20 分 0 秒
-	assert.Nil(t, err)
-
-	d = d.Round(time.Minute * 35)          // 求时间差和 35 分的倍数
-	assert.Equal(t, "1h10m0s", d.String()) // 结果为 1 小时 10 分 0 秒
-
-	mul = float64(d) / float64(time.Minute*35) // 结果为 2 倍
-	assert.Equal(t, 2.0, mul)
 }
 
-// 对时间进行 Round 和 Truncate 操作
-// Round 函数将时间计算为指定时间差的整数倍
-// Truncate 函数将时间计算为最接近的整点时间
-func TestRoundAndTruncate(t *testing.T) {
-	tm := time.Date(2012, 11, 11, 11, 40, 0, 0, time.UTC)
-	d := time.Hour * 12
+// 测试从字符串解析时间差值
+func TestTime_ParseDuration(t *testing.T) {
+	// 可以用一个字符串解析为时间差对象
+	// 时间差为 1 小时 30 分 0 秒
+	d, err := time.ParseDuration("1h30m")
+	assert.Nil(t, err)
+	assert.Equal(t, float64(1.5), d.Hours())
+	assert.Equal(t, "1h30m0s", d.String())
+}
 
-	tm = tm.Round(d) // 求指定时间为 12 小时整数倍的最近结果
+func TestDuration_Round(t *testing.T) {
+	// 定义时间差 2 小时 30 分
+	d := time.Hour*2 + time.Minute*30
+
+	// 将时间差按小时取整, 结果为 3 小时, 超过半小时向上取整, 反之向下取整
+	d = d.Round(time.Hour)
+	assert.Equal(t, "3h0m0s", d.String())
+
+	// 求 3 小时时间差和 35 分钟的倍数, 结果为 2 小时 55 分钟
+	d = d.Round(time.Minute * 35)
+	assert.Equal(t, "2h55m0s", d.String())
+}
+
+// 对时间进行 Round 操作
+//
+// Round 函数将时间计算为指定时间差的整数倍时间
+func TestTime_Round(t *testing.T) {
+	tm := time.Date(2012, 11, 11, 11, 40, 0, 0, time.UTC)
+	d := time.Hour * 6
+
+	// 求能够和指定时间差形成整数倍的时间值
+	tm = tm.Round(d)
 	assert.Equal(t, "2012-11-11 12:00:00 +0000 UTC", tm.String())
 
+	// 计算整数倍数为 62622 倍
 	mul := float64(tm.UnixNano()) / float64(d)
-	assert.Equal(t, 31311.0, float64(mul)) // 倍数为 31311 倍
+	assert.Equal(t, 62622.0, float64(mul))
+}
 
-	tm = time.Date(2012, 11, 11, 11, 40, 0, 0, time.UTC)
+// 对时间进行 Truncate 操作
+//
+// Truncate 函数将时间计算为最接近的整点时间
+func TestTime_Truncate(t *testing.T) {
+	tm := time.Date(2012, 11, 11, 11, 40, 0, 0, time.UTC)
+	d := time.Hour * 6
+
 	tm = tm.Truncate(d)
-	assert.Equal(t, "2012-11-11 00:00:00 +0000 UTC", tm.String())
+	assert.Equal(t, "2012-11-11 06:00:00 +0000 UTC", tm.String())
 }
 
 // 时间格式化为字符串
