@@ -2,26 +2,26 @@ package log
 
 import (
 	"bytes"
+	"io"
 	logger "log"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-const (
-	LOG_FILE_NAME = "log.log" // 保存 log 的文件
-)
-
 // 测试创建日志实例
 func TestLog_New(t *testing.T) {
 	log := New()
-	defer log.Close()
 
 	buf := bytes.NewBuffer(make([]byte, 0))
 
+	// 设定日志输出标记
 	fl := logger.Ldate | logger.Ltime | logger.Lshortfile
 	log.AddNewAppender(os.Stdout, LEVEL_DEBUG, fl)
+
+	// 将内存缓冲作为日志输出
 	log.AddNewAppender(buf, LEVEL_DEBUG, fl)
 
 	// 输出各种级别的日志
@@ -30,64 +30,68 @@ func TestLog_New(t *testing.T) {
 	log.Warn("Test Warn Log")
 	log.Error("Test Error Log")
 
-	assert.Equal(t, "", buf.String())
+	log.Close()
 
-	// defer os.Remove(LOG_FILE_NAME)
+	lines := strings.Split(buf.String(), "\n")
+	assert.True(t, strings.HasPrefix(lines[0], "DEBUG"))
+	assert.True(t, strings.HasSuffix(lines[0], "Test Debug Log"))
 
-	// // 创建 log 对象
-	// l := New()
-	// defer l.Close()
+	assert.True(t, strings.HasPrefix(lines[1], "INFO"))
+	assert.True(t, strings.HasSuffix(lines[1], "Test Info Log"))
 
-	// // 创建写入 log 的文件
-	// f, err := os.Create(LOG_FILE_NAME)
-	// assert.Nil(t, err)
+	assert.True(t, strings.HasPrefix(lines[2], "WARN"))
+	assert.True(t, strings.HasSuffix(lines[2], "Test Warn Log"))
 
-	// // 设定 log 写入的内容, 包括 日期、时间和文件名
-	// flag := log.Ldate | log.Ltime | log.Lshortfile
+	assert.True(t, strings.HasPrefix(lines[3], "ERROR"))
+	assert.True(t, strings.HasSuffix(lines[3], "Test Error Log"))
+}
 
-	// // 增加文件和标准输出流两个 appender
-	// l.AddNewAppender(f, LEVEL_DEBUG, flag)
-	// l.AddNewAppender(os.Stdout, LEVEL_DEBUG, flag)
+const (
+	LOG_FILE_NAME = "log.log" // 保存 log 的文件
+)
 
-	// // 输出各种级别的日志
-	// l.Debug("Test Debug Log")
-	// l.Info("Test Info Log")
-	// l.Warn("Test Warn Log")
-	// l.Error("Test Error Log")
+// 测试将日志写入文件
+func TestLog_WithFile(t *testing.T) {
+	defer os.Remove(LOG_FILE_NAME)
 
-	// // 关闭日志对象, 等待所有日志都处理完毕
-	// l.Close()
-	// f.Close()
+	f, err := os.Create(LOG_FILE_NAME)
+	assert.Nil(t, err)
 
-	// // 验证日志写入情况
+	defer f.Close()
 
-	// // 打开日志写入文件
-	// f, err = os.Open(LOG_FILE_NAME)
-	// assert.Nil(t, err)
+	log := New()
 
-	// br := bufio.NewReader(f)
+	// 设定日志输出标记
+	fl := logger.Ldate | logger.Ltime | logger.Lshortfile
+	log.AddNewAppender(os.Stdout, LEVEL_DEBUG, fl)
 
-	// // 逐行验证日志写入情况
+	// 将日志输出到文件
+	log.AddNewAppender(f, LEVEL_DEBUG, fl)
 
-	// line, _, err := br.ReadLine()
-	// assert.Nil(t, err)
-	// assert.True(t, strings.HasPrefix(string(line), "DEBUG"))
-	// assert.True(t, strings.HasSuffix(string(line), "Test Debug Log"))
+	// 输出各种级别的日志
+	log.Debug("Test Debug Log")
+	log.Info("Test Info Log")
+	log.Warn("Test Warn Log")
+	log.Error("Test Error Log")
 
-	// line, _, err = br.ReadLine()
-	// assert.Nil(t, err)
-	// assert.True(t, strings.HasPrefix(string(line), "INFO"))
-	// assert.True(t, strings.HasSuffix(string(line), "Test Info Log"))
+	log.Close()
 
-	// line, _, err = br.ReadLine()
-	// assert.Nil(t, err)
-	// assert.True(t, strings.HasPrefix(string(line), "WARN"))
-	// assert.True(t, strings.HasSuffix(string(line), "Test Warn Log"))
+	_, err = f.Seek(0, io.SeekStart)
+	assert.Nil(t, err)
 
-	// line, _, err = br.ReadLine()
-	// assert.Nil(t, err)
-	// assert.True(t, strings.HasPrefix(string(line), "ERROR"))
-	// assert.True(t, strings.HasSuffix(string(line), "Test Error Log"))
+	data, err := io.ReadAll(f)
+	assert.Nil(t, err)
 
-	// f.Close()
+	lines := strings.Split(string(data), "\n")
+	assert.True(t, strings.HasPrefix(lines[0], "DEBUG"))
+	assert.True(t, strings.HasSuffix(lines[0], "Test Debug Log"))
+
+	assert.True(t, strings.HasPrefix(lines[1], "INFO"))
+	assert.True(t, strings.HasSuffix(lines[1], "Test Info Log"))
+
+	assert.True(t, strings.HasPrefix(lines[2], "WARN"))
+	assert.True(t, strings.HasSuffix(lines[2], "Test Warn Log"))
+
+	assert.True(t, strings.HasPrefix(lines[3], "ERROR"))
+	assert.True(t, strings.HasSuffix(lines[3], "Test Error Log"))
 }

@@ -105,9 +105,13 @@ func (l *Logger) Close() {
 func (l *Logger) AddNewAppender(w io.Writer, level LogLevel, flags int) {
 	// 添加指定 level 的日志对象, 例如 level 为 DEBUG, 则添加 DEBUG, INFO, WARN 和 ERROR 级别的日志对象
 	for ; level <= LEVEL_ERROR; level++ {
-		prefix := level.String()                // 获取日志级别字符串作为日志前缀
-		logger := log.New(w, prefix+" ", flags) // 新建日志对象
-		l.addNewAppender(logger, level)         // 添加该 Level 的日志对象
+		// 获取日志级别字符串作为日志前缀
+		prefix := level.String()
+		// 新建日志对象
+		logger := log.New(w, prefix+" ", flags)
+
+		// 添加该 Level 的日志对象
+		l.addNewAppender(logger, level)
 	}
 }
 
@@ -116,11 +120,15 @@ func (l *Logger) addNewAppender(logger *log.Logger, level LogLevel) {
 	l.mut.Lock()
 	defer l.mut.Unlock()
 
-	ls, ok := l.loggers[level] // 获取指定 level 的 appender 集合
+	// 获取指定 level 的 appender 集合
+	ls, ok := l.loggers[level]
 	if !ok {
-		ls = make([]*log.Logger, 0) // 该 level 暂无 appender, 创建新的 appender 列表
+		// 该 level 暂无 appender, 创建新的 appender 列表
+		ls = make([]*log.Logger, 0)
 	}
-	l.loggers[level] = append(ls, logger) // 将 logger 对象加入 appender 列表
+
+	// 将 logger 对象加入 appender 列表
+	l.loggers[level] = append(ls, logger)
 }
 
 // 将 log 数据根据 level 写入对应的 appender 中
@@ -128,10 +136,12 @@ func (l *Logger) writeLog(level LogLevel, format string, v ...interface{}) error
 	l.mut.Lock()
 	defer l.mut.Unlock()
 
-	if ls, ok := l.loggers[level]; !ok { // level 对应的 appender 不存在, 返回错误
+	if ls, ok := l.loggers[level]; !ok {
+		// level 对应的 appender 不存在, 返回错误
 		return ErrNoAppender
 	} else {
-		for _, log := range ls { // 依次写入该 level 下所有的 appender 中
+		// 依次写入该 level 下所有的 appender 中
+		for _, log := range ls {
 			log.Printf(format, v...)
 		}
 	}
