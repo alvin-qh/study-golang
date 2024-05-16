@@ -1,0 +1,19 @@
+{
+  "host": {
+    "address": "localhost",
+    "ports": [
+      5799,
+      6029
+    ]
+  },
+  "database": {
+    "metric": {
+      "host": "127.0.0.1",
+      "port": 3099
+    },
+    "warehouse": {
+      "host": "198.0.0.1",
+      "port": 2112
+    }
+  }
+}

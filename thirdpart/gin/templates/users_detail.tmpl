@@ -1,0 +1,30 @@
+{{ define "head" }}
+<link rel="stylesheet" type="text/css" href="/static/users.css">
+<title>{{ .title }}</title>
+{{ end }}
+
+{{ define "body" }}
+<nav>
+  <a href="/web/users">返回</a>
+</nav>
+<div class="card">
+  <div class="section">
+    <div class="label">Id:</div>
+    <div class="value">{{ .user.Id }}</div>
+  </div>
+  <div class="section">
+    <div class="label">姓名:</div>
+    <div class="value">{{ .user.Name }}</div>
+  </div>
+  <div class="section">
+    <div class="label">性别:</div>
+    <div class="value">
+      {{- if eq .user.Gender "M" -}} 男 {{- else -}} 女 {{- end }}
+    </div>
+  </div>
+  <div class="section">
+    <div class="label">生日:</div>
+    <div class="value">{{ date .user.Birthday }}</div>
+  </div>
+</div>
+{{ end }}

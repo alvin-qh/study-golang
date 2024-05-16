@@ -1,0 +1,49 @@
+{{ define "head" }}
+<link rel="stylesheet" type="text/css" href="/static/users.css">
+<title>{{ .title }}</title>
+{{ end }}
+
+{{ define "body" }}
+<nav>
+  <a href="/web/users">返回</a>
+</nav>
+
+<div class="card">
+  <form method="post" action="/web/users/{{ .id }}">
+    <div class="section">
+      <div class="label">Id:</div>
+      <div class="value">{{ .id }}</div>
+    </div>
+    <div class="section">
+      <div class="label">姓名:</div>
+      <div class="value">
+        <input type="text" name="name" placeholder="请输入姓名" value="{{ .user.Name }}">
+      </div>
+      {{ if and .errs (index .errs "name") }}
+      <div class="errors">
+      {{ index .errs "name" }}
+      </div>
+      {{ end }}
+    </div>
+    <div class="section">
+      <div class="label">性别:</div>
+      <div class="value">
+        <input type="radio" name="gender" value="M" {{ if eq .user.Gender "M" }} checked="checked" {{ end }}> 男 |
+        <input type="radio" name="gender" value="F" {{ if eq .user.Gender "F" }} checked="checked" {{ end }}> 女
+      </div>
+    </div>
+    <div class="section">
+      <div class="label">生日:</div>
+      <div class="value">
+        <input type="number" max="9999" min="1960" name="birth_year" value="{{ .user.BirthYear }}"> 年
+        <input type="number" max="12" min="1" name="birth_month" value="{{ .user.BirthMonth }}"> 月
+        <input type="number" max="31" min="1" name="birth_day" value="{{ .user.BirthDay }}"> 日
+      </div>
+    </div>
+    <div class="section">
+      <button type="submit">提交</button>
+    </div>
+  </form>
+</div>
+
+{{ end }}

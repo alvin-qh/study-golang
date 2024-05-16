@@ -1,0 +1,76 @@
+{{ define "head" }}
+<link rel="stylesheet" type="text/css" href="/static/users.css">
+<title>{{ .title }}</title>
+{{ end }}
+
+<!--
+  模板中可以使用的全局函数:
+
+  `and`
+    函数返回它的第一个 `empty` 参数或者最后一个参数
+    就是说 `and x y` 等价于 `if x then y else x`; 所有参数都会执行
+  `or`
+    返回第一个非 `empty` 参数或者最后一个参数
+    即 `or x y` 等价于 `if x then x else y`; 所有参数都会执行
+  `not`
+    返回它的单个参数的布尔值的否定
+  `len`
+    返回它的参数的整数类型长度
+  `index`
+    执行结果为第一个参数以剩下的参数为索引/键指向的值;
+    如 `index x 1 2 3` 返回 `x[1][2][3]` 的值; 每个被索引的主体必须是数组, 切片或者字典
+  print
+    即 `fmt.Sprint`
+  printf
+    即 `fmt.Sprintf`
+  println
+    即 `fmt.Sprintln`
+  html
+    返回与其参数的文本表示形式等效的转移 HTML
+    这个函数在 html/template 中不可用
+  urlquery
+    以适合嵌套到网址查询中的形式返回其参数的文本表示的转义值.
+    这个函数在 html/template 中不可用
+  js
+    返回与其参数的文本表示形式等效的转义 javaScript
+  call
+    执行结果是调用第一个参数的返回值, 该参数必须是函数类型, 其余参数作为调用该函数的参数
+    如 `call .X.Y 1 2` 等价于 Go 语言里的 `dot.X.Y(1,2)`
+    其中 `Y` 是函数类型的字段或者字典的值, 或者是其他类似情况
+    `call` 的第一个参数的执行结果必须是函数类型的值(和预定义函数如 `print` 明显不同)
+    该函数类型值必须有 1 到 2 个返回值, 如果有 2 个返回值则后一个必须是 `error` 接口类型
+    如果有 2 个返回值的方法返回的 `error` 非 `nil`, 模板执行会中断并返回给调用模板的执行者该错误
+-->
+
+{{ define "body" }}
+<div class="users">
+  <div class="add">
+    <a href="/web/users/new">添加</a>
+  </div>
+  <table>
+    <thead>
+      <th>姓名</th>
+      <th>性别</th>
+      <th>生日</th>
+      <th></th>
+    </thead>
+    <tbody>
+      <!-- 通过 range 函数可以遍历指定的列表, 并通过 $i 和 $user 两个变量返回每次遍历的索引和列表项 -->
+      {{ range $i, $user := .users }}
+      <tr>
+        <td>{{ $user.Name }}</td>
+        <td>
+          <!-- 可以通过 eq, ne, lt, le, gt 和 ge 函数进行值比较 -->
+          {{ if eq $user.Gender "M" }} 男 {{ else }} 女 {{ end }}
+        </td>
+        <!-- data 为自定义函数, 参考 server/misc.go:SetupTemplate 函数 -->
+        <td>{{ date $user.Birthday }}</td>
+        <td>
+          <a href="/web/users/{{ $user.Id }}">编辑</a>
+        </td>
+      </tr>
+      {{ end }}
+    </tbody>
+  </table>
+</div>
+{{ end }}
