@@ -60,7 +60,7 @@ func New() *Logger {
 	logger := &Logger{
 		loggers: make(map[LogLevel]([]*log.Logger)),
 		mut:     sync.Mutex{},
-		writeCh: make(chan logContent, 1000), // 写入 channel, 设置 1000 个缓冲
+		writeCh: make(chan logContent, 100), // 写入 channel, 设置 1000 个缓冲
 		closeCh: make(chan struct{}),
 	}
 
