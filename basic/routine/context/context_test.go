@@ -25,102 +25,156 @@ func init() {
 	runtime.GOMAXPROCS(0)
 }
 
-// 测试通过 Context 实例发送取消信号
-//
-// 可以通过向 goroutine 传递一个 Context 实例, 可以在 goroutine 中通过 Context.Done() 方法来检查是否被取消,
-// 如果被取消, 则 goroutine 可以通过 context.Done() 返回的 chan 接收到信号, 从而令 goroutine 退出
-func TestContext_Cancel(t *testing.T) {
-	// 创建可取消 Context 实例
-	ctx, cancel := context.WithCancel(context.Background())
+// 在使用 Value Context 时, Key 的类型推荐使用自定义类型
+type ContextKey string
 
-	now := time.Now()
+// 测试通过 Context 实例携带键值对
+//
+// 可以向 Context 中存储一些键值对, 所有 goroutine 可以通过该 Context 对象访问这些键值对
+func TestContext_Value(t *testing.T) {
+	// 为 Context 实例设定键值对
+	ctx := context.WithValue(context.Background(), ContextKey("num"), 100)
+	ctx = context.WithValue(ctx, ContextKey("name"), "Alvin")
 
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	// 启动 goroutine
+	// 启动 goroutine, 在其中通过 Context 实例获取键值对
 	go func() {
+		defer wg.Done()
+
+		// 根据 key 获取 Value
+		num := ctx.Value(ContextKey("num")).(int)
+		name := ctx.Value(ContextKey("name")).(string)
+
+		assert.Equal(t, 100, num)
+		assert.Equal(t, "Alvin", name)
+	}()
+
+	// 等待 goroutine 结束
+	wg.Wait()
+}
+
+// 测试通过 Context 实例发送取消信号
+//
+// 通过 context.WithCancel 函数创建一个 Context 实例并传递给 goroutine, 可以在 goroutine
+// 中通过 Context.Done() 方法来检查是否被取消, 如果被取消, 则 goroutine 可以通过 context.Done()
+// 返回的 chan 接收到信号, 从而令 goroutine 退出
+func TestContext_Cancel(t *testing.T) {
+	// 创建可取消 Context 实例
+	// 返回一个上下文实例即一个 cancel 函数, 通过该函数可以发送取消指令
+	ctx, cancel := context.WithCancel(context.Background())
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	// 记录 goroutine 启动的时间
+	now := time.Now()
+
+	// 启动 goroutine1
+	go func() {
+		defer wg.Done()
+
 	exit:
 		for {
 			select {
-			// 等待 context 发送 cancel 信号
 			case <-ctx.Done():
-				wg.Done()
-				// 退出循环
+				// Context 接收到取消信号, 退出 goroutine
 				break exit
-			default:
-				<-time.After(10 * time.Millisecond)
+			case <-time.After(10 * time.Millisecond):
+				// 等待 10ms, 如果还未有取消信号, 则重新循环
 			}
 		}
 	}()
 
-	time.Sleep(100 * time.Millisecond)
-	cancel()
+	// 启动另一个 goroutine2, 在其中发送取消信号
+	go func() {
+		// 等待 100ms 后, 执行取消函数发送取消信号
+		time.Sleep(100 * time.Millisecond)
+		cancel()
+	}()
 
+	// 等待 goroutine 结束
 	wg.Wait()
 
+	// 计算 goroutine1 的整体执行时间, 应该大于 100ms,
+	// 这也是 goroutine1 从启动到收到取消信号的时间
 	s := time.Since(now)
 	assert.GreaterOrEqual(t, s.Milliseconds(), int64(100))
 }
 
-// 测试 Cancel Context
-func TestCancelContext(t *testing.T) {
-	// 正常结束协程
-	ctx, _, ch := CreateCancelContext() // 创建 context 对象
+// 测试具备超时功能的 Context
+//
+// 通过 context.WithTimeout 函数创建一个 Context 实例并传递给 goroutine, 可以在 goroutine
+// 中通过 Context.Done() 方法来检查是否被取消, 如果被取消, 则 goroutine 可以通过 context.Done()
+// 返回的 chan 接收到信号, 从而令 goroutine 退出
+func TestContext_Timeout(t *testing.T) {
+	// 创建具备超时功能的 Context 实例, 返回 Context 实例及取消函数
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
 
-	go CancelContextHandler(ctx) // 调用协程函数
-	ch <- "OK"                   // 向 ch 发送内容, 令协程正常结束
+	var wg sync.WaitGroup
+	wg.Add(1)
 
-	r := <-ch // 从 ch 获取结果
-	close(ch)
-	assert.Equal(t, "Completed", r)
+	// 记录 goroutine 启动的时间
+	now := time.Now()
 
-	// 通过 Context cancel 函数结束协程
-	ctx, cancel, ch := CreateCancelContext() // 创建 context 对象, 返回 cancel 函数
+	// 启动 goroutine
+	go func() {
+		defer wg.Done()
 
-	go CancelContextHandler(ctx)
-	cancel() // 调用 cancel 函数结束协程
+	exit:
+		for {
+			select {
+			case <-ctx.Done():
+				// Context 超时或接收到取消信号时, 退出 goroutine
+				break exit
+			case <-time.After(10 * time.Millisecond):
+				// 等待 10ms, 如果还未有取消信号, 则重新循环
+			}
+		}
+	}()
 
-	r = <-ch // 从 ch 获取结果
-	assert.Equal(t, "Canceled", r)
+	wg.Wait()
+
+	// 计算 goroutine 的整体执行时间, 应该大于 100ms, 即 100ms 后 Context 超时, goroutine 结束
+	s := time.Since(now)
+	assert.GreaterOrEqual(t, s.Milliseconds(), int64(100))
 }
 
-// 测试 Timeout Context
-func TestTimeoutContext(t *testing.T) {
-	// 正常结束协程
-	ctx, _, ch := CreateTimeoutContext(time.Second) // 创建 context 对象
+// 在 Context 取消或超时时执行异步回调函数
+//
+// 如果一个 Context 可以被取消或允许超时, 则可以为其绑定一个 `AfterFunc` 回调函数, 当 Context 被取消或超时后,
+// 该回调函数会在一个新的 goroutine 中调用
+//
+// `context.AfterFunc` 函数会返回一个 `stop` 函数, 用于停止回调函数执行
+func TestContext_AfterFunc(t *testing.T) {
+	// 创建一个可取消 Context 实例
+	ctx, cancel := context.WithCancel(context.Background())
 
-	go TimeoutHandler(ctx, time.Second) // 调用协程函数
-	ch <- "OK"                          // 向 chan 发送数据, 令协程正常结束
+	// 定义等待组, 包含两个任务
+	var wg sync.WaitGroup
+	wg.Add(2)
 
-	r := <-ch // 从 ch 获取结果
-	close(ch)
-	assert.Equal(t, "Completed by chan", r) // 表示正常结束
+	// 定义回调函数, 在 Context 被取消后执行
+	// 返回的 stop 函数用于停止该回调函数执行
+	stop := context.AfterFunc(ctx, func() {
+		// 完成一个任务
+		wg.Done()
+	})
 
-	// 在 Context 超时前结束协程
-	ctx, _, ch = CreateTimeoutContext(time.Second) // 创建 context 对象
+	// 应该通过 defer 保证 stop 函数的调用
+	defer stop()
 
-	go TimeoutHandler(ctx, 100*time.Millisecond) // 调用协程函数
-	r = <-ch                                     // 从 ch 获取结果
-	close(ch)
-	assert.Equal(t, "Completed by timer", r)
+	// 启动 goroutine, 并在 Context 取消后结束
+	go func() {
+		<-ctx.Done()
+		wg.Done()
+	}()
 
-	// 在 Context 超时之后结束协程
-	ctx, _, ch = CreateTimeoutContext(100 * time.Millisecond)
-
-	go TimeoutHandler(ctx, 200*time.Millisecond) // 调用协程函数
-
-	r = <-ch // 从 ch 获取结果
-	close(ch)
-	assert.Equal(t, "Canceled by timeout", r)
-
-	// 通过 Context cancel 函数结束协程
-	ctx, cancel, ch := CreateTimeoutContext(time.Second)
-
-	go TimeoutHandler(ctx, time.Second) // 调用协程函数
+	// 通过 Context 发送取消信号
 	cancel()
 
-	r = <-ch // 从 ch 获取结果
-	close(ch)
-	assert.Equal(t, "Canceled by cancel called", r)
+	// 等待所有 goroutine 结束
+	wg.Wait()
 }
