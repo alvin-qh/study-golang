@@ -71,7 +71,7 @@ func TestZip_Unarchive(t *testing.T) {
 	}()
 
 	// 执行压缩
-	{
+	func() {
 		// 创建压缩实例
 		gz, err := New(Z_ARCHIVE_FILE)
 		assert.Nil(t, err)
@@ -81,10 +81,10 @@ func TestZip_Unarchive(t *testing.T) {
 		// 压缩指定文件
 		err = gz.Archive(fileList)
 		assert.Nil(t, err)
-	}
+	}()
 
 	// 执行解压缩
-	{
+	func() {
 		// 打开压缩文件
 		gz, err := New(Z_ARCHIVE_FILE)
 		assert.Nil(t, err)
@@ -94,7 +94,7 @@ func TestZip_Unarchive(t *testing.T) {
 		// 解压缩
 		err = gz.Unarchive(Z_UNARCHIVE_PATH)
 		assert.Nil(t, err)
-	}
+	}()
 
 	// 判断解压缩前后文件是否一致
 	eq, err := common.CheckUnarchiveFiles(Z_UNARCHIVE_PATH, fileList)

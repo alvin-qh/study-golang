@@ -3,7 +3,8 @@ package oop
 import (
 	"testing"
 
-	"study/basic/oop/err"
+	errs "study/basic/oop/errors"
+	ifs "study/basic/oop/interfaces"
 	"study/basic/oop/long"
 	"study/basic/oop/size"
 	"study/basic/oop/size3d"
@@ -19,7 +20,7 @@ import (
 //
 // Go 语言不允许为其它包中定义的类型定义方法, 但通过给类型定义别名后, 即可为该别名类型定义方法, 例如 `long.Long`
 // 类型的 `Compare` 方法和 `String` 方法
-func TestTypeAlias(t *testing.T) {
+func TestOOP_TypeAlias(t *testing.T) {
 	l1 := long.Long(100)
 	assert.Equal(t, "100", l1.String())
 
@@ -36,7 +37,7 @@ func TestTypeAlias(t *testing.T) {
 // `Size` 结构体提供了 `Width`, `Height` 以及 `Area` 方法, 用于获取宽度, 高度和面积值
 //
 // `Size` 结构体通过 `Compare` 方法实现了 `Comparable` 接口; 通过 `String` 方法实现了 `ToString` 接口
-func TestStructType(t *testing.T) {
+func TestOOP_StructType(t *testing.T) {
 	// 初始化 `*size.Size` 结构体指针变量
 	s1 := size.New(10, 20)
 	assert.IsType(t, &size.Size{}, s1) // 确认 s1 的类型为 `*size.Size`
@@ -46,7 +47,7 @@ func TestStructType(t *testing.T) {
 	assert.Equal(t, "<Size width=10 height=20>", s1.String())
 
 	// 将 `*size.Size` 类型转化为 `ToString` 接口类型
-	si := ToString(s1)
+	si := ifs.ToString(s1)
 	assert.Equal(t, "<Size width=10 height=20>", si.String())
 
 	// 将 `ToString` 接口类型恢复为 `*size.Size` 类型
@@ -75,7 +76,7 @@ func TestStructType(t *testing.T) {
 // `Size` 结构体提供了 `Width`, `Height` 以及 `Area` 方法, 用于获取宽度, 高度和面积值
 //
 // `Size` 结构体通过 `Compare` 方法实现了 `Comparable` 接口; 通过 `String` 方法实现了 `ToString` 接口
-func TestStructInherit(t *testing.T) {
+func TestOOP_StructInherit(t *testing.T) {
 	s1 := size3d.New(10, 20, 30)
 	assert.Equal(t, 10.0, s1.Width())
 	assert.Equal(t, 20.0, s1.Height())
@@ -88,7 +89,7 @@ func TestStructInherit(t *testing.T) {
 	assert.Equal(t, "<Size3D width=10 height=20 depth=30>", s1.String())
 
 	// 将 `*size.Size` 类型转化为 `ToString` 接口类型
-	si := ToString(s1)
+	si := ifs.ToString(s1)
 	assert.Equal(t, "<Size3D width=10 height=20 depth=30>", si.String())
 
 	// 将 `ToString` 接口类型恢复为 `*size.Size` 类型
@@ -113,30 +114,30 @@ func TestStructInherit(t *testing.T) {
 // 测试 `Comparable` 接口
 //
 // 对于 `Comparable` 接口的实现类型, 可以作为 `Eq`, `Ne`, `Gt`, `Ge` 等一系列函数的参数,
-func TestInterface(t *testing.T) {
+func TestOOP_Interface(t *testing.T) {
 	// 定义两个 `Comparable` 接口的实例, 这里为 `*size.Size` 类型实例
 	s1, s2 := size.New(10, 20), size.New(11, 21)
 
 	// 调用函数, 传入 `Comparable` 接口实例作为参数
-	assert.True(t, Eq(s1, s1))
-	assert.True(t, Ne(s1, s2))
-	assert.True(t, Ne(s2, s1))
-	assert.True(t, Gt(s2, s1))
-	assert.True(t, Lt(s1, s2))
-	assert.True(t, Ge(s2, s1))
-	assert.True(t, Ge(s1, s1))
-	assert.True(t, Le(s1, s2))
-	assert.True(t, Le(s1, s1))
+	assert.True(t, ifs.Eq(s1, s1))
+	assert.True(t, ifs.Ne(s1, s2))
+	assert.True(t, ifs.Ne(s2, s1))
+	assert.True(t, ifs.Gt(s2, s1))
+	assert.True(t, ifs.Lt(s1, s2))
+	assert.True(t, ifs.Ge(s2, s1))
+	assert.True(t, ifs.Ge(s1, s1))
+	assert.True(t, ifs.Le(s1, s2))
+	assert.True(t, ifs.Le(s1, s1))
 
 	// 测试比较不同类型对象时, 出现的 panic 异常
 	defer func() {
 		e := recover().(error)
-		assert.ErrorIs(t, e, err.ErrType)
+		assert.ErrorIs(t, e, errs.ErrInvalidType)
 	}()
 
 	// 虽然 `s3` 变量也为 `Comparable` 接口类型, 但其实际类型为 `*size3d.Size3D` 类型,
 	// 所以当其和 `s1` 变量 (`*size.Size` 类型) 比较时会引发 Panic
 	s3 := size3d.New(10, 20, 30)
-	Eq(s3, s1)
+	ifs.Eq(s3, s1)
 	assert.Fail(t, "Cannot run here")
 }

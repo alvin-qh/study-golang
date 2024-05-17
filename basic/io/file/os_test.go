@@ -380,8 +380,10 @@ func TestOS_Move(t *testing.T) {
 		f, err := os.Create(nameBefore)
 		assert.Nil(t, err)
 
-		defer os.Remove(nameBefore)
-		defer os.Remove(nameAfter)
+		defer func() {
+			os.Remove(nameBefore)
+			os.Remove(nameAfter)
+		}()
 
 		f.Close()
 
@@ -409,8 +411,10 @@ func TestOS_Move(t *testing.T) {
 		err := os.Mkdir(nameBefore, os.FileMode(0755))
 		assert.Nil(t, err)
 
-		defer os.RemoveAll(nameBefore)
-		defer os.RemoveAll(nameAfter)
+		defer func() {
+			os.Remove(nameBefore)
+			os.Remove(nameAfter)
+		}()
 
 		// 确认文件存在
 		assert.DirExists(t, nameBefore)

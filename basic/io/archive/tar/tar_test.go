@@ -71,7 +71,7 @@ func TestTar_Unarchive(t *testing.T) {
 	}()
 
 	// 执行归档
-	{
+	func() {
 		// 创建归档实例
 		gz, err := New(TAR_ARCHIVE_FILE)
 		assert.Nil(t, err)
@@ -81,10 +81,10 @@ func TestTar_Unarchive(t *testing.T) {
 		// 归档指定文件
 		err = gz.Archive(fileList)
 		assert.Nil(t, err)
-	}
+	}()
 
 	// 释放归档文件
-	{
+	func() {
 		// 打开归档文件
 		gz, err := New(TAR_ARCHIVE_FILE)
 		assert.Nil(t, err)
@@ -94,7 +94,7 @@ func TestTar_Unarchive(t *testing.T) {
 		// 释放归档文件
 		err = gz.Unarchive(TAR_UNARCHIVE_PATH)
 		assert.Nil(t, err)
-	}
+	}()
 
 	// 判断解归档前后文件是否一致
 	eq, err := common.CheckUnarchiveFiles(TAR_UNARCHIVE_PATH, fileList)

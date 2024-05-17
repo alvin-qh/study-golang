@@ -1,4 +1,4 @@
-package oop
+package interfaces
 
 // 定义接口, 将对象转为字符串
 type ToString interface {

@@ -2,7 +2,7 @@ package size
 
 import (
 	"fmt"
-	"study/basic/oop/err"
+	errs "study/basic/oop/errors"
 )
 
 // 定义 Size 结构体
@@ -33,7 +33,7 @@ func (s *Size) Area() float64 { return s.width * s.height }
 func (s *Size) Compare(other interface{}) int {
 	v, ok := other.(*Size)
 	if !ok {
-		panic(err.ErrType)
+		panic(errs.ErrInvalidType)
 	}
 	if s == v {
 		return 0

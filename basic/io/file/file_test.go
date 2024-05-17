@@ -66,7 +66,7 @@ func TestFile_WriteRead(t *testing.T) {
 	defer os.Remove(name)
 
 	// 测试文件写
-	{
+	func() {
 		// 打开一个文件
 		f, err := os.Create(name)
 		assert.Nil(t, err)
@@ -98,10 +98,10 @@ func TestFile_WriteRead(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, 5, n)
 		assert.Equal(t, int64(21), GetFileLength(f))
-	}
+	}()
 
 	// 测试文件读
-	{
+	func() {
 		// 打开一个只读文件
 		f, err := os.Open(name)
 		assert.Nil(t, err)
@@ -134,7 +134,7 @@ func TestFile_WriteRead(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, 5, n)
 		assert.Equal(t, []byte{5, 4, 3, 2, 1}, buf[11:16])
-	}
+	}()
 }
 
 // 测试文件截取
