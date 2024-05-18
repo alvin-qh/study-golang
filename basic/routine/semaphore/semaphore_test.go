@@ -1,6 +1,7 @@
 package routine
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"runtime"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/sync/semaphore"
 )
 
 func init() {
@@ -19,6 +21,46 @@ const (
 	SEMAP_FILE_NAME  = "semaphore.txt"
 	SEMAP_NUM_READER = 3
 )
+
+// 测试信号量
+//
+// 本例创建具有 10 个通过逐个释放信号量
+func TestSeamphore_Weighted(t *testing.T) {
+	sem := semaphore.NewWeighted(10)
+	ctx := context.Background()
+
+	sem.Acquire(ctx, 10)
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		n := 10
+
+		for n > 0 {
+			time.Sleep(time.Second)
+			sem.Release(1)
+
+			n--
+		}
+
+		wg.Done()
+	}()
+
+	go func() {
+		n := 10
+
+		for n > 0 {
+			sem.Acquire(ctx, 1)
+			fmt.Println(time.Now())
+			n--
+		}
+
+		wg.Done()
+	}()
+
+	wg.Wait()
+}
 
 // 测试 `FileSemaphore`
 //
