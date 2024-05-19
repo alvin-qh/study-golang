@@ -37,3 +37,12 @@ func Shuffle[T ~[]E, E any](s T, times int) T {
 	}
 	return s
 }
+
+// 获取一个将 `val` 元素重复 `n` 次的切片
+func Repeat[T any](n int, val T) []T {
+	s := make([]T, n)
+	for i := 0; i < n; i++ {
+		s[i] = val
+	}
+	return s
+}

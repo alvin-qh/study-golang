@@ -7,6 +7,7 @@
     "Appender",
     "autotools",
     "backports",
+    "blockque",
     "Bools",
     "callerstate",
     "callstack",
