@@ -35,6 +35,9 @@ func TestGeneric_Subtract(t *testing.T) {
 	assert.Equal(t, complex64((3 + 11i)), r)
 }
 
+// 测试 `interface{}` 类型转切片
+//
+// 这里的 `interface{}` 类型值本身应为切片类型, 才能转换回原本的切片类型
 func TestGeneric_ToSlice(t *testing.T) {
 	var s any = []int{1, 2, 3, 4}
 
@@ -58,6 +61,7 @@ func TestGeneric_Itoa(t *testing.T) {
 	assert.Equal(t, "200", s)
 }
 
+// 测试用一个值填充切片的所有元素
 func TestGeneric_Fill(t *testing.T) {
 	type Ints []int
 

@@ -1,4 +1,4 @@
-package base
+package core
 
 import "math"
 
@@ -38,12 +38,12 @@ func NumAddAndSub(a int, b int) (sum int, sub int) {
 	sum = a + b
 	sub = a - b
 
-    if sum != sub {
-        // 显式返回所有值
+	if sum != sub {
+		// 显式返回所有值
 		return sum, sub
 	}
 
-    // 省略显式返回值, 但命名返回值已经赋值作为返回值
+	// 省略显式返回值, 但命名返回值已经赋值作为返回值
 	return
 }
 
