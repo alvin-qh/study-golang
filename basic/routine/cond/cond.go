@@ -1,4 +1,4 @@
-package routine
+package cond
 
 import (
 	"bufio"

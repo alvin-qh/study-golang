@@ -15,8 +15,7 @@ func init() {
 
 // 测试互斥锁
 //
-// 互斥锁会产生一个临界区, 只有一个线程可以进入临界区, 其它的线程进入等待,
-// 直到进入临界区的线程退出临界区
+// 互斥锁会产生一个临界区, 只有一个线程可以进入临界区, 其它的线程进入等待, 直到进入临界区的线程退出临界区
 func TestMutex_LockAndUnlock(t *testing.T) {
 	// 定义两个锁, 一个用于控制加法, 一个用于控制减法
 	var mutAdd, mutSub sync.Mutex
@@ -68,78 +67,53 @@ func TestMutex_LockAndUnlock(t *testing.T) {
 	assert.Equal(t, 0, n)
 }
 
-// 测试互斥锁
+// 测试互斥锁的非阻塞锁
 //
-// 互斥锁会产生一个临界区, 只有一个线程可以进入临界区, 其它的线程进入等待,
-// 直到进入临界区的线程退出临界区
+// 通过 `Mutex.TryLock` 方法加锁时, 如果互斥锁已经被锁, 则不会阻塞等待, 直接返回 `false` 表示加锁失败
 func TestMutex_TryLockAndUnlock(t *testing.T) {
 	// 定义互斥锁对象
 	var mut sync.Mutex
 
-	// 加锁, 进入临界区
-	mut.Lock()
+	// 尝试第一次加锁, 此时加锁成功
+	r := mut.TryLock()
+	assert.True(t, r)
 
-	// 启动一个 goroutine, 在 100ms 以后进行解锁
-	go func() {
-		time.Sleep(100 * time.Millisecond)
-		mut.Unlock()
-	}()
+	// 在已加锁的基础上, 尝试第二次加锁, 此时加锁失败
+	r = mut.TryLock()
+	assert.False(t, r)
 
-	start := time.Now()
+	// 进行解锁
+	mut.Unlock()
 
-	// 再次锁定, 此时会发生阻塞, 100ms 后解锁
-	mut.Lock()
-	defer mut.Unlock()
-
-	// 确定再次锁定会超过 100ms, 因为 100ms 后才进行解锁
-	assert.GreaterOrEqual(t, time.Since(start).Milliseconds(), int64(100))
+	// 再次尝试加锁, 此时加锁成功
+	r = mut.TryLock()
+	assert.True(t, r)
 }
 
 // 测试读写互斥锁
 //
-// `RWMutex` 具备 `RLock`/`RUnlock` 和 `Lock`/`Unlock` 函数,
-// 额外的 `RLock`/`RUnlock` 用于读锁, 在读多于写的操作中, 可以提高执行效率
+// 和 `Mutex` 类型相比, `RWMutex` 增加了 `RLock` 方法, 该方法表示读锁, 读锁在同一个 goroutine 内不会重复加锁
+//
+// 另外, 读锁
 func TestMutex_RWMutex(t *testing.T) {
-	var wg sync.WaitGroup
-
-	num := 0
-
-	// 定义互斥锁对象
 	var mut sync.RWMutex
 
-	// 协程函数, 用于增加公共变量的值 (表示写)
-	increment := func() {
-		defer wg.Done()
+	mut.RLock()
 
-		// 加 X 锁, 进入临界区
-		mut.Lock()
-		defer mut.Unlock()
+	mut.RLock()
 
-		num += 1
-	}
-
-	// 协程函数, 用于减少公共变量的值 (表示读)
-	read := func() {
-		defer wg.Done()
-
-		// 加 S 锁, 读锁只对写锁做阻塞处理, 对同为读锁不做处理, 所以在读多写少的环境下, 读锁的并发性更好
-		mut.RLock()
+	// 启动 goroutine, 加读锁后 100ms 后解除锁
+	go func() {
 		defer mut.RUnlock()
 
-		num -= 1
-	}
+		mut.RUnlock()
+		time.Sleep(100 * time.Millisecond)
+	}()
 
-	// 执行 100 次写操作和读操作
-	// 同步执行可以保证每个写操作都有对应的读操作
-	for i := 0; i < 100; i++ {
-		wg.Add(2)
+	start := time.Now()
 
-		go increment()
-		go read()
-	}
+	mut.Lock()
+	defer mut.Unlock()
 
-	wg.Wait()
-
-	// 读写次数平衡, 所以结果为 0
-	assert.Equal(t, 0, num)
+	assert.GreaterOrEqual(t, time.Since(start).Milliseconds(), int64(100))
 }
