@@ -1,8 +1,6 @@
 package cond
 
 import (
-	"fmt"
-	"os"
 	"runtime"
 	"sync"
 	"testing"
@@ -15,76 +13,116 @@ func init() {
 	runtime.GOMAXPROCS(0)
 }
 
-const (
-	COND_FILE_NAME  = "condtest.txt"
-	COND_NUM_READER = 3
-)
+// 测试条件量
+//
+// 条件量 `sync.Cond` 表示同步原语中的 `condition`
+//
+// 和 `sync.Mutex` 类型不同, `sync.Cond` 类型允许通过一个实例, 在一个 goroutine 中控制另一个 goroutine,
+// 而前者只能做到所有相关的 goroutine 轮流进入临界区
+//
+// 通过 `sync.Cond` 实例的 `Signal` 方法发送一个信号, 此时所有在该实例等待的 (执行 `Wait` 方法并阻塞) 的 goroutine
+// 中的一个, 会立即结束等待
+//
+// 注意: `sync.Cond` 实例的 `Wait` 方法必须在一个相关临界区内执行, 所以在创建 `sync.Cond` 实例时, 需要为其关联一个 `sync.Mutex`
+// 实例, 并在 `sync.Cond` 实例执行 `Wait` 方法前, 通过该实例的 `L` 字段进入临界区
+func TestCond_NewCond(t *testing.T) {
+	// 创建互斥锁, 创建 `syncCond` 实例需要借助互斥锁
+	var mut sync.Mutex
 
-// 测试 FileCond 对象
-func TestCondBroadcasting(t *testing.T) {
-	defer os.Remove(COND_FILE_NAME)
+	// 创建 `sync.Cond` 实例, 关联之前创建的 `sync.Mutex` 实例
+	// 这里关联的实际上是一个 `sync.Locker` 接口实例, 所以 `sync.RWMutex` 等类型实例也可以使用
+	cond := sync.NewCond(&mut)
 
-	wg := sync.WaitGroup{}
-	wg.Add(COND_NUM_READER)
+	// 声明一个接收结果的通道
+	ch := make(chan int64)
 
-	fc := NewFileCond(COND_FILE_NAME, true)
-
-	// 进行 3 次读操作, 因为写操作尚未进行, 所以读操作无法进行
-	for i := 0; i < COND_NUM_READER; i++ {
-		go func() {
-			defer wg.Done()
-
-			data, err := fc.Read()
-			assert.Nil(t, err)
-			assert.Equal(t, "Hello World!", string(data))
-		}()
-	}
-
-	// 稍等后进入写操作, 以保证读操作均进入 Wait 操作
-	time.Sleep(100 * time.Millisecond)
-
+	// 启动 goroutine, 等待 `sync.Cond` 实例的信号, 并计算等待时长
 	go func() {
-		err := fc.Write([]byte("Hello World!"))
-		assert.Nil(t, err)
+		// 进入临界区
+		cond.L.Lock()
+		defer cond.L.Unlock()
+
+		start := time.Now()
+
+		// 等待信号发送
+		cond.Wait()
+
+		// 计算信号等待时长
+		ch <- time.Since(start).Milliseconds()
 	}()
 
-	wg.Wait()
+	// 休眠 100ms 后, 向 `sync.Cond` 实例发送信号
+	// 此时 goroutine 中的等待会结束
+	time.Sleep(100 * time.Millisecond)
+	// 发送信号
+	cond.Signal()
+
+	// 接收结果, 即 goroutine 等待时长
+	since := <-ch
+	assert.GreaterOrEqual(t, since, int64(100))
 }
 
-func TestCondSignaling(t *testing.T) {
-	defer os.Remove(COND_FILE_NAME)
+// 测试条件量信号
+//
+// 通过 `sync.Cond` 实例, 每个 goroutine 可以调用 `Wait` 方法等待一个信号, 而调用 `Signal` 方法可以发送一次信号,
+// 即结束一个 goroutine 的等待, 其余 goroutine 仍处于继续等待的状态
+func TestCond_SignalOneByOne(t *testing.T) {
+	var mut sync.Mutex
 
-	wg := sync.WaitGroup{}
-	wg.Add(COND_NUM_READER)
+	// 创建条件量
+	cond := sync.NewCond(&mut)
 
-	fc := NewFileCond(COND_FILE_NAME, false)
+	// 用于输出结果的信道实例
+	ch := make(chan []int64)
+	defer close(ch)
 
-	// 进行 3 次读操作, 因为写操作尚未进行, 所以读操作无法进行
-	// 每次打开文件从头读取, 读取最近一次写入文件的内容
-	for i := 0; i < COND_NUM_READER; i++ {
-		go func() {
-			defer wg.Done()
+	start := time.Now()
 
-			data, err := fc.Read()
-			assert.Nil(t, err)
+	// 启动 10 个 goroutine
+	for i := 0; i < 10; i++ {
+		// 每个 goroutine 中, 等待信号, 并记录信号等待时间
+		go func(id int64) {
+			// 进入临界区
+			cond.L.Lock()
+			defer cond.L.Unlock()
 
-			fmt.Printf("[Result] Read content is: %v\n", string(data))
-		}()
+			// 等待信号发送
+			cond.Wait()
+
+			// 计算信号等待时长
+			ch <- []int64{id, time.Since(start).Milliseconds()}
+		}(int64(i))
 	}
 
-	// 稍等后进入写操作, 以保证读操作均进入 Wait 操作
-	time.Sleep(100 * time.Millisecond)
+	// 启动 goroutine, 分别通过条件量发送 10 次信号
+	// 每次信号唤醒一个等待, 则 10 次信号所有的 goroutine 都将被唤醒
+	go func() {
+		for i := 0; i < 10; i++ {
+			// 休眠 10 毫秒后发送信号
+			time.Sleep(10 * time.Millisecond)
+			cond.Signal()
+		}
+	}()
 
-	// 进行 3 次写操作, 每次写操作通知一个协程处理对应的读操作
-	// 注意, 这三次写操作并不是追加写, 而是每次清空文件进行写, 所以操作结束后, 文件中只有最后一次写的内容
-	for i := 0; i < COND_NUM_READER; i++ {
-		num := i + 1
-		go func() {
-			err := fc.Write([]byte(fmt.Sprintf("[%v] Hello World!\n", num)))
-			assert.Nil(t, err)
-		}()
-		time.Sleep(50 * time.Millisecond)
+	var totalId, totalTime = int64(0), int64(0)
+
+	count := 0
+	// 通过信道获取所有 goroutine 的执行结果
+	for r := range ch {
+		// 计算每个 goroutine 函数 id 参数的总和
+		totalId += r[0]
+
+		// 记录每个 goroutine 等待时长的总和
+		totalTime += r[1]
+
+		count++
+		// 接收 10 次结果后退出循环
+		if count == 10 {
+			break
+		}
 	}
 
-	wg.Wait()
+	// 确认每个 goroutine 都依次完成等待， 并发送结果
+	assert.Equal(t, int64(45), totalId)
+	assert.GreaterOrEqual(t, totalTime, int64(100))
 }
