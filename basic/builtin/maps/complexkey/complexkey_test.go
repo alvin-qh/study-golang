@@ -6,6 +6,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// 定义结构体作为 Map 的 Key
+type Key struct {
+	Id   int
+	Name string
+}
+
+// 定义结构体作为 Map 的 Value
+type Value struct {
+	Gender   rune
+	Birthday string
+	Address  string
+}
+
 // 测试结构体作为 Map 的 Key
 //
 // 由于 Go 语言支持结构体的比较和散列, 所以结构体可以直接作为 Map 的 Key

@@ -117,6 +117,7 @@
     "Vals",
     "Varargs",
     "varuint",
+    "waitgroup",
     "Wrapable"
   ],
   "flagWords": [],
