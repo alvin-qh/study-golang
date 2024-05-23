@@ -1,6 +1,7 @@
 package blockque
 
 import (
+	"study/basic/testing/assertion"
 	"testing"
 	"time"
 
@@ -32,7 +33,7 @@ func TestBlockQueue_Offer(t *testing.T) {
 
 	// 入队一个新元素, 总体耗时 100ms 以上 (包括等待队列出队)
 	que.Offer(10)
-	assert.GreaterOrEqual(t, time.Since(start).Milliseconds(), int64(100))
+	assertion.Between(t, time.Since(start).Milliseconds(), int64(100), int64(120))
 
 	// 确认队列的长度和内容
 	assert.Equal(t, 10, que.Len())
@@ -86,7 +87,7 @@ func TestBlockQueue_OfferWithTimeout(t *testing.T) {
 	// 确认第 11 个元素入队失败
 	assert.False(t, r)
 	// 确认入队第 11 元素时等待了 100ms 后超时失败
-	assert.GreaterOrEqual(t, time.Since(start).Milliseconds(), int64(100))
+	assertion.Between(t, time.Since(start).Milliseconds(), int64(100), int64(120))
 	assert.Equal(t, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, que.List())
 
 	// 从队列中删除一个元素
@@ -99,6 +100,6 @@ func TestBlockQueue_OfferWithTimeout(t *testing.T) {
 	// 确认第 11 个元素再次入队成功
 	assert.True(t, r)
 	// 确认入队第 11 元素时未发生等待
-	assert.GreaterOrEqual(t, time.Since(start).Milliseconds(), int64(0))
+	assertion.Between(t, time.Since(start).Milliseconds(), int64(0), int64(20))
 	assert.Equal(t, []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, que.List())
 }

@@ -87,7 +87,8 @@ func (s *Set[T]) IsSubset(other *Set[T]) bool {
 	}
 
 	for v := range s.m {
-		if !other.Contains(v) { // 另一个集合是否包含 当前集合的 所有元素
+        // 另一个集合是否包含 当前集合的 所有元素
+		if !other.Contains(v) {
 			return false
 		}
 	}

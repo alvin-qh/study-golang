@@ -3,6 +3,7 @@
 package filelock
 
 import (
+	"study/basic/testing/assertion"
 	"testing"
 	"time"
 
@@ -78,6 +79,6 @@ exit:
 		}
 	}
 
-	assert.GreaterOrEqual(t, r[0].Milliseconds(), int64(100))
-	assert.GreaterOrEqual(t, r[1].Milliseconds(), int64(100+100))
+	assertion.Between(t, r[0].Milliseconds(), int64(100), int64(120))
+	assertion.Between(t, r[1].Milliseconds(), int64(100+100), int64(100+100+20))
 }

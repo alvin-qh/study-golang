@@ -2,6 +2,7 @@ package cond
 
 import (
 	"runtime"
+	"study/basic/testing/assertion"
 	"sync"
 	"testing"
 	"time"
@@ -59,7 +60,7 @@ func TestCond_NewCond(t *testing.T) {
 
 	// 接收结果, 即 goroutine 等待时长
 	since := <-ch
-	assert.GreaterOrEqual(t, since, int64(100))
+	assertion.Between(t, since, int64(100), int64(120))
 }
 
 // 测试条件量信号
@@ -91,7 +92,7 @@ func TestCond_SignalOneByOne(t *testing.T) {
 
 			// 计算信号等待时长
 			ch <- []int64{id, time.Since(start).Milliseconds()}
-		}(int64(i))
+		}(int64(i + 1))
 	}
 
 	// 启动 goroutine, 分别通过条件量发送 10 次信号
@@ -123,6 +124,72 @@ func TestCond_SignalOneByOne(t *testing.T) {
 	}
 
 	// 确认每个 goroutine 都依次完成等待， 并发送结果
+	// 各协程 ID 和 1+2+3+...+10
+	assert.Equal(t, int64(55), totalId)
+	// 各协程等待时长和 10+20+30+...+100
+	assertion.Between(t, totalTime, int64(550), int64(580))
+}
+
+// 测试条件量信号广播
+//
+// 通过 `sync.Cond` 类型的 `Broadcast` 方法, 可以将信号一次性发送给所有在该条件量等待的 goroutine,
+// 而不是类似 `Signal` 方法那样一次只发送一个信号
+func TestCond_Broadcast(t *testing.T) {
+	var mut sync.Mutex
+
+	// 创建条件量
+	cond := sync.NewCond(&mut)
+
+	// 用于输出结果的信道实例
+	ch := make(chan []int64)
+	defer close(ch)
+
+	start := time.Now()
+
+	// 启动 10 个 goroutine
+	for i := 0; i < 10; i++ {
+		// 每个 goroutine 中, 等待信号, 并记录信号等待时间
+		go func(id int64) {
+			// 进入临界区
+			cond.L.Lock()
+			defer cond.L.Unlock()
+
+			// 等待信号发送
+			cond.Wait()
+
+			// 计算信号等待时长
+			ch <- []int64{id, time.Since(start).Milliseconds()}
+		}(int64(i))
+	}
+
+	// 启动 goroutine, 等待 10ms 后广播信号
+	go func() {
+		// 休眠 10 毫秒后广播信号
+		time.Sleep(10 * time.Millisecond)
+		cond.Broadcast()
+	}()
+
+	var totalId, totalTime = int64(0), int64(0)
+
+	count := 0
+	// 通过信道获取所有 goroutine 的执行结果
+	for r := range ch {
+		// 计算每个 goroutine 函数 id 参数的总和
+		totalId += r[0]
+
+		// 记录每个 goroutine 等待时长的总和
+		totalTime += r[1]
+
+		count++
+		// 接收 10 次结果后退出循环
+		if count == 10 {
+			break
+		}
+	}
+
+	// 确认每个 goroutine 都依次完成等待， 并发送结果
+	// 各协程 ID 和 1+2+3+...+10
 	assert.Equal(t, int64(45), totalId)
-	assert.GreaterOrEqual(t, totalTime, int64(100))
+	// 各协程等待时长和 10+10+10+...+10
+	assertion.Between(t, totalTime, int64(100), int64(120))
 }

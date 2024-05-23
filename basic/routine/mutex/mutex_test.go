@@ -2,6 +2,7 @@ package routine
 
 import (
 	"runtime"
+	"study/basic/testing/assertion"
 	"sync"
 	"testing"
 	"time"
@@ -143,7 +144,7 @@ func TestRWMutex_LockAndUnlock(t *testing.T) {
 	mut.Lock()
 	defer mut.Unlock()
 
-	assert.GreaterOrEqual(t, time.Since(start).Milliseconds(), int64(100))
+	assertion.Between(t, time.Since(start).Milliseconds(), int64(100), int64(120))
 }
 
 // 测试读锁的非阻塞加锁方式
@@ -214,5 +215,5 @@ func TestRWMutex_RLocker(t *testing.T) {
 	defer mut.Unlock()
 
 	// 确认写锁必须在读锁解除后才能成功
-	assert.GreaterOrEqual(t, time.Since(start).Milliseconds(), int64(100))
+	assertion.Between(t, time.Since(start).Milliseconds(), int64(100), int64(120))
 }

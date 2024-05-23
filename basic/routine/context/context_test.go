@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"runtime"
+	"study/basic/testing/assertion"
 	"sync"
 	"testing"
 	"time"
@@ -95,8 +96,8 @@ func TestContext_Cancel(t *testing.T) {
 
 	// 计算 goroutine1 的整体执行时间, 应该大于 100ms,
 	// 这也是 goroutine1 从启动到收到取消信号的时间
-	s := time.Since(now)
-	assert.GreaterOrEqual(t, s.Milliseconds(), int64(100))
+	d := time.Since(now).Milliseconds()
+	assertion.Between(t, d, int64(100), int64(120))
 }
 
 // 设置和获取 Context 发送取消信号的原因
@@ -178,8 +179,8 @@ func TestContext_Timeout(t *testing.T) {
 	wg.Wait()
 
 	// 计算 goroutine 的整体执行时间, 应该大于 100ms, 即 100ms 后 Context 超时, goroutine 结束
-	s := time.Since(now)
-	assert.GreaterOrEqual(t, s.Milliseconds(), int64(100))
+	d := time.Since(now).Milliseconds()
+	assertion.Between(t, d, int64(100), int64(120))
 }
 
 // 为超时设置一个原因
@@ -188,7 +189,10 @@ func TestContext_Timeout(t *testing.T) {
 // 当超时取消的信号发送后, 可以通过 `context.Cause` 函数从 Context 实例中获取到表示超时原因的 `error` 实例
 func TestContext_TimeoutReason(t *testing.T) {
 	// 创建具备超时功能的 Context 实例, 设定超时原因, 返回 Context 实例及取消函数
-	ctx, cancel := context.WithTimeoutCause(context.Background(), 100*time.Millisecond, errors.New("wait to long"))
+	ctx, cancel := context.WithTimeoutCause(
+		context.Background(),
+		100*time.Millisecond, errors.New("wait to long"),
+	)
 	defer cancel()
 
 	var wg sync.WaitGroup
@@ -216,8 +220,8 @@ func TestContext_TimeoutReason(t *testing.T) {
 	wg.Wait()
 
 	// 计算 goroutine 的整体执行时间, 应该大于 100ms, 即 100ms 后 Context 超时, goroutine 结束
-	s := time.Since(now)
-	assert.GreaterOrEqual(t, s.Milliseconds(), int64(100))
+	d := time.Since(now).Milliseconds()
+	assertion.Between(t, d, int64(100), int64(120))
 
 	// 确定 Context 实例中的超时原因
 	assert.EqualError(t, context.Cause(ctx), "wait to long")
@@ -267,9 +271,11 @@ func TestContext_Deadline(t *testing.T) {
 	wg.Wait()
 
 	// 计算 goroutine 的整体执行时间, 应该大于 100ms, 即 100ms 后 Context 截至, goroutine 结束
-	s := time.Since(now)
-	assert.GreaterOrEqual(t, s.Milliseconds(), int64(100))
+	d := time.Since(now).Milliseconds()
+	assertion.Between(t, d, int64(100), int64(120))
 }
+
+// 为 Context 截至时间设定原因
 func TestContext_DeadlineReason(t *testing.T) {
 	// 定义一个未来的时间表示截至时间
 	future := time.Now().Add(100 * time.Millisecond)
@@ -307,8 +313,8 @@ func TestContext_DeadlineReason(t *testing.T) {
 	wg.Wait()
 
 	// 计算 goroutine 的整体执行时间, 应该大于 100ms, 即 100ms 后 Context 截至, goroutine 结束
-	s := time.Since(now)
-	assert.GreaterOrEqual(t, s.Milliseconds(), int64(100))
+	d := time.Since(now).Milliseconds()
+	assertion.Between(t, d, int64(100), int64(120))
 
 	// 确定 Context 实例中的截至原因
 	assert.EqualError(t, context.Cause(ctx), "time is up")

@@ -2,6 +2,7 @@ package buf
 
 import (
 	"bytes"
+	"study/basic/testing/assertion"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -46,8 +47,8 @@ func TestBytes_BufferGrow(t *testing.T) {
 
 	// 扩大容积
 	buf.Grow(200)
-	assert.Equal(t, 0, buf.Len())            // 缓冲区长度仍为 0
-	assert.GreaterOrEqual(t, buf.Cap(), 200) // 缓冲区容积增大到至少 200
+	assert.Equal(t, 0, buf.Len())             // 缓冲区长度仍为 0
+	assertion.Between(t, buf.Cap(), 200, 220) // 缓冲区容积增大到至少 200
 }
 
 // 测试截断缓冲区
