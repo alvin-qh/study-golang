@@ -82,6 +82,7 @@
     "netrc",
     "nolint",
     "Nrow",
+    "objs",
     "oneof",
     "optargs",
     "orderedmap",
