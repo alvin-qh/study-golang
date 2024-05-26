@@ -4,7 +4,6 @@ import (
 	"container/list"
 	"context"
 	"sync"
-	"time"
 
 	"golang.org/x/sync/semaphore"
 )
@@ -69,20 +68,8 @@ func (bq *BlockQueue[T]) Empty() bool {
 // 将元素加入队列
 //
 // 如果队列已满, 则该方法会阻塞, 直到队列空出至少一个元素后方能入队成功
-func (bq *BlockQueue[T]) Offer(val T) {
-	bq.sem.Acquire(context.Background(), 1)
-
-	bq.mux.Lock()
-	defer bq.mux.Unlock()
-
-	bq.l.PushBack(val)
-}
-
-// 尝试将元素加入队列
-//
-// 如果队列已满, 则加入元素失败, 返回 `false`
-func (bq *BlockQueue[T]) TryOffer(val T) bool {
-	if ok := bq.sem.TryAcquire(1); !ok {
+func (bq *BlockQueue[T]) Offer(ctx context.Context, val T) bool {
+	if err := bq.sem.Acquire(ctx, 1); err != nil {
 		return false
 	}
 
@@ -90,17 +77,15 @@ func (bq *BlockQueue[T]) TryOffer(val T) bool {
 	defer bq.mux.Unlock()
 
 	bq.l.PushBack(val)
+
 	return true
 }
 
-// 在加入队列时设置超时时间
+// 尝试将元素加入队列
 //
-// 如果队列已满, 则在超时时间内等待队列至少空出一个元素后方能入队成功, 如果时间超时, 则返回 `false`
-func (bq *BlockQueue[T]) OfferWithTimeout(val T, timeout time.Duration) bool {
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	if err := bq.sem.Acquire(ctx, 1); err != nil {
+// 如果队列已满, 则加入元素失败, 返回 `false`
+func (bq *BlockQueue[T]) TryOffer(val T) bool {
+	if ok := bq.sem.TryAcquire(1); !ok {
 		return false
 	}
 

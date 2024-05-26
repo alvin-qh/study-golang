@@ -81,13 +81,14 @@ func (p *SizedPool[T]) TryGet() (elem *SizedPoolElem[T], ok bool) {
 // 尝试从池中获取一个池元素实例
 //
 // 这里可以通过 `Context` 实例限制池空后, 等待元素返回池的最长超时时间
-func (p *SizedPool[T]) Get(ctx context.Context) (elem *SizedPoolElem[T], err error) {
-	err = p.weighted.Acquire(ctx, 1)
-	if err == nil {
-		elem = p.pool.Get().(*SizedPoolElem[T])
-		atomic.AddInt64(&p.size, -1)
+func (p *SizedPool[T]) Get(ctx context.Context) (*SizedPoolElem[T], error) {
+	if err := p.weighted.Acquire(ctx, 1); err != nil {
+		return nil, err
 	}
-	return
+
+	elem := p.pool.Get().(*SizedPoolElem[T])
+	atomic.AddInt64(&p.size, -1)
+	return elem, nil
 }
 
 // 将元素返回池

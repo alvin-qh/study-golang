@@ -46,3 +46,12 @@ func Repeat[T any](n int, val T) []T {
 	}
 	return s
 }
+
+// 将所给的 A 类型切片转为 B 类型切片
+func Map[T any, R any](src []T, mapfn func(T) R) []R {
+	rs := make([]R, len(src))
+	for i, v := range src {
+		rs[i] = mapfn(v)
+	}
+	return rs
+}

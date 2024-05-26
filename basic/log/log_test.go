@@ -3,7 +3,6 @@ package log
 import (
 	"bytes"
 	"io"
-	logger "log"
 	"os"
 	"strings"
 	"testing"
@@ -18,7 +17,7 @@ func TestLog_New(t *testing.T) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 
 	// 设定日志输出标记
-	fl := logger.Ldate | logger.Ltime | logger.Lshortfile
+	fl := Ldate | Ltime | Lshortfile
 	log.AddNewAppender(os.Stdout, LEVEL_DEBUG, fl)
 
 	// 将内存缓冲作为日志输出
@@ -62,7 +61,7 @@ func TestLog_WithFile(t *testing.T) {
 	log := New()
 
 	// 设定日志输出标记
-	fl := logger.Ldate | logger.Ltime | logger.Lshortfile
+	fl := Ldate | Ltime | Lshortfile
 	log.AddNewAppender(os.Stdout, LEVEL_DEBUG, fl)
 
 	// 将日志输出到文件

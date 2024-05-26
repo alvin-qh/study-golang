@@ -38,7 +38,11 @@ func TestSizedPool_TryGet(t *testing.T) {
 	lastId := int32(0)
 
 	pool := NewSizedPool(10, func() *Value {
-		return &Value{Val: int(atomic.AddInt32(&lastId, 1))}
+		id := atomic.AddInt32(&lastId, 1)
+		if id > 10 {
+			assert.Fail(t, "")
+		}
+		return &Value{Val: int(id)}
 	})
 
 	rs := make([]int, 0, 10)
@@ -88,7 +92,11 @@ func TestSizedPool_Get(t *testing.T) {
 
 	// 创建池实例, 容量为 10
 	pool := NewSizedPool(10, func() *Value {
-		return &Value{Val: int(atomic.AddInt32(&lastId, 1))}
+		id := atomic.AddInt32(&lastId, 1)
+		if id > 10 {
+			assert.Fail(t, "")
+		}
+		return &Value{Val: int(id)}
 	})
 
 	// 创建切片, 存储从池中获取的元素

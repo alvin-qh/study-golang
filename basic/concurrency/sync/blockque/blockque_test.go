@@ -1,6 +1,7 @@
 package blockque
 
 import (
+	"context"
 	"study/basic/testing/assertion"
 	"testing"
 	"time"
@@ -14,7 +15,8 @@ func TestBlockQueue_Offer(t *testing.T) {
 
 	// 前 10 个元素入队不会导致队列阻塞
 	for i := 0; i < 10; i++ {
-		que.Offer(i)
+		r := que.Offer(context.Background(), i)
+		assert.True(t, r)
 	}
 	assert.Equal(t, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, que.List())
 
@@ -32,7 +34,8 @@ func TestBlockQueue_Offer(t *testing.T) {
 	start := time.Now()
 
 	// 入队一个新元素, 总体耗时 100ms 以上 (包括等待队列出队)
-	que.Offer(10)
+	r := que.Offer(context.Background(), 10)
+	assert.True(t, r)
 	assertion.Between(t, time.Since(start).Milliseconds(), int64(100), int64(120))
 
 	// 确认队列的长度和内容
@@ -73,7 +76,11 @@ func TestBlockQueue_OfferWithTimeout(t *testing.T) {
 
 	// 前 10 个元素入队不会超时
 	for i := 0; i < 10; i++ {
-		r := que.OfferWithTimeout(i, 100*time.Millisecond)
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+
+		r := que.Offer(ctx, i)
+		cancel()
+
 		assert.True(t, r)
 	}
 	// 确认前 10 个元素入队无需等待
@@ -83,7 +90,10 @@ func TestBlockQueue_OfferWithTimeout(t *testing.T) {
 	start = time.Now()
 
 	// 入队第 11 个元素, 由于队列已满, 等待 100ms 后超时, 入队失败
-	r := que.OfferWithTimeout(10, 100*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	r := que.Offer(ctx, 10)
+	cancel()
+
 	// 确认第 11 个元素入队失败
 	assert.False(t, r)
 	// 确认入队第 11 元素时等待了 100ms 后超时失败
@@ -95,8 +105,9 @@ func TestBlockQueue_OfferWithTimeout(t *testing.T) {
 
 	start = time.Now()
 
-	// 再次入队第 11 个元素, 由于队列已满, 等待 100ms 后超时, 入队失败
-	r = que.OfferWithTimeout(10, 100*time.Millisecond)
+	// 再次入队第 11 个元素, 由于已经从队列取出一个元素, 则本次入队成功
+	r = que.Offer(context.Background(), 10)
+
 	// 确认第 11 个元素再次入队成功
 	assert.True(t, r)
 	// 确认入队第 11 元素时未发生等待

@@ -18,6 +18,17 @@ const (
 	LEVEL_ERROR
 )
 
+const (
+	Ldate         = log.Ldate
+	Ltime         = log.Ltime
+	Lmicroseconds = log.Lmicroseconds
+	Llongfile     = log.Llongfile
+	Lshortfile    = log.Lshortfile
+	LUTC          = log.LUTC
+	Lmsgprefix    = log.Lmsgprefix
+	LstdFlags     = log.LstdFlags
+)
+
 // 定义日志级别转字符串
 func (l LogLevel) String() string {
 	switch l {
