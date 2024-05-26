@@ -25,7 +25,7 @@ func (m *memory) Clear() {
 // 测试 GC 内存回收
 //
 // 本例中通过 `runtime.ReadMemStats` 函数来收集实时内存状态, 以判断 GC 执行的情况
-func TestGc(t *testing.T) {
+func TestGC_GC(t *testing.T) {
 	runtime.GC() // 手动唤起 GC 释放堆
 
 	// 内存状态结构体
