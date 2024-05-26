@@ -1,6 +1,7 @@
 package time
 
 import (
+	"study/basic/testing/assertion"
 	"testing"
 	"time"
 
@@ -8,19 +9,25 @@ import (
 )
 
 var (
-	ZONE_LOCAL, _ = time.LoadLocation("Asia/Shanghai") // 获取东八区时区
+    // 获取东八区时区
+	ZONE_LOCAL, _ = time.LoadLocation("Asia/Shanghai")
 
 	// Go 语言中格式化时间模板不是常见的 Y,M,S 等
 	// 而是 Go 语言的诞生时间 2006-01-02 15:04:05.000 MST
-	TIME_LAYOUT_UTC = "2006-01-02T15:04:05.000Z" // 以 Z 结尾的标准 UTC 时间格式
+
+	// 以 Z 结尾的标准 UTC 时间格式
+	TIME_LAYOUT_UTC = "2006-01-02T15:04:05.000Z"
 	TIME_UTC        = "2021-11-11T12:00:00.100Z"
 
-	TIME_LAYOUT_OFF = "2006-01-02T15:04:05.000-07:00" // 带时区偏移量的时间格式
+	// 带时区偏移量的时间格式
+	TIME_LAYOUT_OFF = "2006-01-02T15:04:05.000-07:00"
 	TIME_OFF        = "2021-11-11T12:00:00.100+08:00"
 
-	TIME_LAYOUT_ST = "2006-01-02 15:04:05 MST" // 带时间标准符合的时间格式
+	// 带时间标准符合的时间格式
+	TIME_LAYOUT_ST = "2006-01-02 15:04:05 MST"
 
-	TIME_LAYOUT_LOCAL = "2006-01-02 15:04:05.0000" // 设置本地时间格式
+	// 设置本地时间格式
+	TIME_LAYOUT_LOCAL = "2006-01-02 15:04:05.0000"
 	TIME_LOCAL        = "2021-11-11 12:00:00.0000"
 )
 
@@ -83,10 +90,12 @@ func TestTime_Sub(t *testing.T) {
 	tm1 := time.Date(2012, 11, 11, 12, 0, 0, 0, time.UTC)
 	tm2 := time.Date(2012, 11, 11, 20, 0, 0, 0, time.UTC)
 
-	d := tm2.Sub(tm1) // 求两个时间的时间差
+	// 求两个时间的时间差
+	d := tm2.Sub(tm1)
 	assert.Equal(t, float64(8), d.Hours())
 
-	d = tm1.Sub(tm2) // 时间差可以为负数
+	// 时间差可以为负数
+	d = tm1.Sub(tm2)
 	assert.Equal(t, float64(-8), d.Hours())
 }
 
@@ -100,7 +109,7 @@ func TestTime_ParseDuration(t *testing.T) {
 	assert.Equal(t, "1h30m0s", d.String())
 }
 
-func TestDuration_Round(t *testing.T) {
+func TestTime_DurationRound(t *testing.T) {
 	// 定义时间差 2 小时 30 分
 	d := time.Hour*2 + time.Minute*30
 
@@ -141,21 +150,24 @@ func TestTime_Truncate(t *testing.T) {
 }
 
 // 时间格式化为字符串
-func TestTimeFormat(t *testing.T) {
+func TestTime_Format(t *testing.T) {
 	tm := time.Date(2012, 11, 11, 12, 0, 0, 0, ZONE_LOCAL)
 
+	// 格式化为标准 UTC 格式
 	s := tm.Format(TIME_LAYOUT_UTC)
-	assert.Equal(t, "2012-11-11T12:00:00.000Z", s) // 格式化为标准 UTC 格式
+	assert.Equal(t, "2012-11-11T12:00:00.000Z", s)
 
+	// 格式化为带时区偏移量的格式
 	s = tm.Format(TIME_LAYOUT_OFF)
-	assert.Equal(t, "2012-11-11T12:00:00.000+08:00", s) // 格式化为带时区偏移量的格式
+	assert.Equal(t, "2012-11-11T12:00:00.000+08:00", s)
 
+	// 格式化为带标准时间标识的格式
 	s = tm.Format(TIME_LAYOUT_ST)
-	assert.Equal(t, "2012-11-11 12:00:00 CST", s) // 格式化为带标准时间标识的格式
+	assert.Equal(t, "2012-11-11 12:00:00 CST", s)
 }
 
 // 将字符串转化为时间对象
-func TestParseTimeInUTC(t *testing.T) {
+func TestTime_Parse(t *testing.T) {
 	checkResult := func(tm *time.Time) {
 		assert.Equal(t, 2021, int(tm.Year()))
 		assert.Equal(t, 11, int(tm.Month()))
@@ -166,42 +178,80 @@ func TestParseTimeInUTC(t *testing.T) {
 		assert.Equal(t, 100000000, int(tm.Nanosecond()))
 	}
 
-	tm, err := time.Parse(TIME_LAYOUT_UTC, TIME_UTC) // 将一个标准 UTC 格式的时间转换为时间对象
+    // 将一个标准 UTC 格式的时间转换为时间对象
+	tm, err := time.Parse(TIME_LAYOUT_UTC, TIME_UTC)
 	assert.Nil(t, err)
 	checkResult(&tm)
 
-	tm, err = time.Parse(TIME_LAYOUT_OFF, TIME_OFF) // 将一个带时区偏移量的字符串转为时间对象c
+    // 将一个带时区偏移量的字符串转为时间对象c
+	tm, err = time.Parse(TIME_LAYOUT_OFF, TIME_OFF)
 	assert.Nil(t, err)
 	checkResult(&tm)
 }
 
+// 计算指定时间到当前时间的差值
+func TestTime_Since(t *testing.T) {
+	start := time.Now()
+
+	time.Sleep(100 * time.Millisecond)
+	assertion.Between(t, time.Since(start).Milliseconds(), int64(100), int64(110))
+}
+
+// 计算当前时间到指定时间的时长
+func TestTime_Until(t *testing.T) {
+	start := time.Now().Add(3 * time.Hour * 24 * 3)
+
+	time.Sleep(100 * time.Millisecond)
+	assert.Equal(t, float64(216), time.Until(start).Round(time.Hour).Hours())
+}
+
 // 将时间进行序列化
-func TestTimeMarshal(t *testing.T) {
+func TestTime_Marshal(t *testing.T) {
 	tm1 := time.Date(2012, 11, 11, 12, 0, 0, 0, time.UTC)
-	b, err := tm1.MarshalBinary() // 序列化为 []byte
-	assert.Nil(t, err)
 
-	var tm2 time.Time
-	err = tm2.UnmarshalBinary(b) // 从 []byte 反序列化
-	assert.Nil(t, err)
+	// 将时间序列化为二进制字节串
+	t.Run("marshal binary", func(t *testing.T) {
+		// 序列化为 []byte
+		b, err := tm1.MarshalBinary()
+		assert.Nil(t, err)
 
-	assert.Equal(t, tm1, tm2)
+		var tm2 time.Time
+		// 从 []byte 反序列化
+		err = tm2.UnmarshalBinary(b)
+		assert.Nil(t, err)
 
-	b, err = tm1.MarshalJSON() // 序列化为 JSON 可用的格式
-	assert.Nil(t, err)
-	assert.Equal(t, "\"2012-11-11T12:00:00Z\"", string(b))
+		assert.Equal(t, tm1, tm2)
+	})
 
-	tm2 = time.Time{}
-	tm2.UnmarshalJSON([]byte("\"2012-11-11T12:00:00Z\"")) // 从 JSON 可用格式反序列化
-	assert.Equal(t, tm1, tm2)
+	// 将时间序列化为 JSON 字符串
+	t.Run("marshal json", func(t *testing.T) {
+		// 序列化为 JSON 可用的格式
+		b, err := tm1.MarshalJSON()
+		assert.Nil(t, err)
+		assert.Equal(t, "\"2012-11-11T12:00:00Z\"", string(b))
 
-	b, err = tm1.MarshalText() // 序列化为字符串
-	assert.Nil(t, err)
-	assert.Equal(t, "2012-11-11T12:00:00Z", string(b))
+		tm2 := time.Time{}
+		// 从 JSON 可用格式反序列化
+		err = tm2.UnmarshalJSON([]byte("\"2012-11-11T12:00:00Z\""))
+		assert.Nil(t, err)
 
-	tm2 = time.Time{}
-	tm2.UnmarshalText([]byte("2012-11-11T12:00:00Z")) // 从字符串反序列化
-	assert.Equal(t, tm1, tm2)
+		assert.Equal(t, tm1, tm2)
+	})
+
+	// 将时间序列化为文本
+	t.Run("marshal text", func(t *testing.T) {
+		// 序列化为字符串
+		b, err := tm1.MarshalText()
+		assert.Nil(t, err)
+		assert.Equal(t, "2012-11-11T12:00:00Z", string(b))
+
+		tm2 := time.Time{}
+		// 从字符串反序列化
+		err = tm2.UnmarshalText([]byte("2012-11-11T12:00:00Z"))
+		assert.Nil(t, err)
+
+		assert.Equal(t, tm1, tm2)
+	})
 }
 
 // 测试通过指定的时区对象解析时间字符串

@@ -1,8 +1,8 @@
 package testing
 
 import (
-	"flag"
 	"os"
+	"study/basic/testing/testit"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -44,7 +44,7 @@ func tearDown() {
 //
 // 在 `TestMain` 函数中, 必须通过参数 `m` (`testing.M` 类型) 来启动实际的测试, 所以
 // 可以在实际测试执行前后进行一些处理
-func TestTestMainFunc(t *testing.T) {
+func Test_TestMain(t *testing.T) {
 	assert.Equal(t, 100, _value)
 }
 
@@ -52,6 +52,6 @@ func TestTestMainFunc(t *testing.T) {
 //
 // 通过 `flag` 包的 `Lookup` 方法, 可以查找名为 `"test.v"` 的标记, 如果该标记存在,
 // 则表明当前运行环境为测试环境
-func TestLookupFlagIfRunTesting(t *testing.T) {
-	assert.NotNil(t, flag.Lookup("test.v"))
+func Test_Test(t *testing.T) {
+	assert.True(t, testit.IsTesting())
 }

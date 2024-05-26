@@ -1,6 +1,7 @@
 package testit
 
 import (
+	"flag"
 	"fmt"
 	"study/basic/os/platform"
 	"testing"
@@ -21,4 +22,9 @@ func RunIf(t *testing.T, os platform.OSType, f func(t *testing.T)) bool {
 
 	t.Run(fmt.Sprintf("run on %s", os), f)
 	return false
+}
+
+// 判断当前环境是否测试环境
+func IsTesting() bool {
+	return flag.Lookup("test.v") != nil
 }

@@ -14,7 +14,7 @@ const (
 )
 
 // 测试记录 Profile 数据
-func TestRecordProfile(t *testing.T) {
+func TestProfile_Record(t *testing.T) {
 	defer os.Remove(CPU_PROFILE_FILENAME)
 	defer os.Remove(HEAP_PROFILE_FILENAME)
 
