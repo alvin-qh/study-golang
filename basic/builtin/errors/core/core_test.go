@@ -104,9 +104,7 @@ func (e CustomError) Error() string {
 }
 
 // 返回自定义错误
-func causeCustomError(tm *time.Time) error {
-	return CustomError{ErrType, *tm}
-}
+func causeCustomError(tm *time.Time) error { return CustomError{ErrType, *tm} }
 
 // 测试自定义错误类型
 //

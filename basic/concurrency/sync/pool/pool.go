@@ -9,14 +9,10 @@ type PoolElem[T any] struct {
 }
 
 // 将元素返回池
-func (pe *PoolElem[T]) Release() {
-	pe.pool.Put(pe)
-}
+func (pe *PoolElem[T]) Release() { pe.pool.Put(pe) }
 
 // 获取池元素中存储的实例
-func (pe *PoolElem[T]) Get() T {
-	return pe.elem
-}
+func (pe *PoolElem[T]) Get() T { return pe.elem }
 
 // 基于 `sync.Pool` 类型设置新类型
 type Pool[T any] sync.Pool

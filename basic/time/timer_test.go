@@ -10,9 +10,12 @@ import (
 // 测试暂停当前线程 (协程)
 func TestSleep(t *testing.T) {
 	tm := time.Now()
-	time.Sleep(50 * time.Millisecond) // 休眠 50ms
 
-	d := time.Since(tm) // 计算当前时间和指定时间的差值, 相当于 time.Now().Sub(tm)
+	// 休眠 50ms
+	time.Sleep(50 * time.Millisecond)
+
+	// 计算当前时间和指定时间的差值, 相当于 time.Now().Sub(tm)
+	d := time.Since(tm)
 	assert.Equal(t, 50, int(d.Milliseconds()))
 }
 
@@ -21,29 +24,37 @@ func TestSleep(t *testing.T) {
 func TestTimeAfter(t *testing.T) {
 	tm1 := time.Now()
 
-	c := time.After(50 * time.Millisecond) // 50ms 后发送信号
+	// 50ms 后发送信号
+	c := time.After(50 * time.Millisecond)
 
-	tm2 := <-c // 等待信号到达
+	// 等待信号到达
+	tm2 := <-c
 
-	d := tm2.Sub(tm1) // 计算从发送信号到接收信号的时间差
+	// 计算从发送信号到接收信号的时间差
+	d := tm2.Sub(tm1)
 	assert.Equal(t, 50, int(d.Milliseconds()))
 }
 
 // 测试定时回调
 // 定时回调可以在指定时间后回调指定函数
 func TestTimeAfterFunc(t *testing.T) {
-	ch := make(chan struct{}) // 定义一个 channel
+	// 定义一个 channel
+	ch := make(chan struct{})
 	defer close(ch)
 
 	tm := time.Now()
 
-	time.AfterFunc(50*time.Millisecond, func() { // 50ms 后回调函数
-		ch <- struct{}{} // 发送一个空的信号
+	// 50ms 后回调函数
+	time.AfterFunc(50*time.Millisecond, func() {
+		// 发送一个空的信号
+		ch <- struct{}{}
 	})
 
-	<-ch // 等待信号到达
+	// 等待信号到达
+	<-ch
 
-	d := time.Since(tm) // 计算函数多久后进行回调
+	// 计算函数多久后进行回调
+	d := time.Since(tm)
 	assert.Equal(t, 50, int(d.Milliseconds()))
 }
 
@@ -51,14 +62,19 @@ func TestTimeAfterFunc(t *testing.T) {
 func TestTicker(t *testing.T) {
 	tm1 := time.Now()
 
-	tk := time.NewTicker(50 * time.Millisecond) // 每隔 50ms 发送一次信号
+	// 每隔 50ms 发送一次信号
+	tk := time.NewTicker(50 * time.Millisecond)
 	defer tk.Stop()
 
 	n := 0
-	for n < 2 { // 获取两次信号
-		tm2 := <-tk.C // 等待信号到达
 
-		d := tm2.Sub(tm1) // 计算每次信号到达的时间
+	// 获取两次信号
+	for n < 2 {
+		// 等待信号到达
+		tm2 := <-tk.C
+
+		// 计算每次信号到达的时间
+		d := tm2.Sub(tm1)
 		assert.Equal(t, (n+1)*50, int(d.Milliseconds()))
 
 		n++
@@ -69,12 +85,15 @@ func TestTicker(t *testing.T) {
 func TestTimer(t *testing.T) {
 	tm1 := time.Now()
 
-	ti := time.NewTimer(50 * time.Millisecond) // 50ms 后发送定时器信号
+	// 50ms 后发送定时器信号
+	ti := time.NewTimer(50 * time.Millisecond)
 	defer ti.Stop()
 
-	tm2 := <-ti.C // 等待定时器信号
+	// 等待定时器信号
+	tm2 := <-ti.C
 
-	d := tm2.Sub(tm1) // 计算信号到达时间
+	// 计算信号到达时间
+	d := tm2.Sub(tm1)
 	assert.Equal(t, 50, int(d.Milliseconds()))
 }
 

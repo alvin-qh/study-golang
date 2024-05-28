@@ -62,34 +62,22 @@ func (b *BufferIO) Close() error {
 }
 
 // 获取当前缓存的字节切片
-func (b *BufferIO) Bytes() []byte {
-	return b.data
-}
+func (b *BufferIO) Bytes() []byte { return b.data }
 
 // 获取当前缓存的字符串内容
-func (b *BufferIO) String() string {
-	return string(b.data)
-}
+func (b *BufferIO) String() string { return string(b.data) }
 
 // 获取当前缓存的字节序
-func (b *BufferIO) Order() binary.ByteOrder {
-	return b.order
-}
+func (b *BufferIO) Order() binary.ByteOrder { return b.order }
 
 // 获取当前缓存的总大小
-func (b *BufferIO) Size() int {
-	return len(b.data)
-}
+func (b *BufferIO) Size() int { return len(b.data) }
 
 // 获取当前缓存的读写位置
-func (b *BufferIO) Position() int {
-	return b.pos
-}
+func (b *BufferIO) Position() int { return b.pos }
 
 // 获取当前读写位置开始, 剩余的可用字节数
-func (b *BufferIO) remaining() int {
-	return len(b.data) - b.pos
-}
+func (b *BufferIO) remaining() int { return len(b.data) - b.pos }
 
 // 向当前缓存写入字节串
 //
@@ -124,16 +112,12 @@ func (b *BufferIO) WriteString(s string) (int, error) {
 // 向当前缓存写入一个字节
 //
 // 如果缓存剩余空间不足一个字节, 则写入失败, 返回 `io.EOF` 错误
-func (b *BufferIO) WriteByte(n byte) error {
-	return b.WriteUint8(n)
-}
+func (b *BufferIO) WriteByte(n byte) error { return b.WriteUint8(n) }
 
 // 向当前缓存写入一个 8 位整数
 //
 // 如果缓存剩余空间不足一个字节, 则写入失败, 返回 `io.EOF` 错误
-func (b *BufferIO) WriteInt8(n int8) error {
-	return b.WriteUint8(uint8(n))
-}
+func (b *BufferIO) WriteInt8(n int8) error { return b.WriteUint8(uint8(n)) }
 
 // 向当前缓存写入一个 8 位无符号整数
 //
@@ -151,9 +135,7 @@ func (b *BufferIO) WriteUint8(n uint8) error {
 // 向当前缓存写入 16 位整数
 //
 // 如果缓存剩余空间不足两个字节, 则写入失败, 返回 `io.EOF` 错误
-func (b *BufferIO) WriteInt16(n int16) error {
-	return b.WriteUint16(uint16(n))
-}
+func (b *BufferIO) WriteInt16(n int16) error { return b.WriteUint16(uint16(n)) }
 
 // 向当前缓存写入 16 位无符号整数
 //

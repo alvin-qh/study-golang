@@ -58,9 +58,7 @@ func (s *Set[T]) Contains(values ...T) bool {
 }
 
 // 获取 Set 集合元素个数
-func (s *Set[T]) Len() int {
-	return len(s.m)
-}
+func (s *Set[T]) Len() int { return len(s.m) }
 
 // 判断两个 Set 集合是否相同 (包含相同的元素)
 func (s *Set[T]) Equal(other *Set[T]) bool {
@@ -87,7 +85,7 @@ func (s *Set[T]) IsSubset(other *Set[T]) bool {
 	}
 
 	for v := range s.m {
-        // 另一个集合是否包含 当前集合的 所有元素
+		// 另一个集合是否包含 当前集合的 所有元素
 		if !other.Contains(v) {
 			return false
 		}

@@ -21,9 +21,7 @@ func (p *SizedPoolElem[T]) Release() {
 }
 
 // 获取池元素中存储的实例
-func (pe *SizedPoolElem[T]) Get() T {
-	return pe.elem
-}
+func (pe *SizedPoolElem[T]) Get() T { return pe.elem }
 
 func (pe *SizedPoolElem[T]) String() string {
 	return fmt.Sprintf("%v", pe.elem)
@@ -105,6 +103,4 @@ func (p *SizedPool[T]) Size() int {
 }
 
 // 获取池的最大容量
-func (p *SizedPool[T]) MaxSize() int {
-	return int(p.maxSize)
-}
+func (p *SizedPool[T]) MaxSize() int { return int(p.maxSize) }

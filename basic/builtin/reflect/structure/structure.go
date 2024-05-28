@@ -51,19 +51,13 @@ func New(t interface{}) (*Structure, error) {
 }
 
 // 获取结构体类型
-func (s *Structure) Kind() reflect.Kind {
-	return s.rt.Kind()
-}
+func (s *Structure) Kind() reflect.Kind { return s.rt.Kind() }
 
 // 获取结构体类型名称
-func (s *Structure) Name() string {
-	return s.rt.Name()
-}
+func (s *Structure) Name() string { return s.rt.Name() }
 
 // 获取结构体的包路径
-func (s *Structure) PackagePath() string {
-	return s.rt.PkgPath()
-}
+func (s *Structure) PackagePath() string { return s.rt.PkgPath() }
 
 // 根据所给的字段名称, 获取结构体字段对象
 func (t *Structure) FindField(field string) (reflect.StructField, error) {
@@ -82,8 +76,7 @@ func (t *Structure) FindField(field string) (reflect.StructField, error) {
 //	val := rv.FieldByName("Name").Interface()
 func (t *Structure) GetFieldValue(field string) (interface{}, error) {
 	fv := t.rv.FieldByName(field)
-	if !fv.IsValid() {
-		return nil, ErrInvalidFieldName
+	if !fv.IsValid()  nil, ErrInvalidFieldName
 	}
 
 	return fv.Interface(), nil

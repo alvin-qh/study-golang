@@ -34,9 +34,7 @@ func (sm *OrderedMap[K, V]) Init() {
 }
 
 // 获取存储 key 的个数
-func (sm *OrderedMap[K, V]) Len() int {
-	return len(sm.s)
-}
+func (sm *OrderedMap[K, V]) Len() int { return len(sm.s) }
 
 // 存储一对 key/value
 func (sm *OrderedMap[K, V]) Put(key K, value V) {
