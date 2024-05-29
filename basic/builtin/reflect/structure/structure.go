@@ -76,7 +76,8 @@ func (t *Structure) FindField(field string) (reflect.StructField, error) {
 //	val := rv.FieldByName("Name").Interface()
 func (t *Structure) GetFieldValue(field string) (interface{}, error) {
 	fv := t.rv.FieldByName(field)
-	if !fv.IsValid()  nil, ErrInvalidFieldName
+	if !fv.IsValid() {
+		return nil, ErrInvalidFieldName
 	}
 
 	return fv.Interface(), nil
