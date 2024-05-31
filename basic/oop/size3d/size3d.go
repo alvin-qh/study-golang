@@ -7,6 +7,19 @@ import (
 )
 
 // 定义 Size3D 结构体, 从 Size 结构体继承
+//
+// 可以为类型定义方法, 格式为:
+//
+//	func (receiver_type) func_name([parameter_list]) [return_types] {...}
+//
+// 其中类型的方法会传入类型实例或类型实例的指针, 称为 Receiver
+//
+// 结构体也是一个类型, 所以可以为其定义方法, 对于结构体类型来说
+//   - 类型 Size3D 包含全部 Receiver 为 Size3D 的方法
+//   - 类型 *Size3D 包含全部 Receiver 为 Size3D + *Size3D 的方法
+//   - Size3D 包含 Size 类型匿名字段, 则 Size3D 和 *Size3D 类型包含 Size 类型的方法
+//   - Size3D 包含 *Size 类型匿名字段, 则 Size3D 和 *Size3D 类型包含 Size + *Size 类型的方法
+//   - *Size3D 总会包含 Size + *Size 类型的方法
 type Size3D struct {
 	size.Size         // 继承 Size 结构体
 	depth     float64 // 定义深度

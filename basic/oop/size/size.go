@@ -6,6 +6,16 @@ import (
 )
 
 // 定义 Size 结构体
+//
+// 可以为类型定义方法, 格式为:
+//
+//	func (receiver_type) func_name([parameter_list]) [return_types] {...}
+//
+// 其中类型的方法会传入类型实例或类型实例的指针, 称为 Receiver
+//
+// 结构体也是一个类型, 所以可以为其定义方法, 对于结构体类型来说
+//   - 类型 Size 包含全部 Receiver 为 Size 的方法
+//   - 类型 *Size 包含全部 Receiver 为 Size + *Size 的方法
 type Size struct {
 	width  float64 // 宽度
 	height float64 // 高度

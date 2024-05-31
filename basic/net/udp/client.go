@@ -70,6 +70,7 @@ func (c *Client) sendRequest(pack Package) error {
 		return err
 	}
 
+	// 发送数据
 	n, err := c.conn.Write(buf.Bytes())
 	if err != nil {
 		return err
@@ -107,7 +108,7 @@ func (c *Client) receiveResponse(action ActionCode) (Package, error) {
 		return nil, fmt.Errorf(header.Error)
 	}
 
-    //
+	//
 	c.sessionId = header.SessionId
 
 	// 根据响应类型创建响应数据类型

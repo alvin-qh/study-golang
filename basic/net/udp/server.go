@@ -20,32 +20,22 @@ var (
 	ErrCloseServer      = errors.New("client ask close server")
 )
 
-// 定义 Session 类型
-type Session map[SessionId]interface{}
-
 // 定义 Server 结构体
 type Server struct {
 	conn    *net.UDPConn  // UDP 连接对象
 	sendCh  chan Response // 发送相应包的 channel
-	closeCh chan struct{} // 发送关闭信号的 channel
-	session Session       // 保存 session 信息
-	mut     sync.Mutex    // 锁
+	session sync.Map      // 保存 session 信息
+	closeCh chan struct{} // 发送服务关闭消息的 channel
 }
 
 // 保存 Session 信息
 func (s *Server) saveSession(sessionId SessionId) {
-	s.mut.Lock()
-	defer s.mut.Unlock()
-
-	s.session[sessionId] = struct{}{}
+	s.session.Store(sessionId, struct{}{})
 }
 
 // 判断 Session 是否存在
 func (s *Server) hasSession(sessionId SessionId) bool {
-	s.mut.Lock()
-	defer s.mut.Unlock()
-
-	_, ok := s.session[sessionId]
+	_, ok := s.session.Load(sessionId)
 	return ok
 }
 
@@ -70,8 +60,8 @@ func ServerStart(address string) (*Server, error) {
 	server := &Server{
 		conn:    conn,
 		sendCh:  make(chan Response, 100),
+		session: sync.Map{},
 		closeCh: make(chan struct{}),
-		session: make(Session),
 	}
 
 	// 接收信息
@@ -80,15 +70,19 @@ func ServerStart(address string) (*Server, error) {
 	// 发送信息
 	go server.handleSendMessage()
 
+	defer func() {
+		r := recover()
+		if err, ok := r.(error); ok {
+			lServer.Panicf("Panic %v", err)
+		}
+	}()
+
 	return server, nil
 }
 
 // 停止服务端
 func (s *Server) Stop() error {
 	var err error
-
-	s.mut.Lock()
-	defer s.mut.Unlock()
 
 	// 关闭发送通道
 	if s.sendCh != nil {
@@ -102,42 +96,12 @@ func (s *Server) Stop() error {
 		s.conn = nil
 	}
 
-	// 发送关闭信号
-	if s.closeCh != nil {
-		close(s.closeCh)
-		s.closeCh = nil
-	}
-
 	return err
 }
 
-// 获取连接对象
-func (s *Server) getConnection() *net.UDPConn {
-	s.mut.Lock()
-	defer s.mut.Unlock()
-
-	return s.conn
-}
-
-// 获取发送通道
-func (s *Server) getSendChannel() chan Response {
-	s.mut.Lock()
-	defer s.mut.Unlock()
-
-	return s.sendCh
-}
-
-// 获取关闭信号通道
-func (s *Server) getCloseChannel() chan struct{} {
-	s.mut.Lock()
-	defer s.mut.Unlock()
-
-	return s.closeCh
-}
-
-// 等待服务关闭
+// 等待服务器关闭
 func (s *Server) Join() {
-	ch := s.getCloseChannel()
+	ch := s.closeCh
 	if ch != nil {
 		<-ch
 	}
@@ -145,38 +109,39 @@ func (s *Server) Join() {
 
 // 处理发送信息
 func (s *Server) handleSendMessage() {
-	for {
-		ch := s.getSendChannel() // 获取发送 channel 对象
-		if ch == nil {
-			break
-		}
+	// 获取发送 channel 对象
+	ch := s.sendCh
+	if ch == nil {
+		return
+	}
 
-		resp, ok := <-ch // 从 channel 中获取待发送的数据
-		if !ok {
-			break
-		}
-
-		conn := s.getConnection() // 获取 UDP 连接对象
+	// 从 channel 中获取待发送的数据
+	for resp := range ch {
+		// 获取 UDP 连接对象
+		conn := s.conn
 		if conn == nil {
 			break
 		}
 
 		// 将数据写入 UDP 连接
-		buf := bytes.NewBuffer(make([]byte, 0, PACKAGE_LIMIT)) // 用于发送的 byte 缓冲对象
+		buf := bytes.NewBuffer(make([]byte, 0, PACKAGE_LIMIT))
 
 		encoder := gob.NewEncoder(buf)
-		err := encoder.Encode(resp.pack) // 将发送数据编码后写入缓冲
-		if err != nil {
+
+		// 将发送数据编码后写入缓冲
+		if err := encoder.Encode(resp.pack); err != nil {
 			lServer.Fatalf("Cannot send response, caused %v", err)
 		}
 
-		n, err := conn.WriteToUDP(buf.Bytes(), resp.addr) // 缓冲数据写入 UDP
-		if err != nil {
+		// 缓冲数据写入 UDP
+		if n, err := conn.WriteToUDP(buf.Bytes(), resp.addr); err != nil {
 			lServer.Fatalf("Cannot send response, caused %v", err)
 			break
+		} else {
+			lServer.Printf("%v bytes write to %v", n, resp.addr)
 		}
-		lServer.Printf("%v bytes write to %v", n, resp.addr)
 
+		// 发送完数据包后, 如果需要关闭服务器, 则关闭服务器, 防止最后一个数据包无法发送
 		if resp.close {
 			s.Stop()
 		}
@@ -185,10 +150,16 @@ func (s *Server) handleSendMessage() {
 
 // 处理接收数据
 func (s *Server) handleReceiveMessage() {
+	ch := s.sendCh
+	if ch == nil {
+		return
+	}
+
 	for {
-		req, err := s.receivePackage() // 接收数据
+		// 接收数据
+		req, err := s.receivePackage()
 		if err != nil {
-			lServer.Fatalf("Cannot receive package, caused: %v", err)
+			lServer.Printf("Cannot receive package, caused: %v", err)
 			break
 		}
 		lServer.Printf("Received package from %v, action=%v", req.addr, req.action)
@@ -201,9 +172,11 @@ func (s *Server) handleReceiveMessage() {
 
 			switch req.action {
 			case ACTION_LOGIN:
-				pack, err = req.handleActionLogin() // 处理登录消息
+				// 处理登录消息
+				pack, err = req.handleActionLogin()
 			case ACTION_SHUTDOWN:
-				pack, err = req.handleActionShutdown() // 处理关闭服务消息
+				// 处理关闭服务消息
+				pack, err = req.handleActionShutdown()
 			}
 
 			if err != nil {
@@ -218,20 +191,23 @@ func (s *Server) handleReceiveMessage() {
 			s.saveSession(req.sessionId)
 
 			// 发送数据到 channel
-			ch := s.getSendChannel()
-			if ch == nil {
-				return
+			ch <- Response{
+				addr:  req.addr,
+				pack:  pack,
+				close: closeServer,
 			}
-
-			ch <- Response{addr: req.addr, pack: pack, close: closeServer}
 		}()
 	}
+
+	// 发送关闭消息
+	close(s.closeCh)
+	s.closeCh = nil
 }
 
 // 接收数据包
 func (s *Server) receivePackage() (*Request, error) {
 	// 获取 UDP 连接
-	conn := s.getConnection()
+	conn := s.conn
 	if conn == nil {
 		return nil, ErrServerClosed
 	}
@@ -247,8 +223,11 @@ func (s *Server) receivePackage() (*Request, error) {
 
 	// 解码接收的数据报
 	var header struct{ AskHeader }
+
 	decoder := gob.NewDecoder(bytes.NewReader(data))
-	if err := decoder.Decode(&header); err != nil { // 解码数据报 header 部分
+
+	// 解码数据报 header 部分
+	if err := decoder.Decode(&header); err != nil {
 		return nil, err
 	}
 
@@ -262,7 +241,9 @@ func (s *Server) receivePackage() (*Request, error) {
 	}
 
 	decoder = gob.NewDecoder(bytes.NewReader(data))
-	if err := decoder.Decode(pack); err != nil { // 解码完整数据报
+
+	// 解码完整数据报
+	if err := decoder.Decode(pack); err != nil {
 		return nil, err
 	}
 
@@ -286,7 +267,7 @@ type Request struct {
 
 // 生成错误信息响应包
 func (r *Request) makeErrorResponse(err error) (Package, error) {
-	conn := r.server.getConnection()
+	conn := r.server.conn
 	if conn == nil {
 		return nil, ErrServerClosed
 	}
@@ -312,12 +293,13 @@ func (r *Request) handleActionLogin() (Package, error) {
 
 	lServer.Printf("New ACTION_LOGIN body received, account=%v, password=%v", ask.Account, ask.Password)
 
-	id, err := uuid.NewUUID() // 生成新的 SessionId
-	if err != nil {
+	// 生成新的 SessionId
+	if id, err := uuid.NewUUID(); err != nil {
 		return nil, err
+	} else {
+		// 设置为当前 SessionId
+		r.sessionId = SessionId(id.String())
 	}
-
-	r.sessionId = SessionId(id.String()) // 设置为当前 SessionId
 
 	// 生成登录响应对象
 	return &LoginAck{

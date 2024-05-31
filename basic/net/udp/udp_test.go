@@ -24,7 +24,7 @@ func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 }
 
-func TestConnect(t *testing.T) {
+func TestUDP_Network(t *testing.T) {
 	// 启动服务器
 	server, err := ServerStart("0.0.0.0:8888")
 	assert.Nil(t, err)
