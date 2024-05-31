@@ -1,27 +1,26 @@
 package time
 
 import (
+	"study/basic/testing/assertion"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
-// 测试暂停当前线程 (协程)
-func TestSleep(t *testing.T) {
+// 测试暂停当前 goroutine
+func TestTime_Sleep(t *testing.T) {
 	tm := time.Now()
 
 	// 休眠 50ms
 	time.Sleep(50 * time.Millisecond)
 
 	// 计算当前时间和指定时间的差值, 相当于 time.Now().Sub(tm)
-	d := time.Since(tm)
-	assert.Equal(t, 50, int(d.Milliseconds()))
+	assertion.Between(t, time.Since(tm).Milliseconds(), int64(50), int64(60))
 }
 
 // 测试定时信号
+//
 // 定时信号可以在指定时间后, 通过 channel 发送一次性的定时信号
-func TestTimeAfter(t *testing.T) {
+func TestTime_After(t *testing.T) {
 	tm1 := time.Now()
 
 	// 50ms 后发送信号
@@ -31,13 +30,13 @@ func TestTimeAfter(t *testing.T) {
 	tm2 := <-c
 
 	// 计算从发送信号到接收信号的时间差
-	d := tm2.Sub(tm1)
-	assert.Equal(t, 50, int(d.Milliseconds()))
+	assertion.Between(t, tm2.Sub(tm1).Milliseconds(), int64(50), int64(60))
 }
 
 // 测试定时回调
+//
 // 定时回调可以在指定时间后回调指定函数
-func TestTimeAfterFunc(t *testing.T) {
+func TestTime_AfterFunc(t *testing.T) {
 	// 定义一个 channel
 	ch := make(chan struct{})
 	defer close(ch)
@@ -54,12 +53,11 @@ func TestTimeAfterFunc(t *testing.T) {
 	<-ch
 
 	// 计算函数多久后进行回调
-	d := time.Since(tm)
-	assert.Equal(t, 50, int(d.Milliseconds()))
+	assertion.Between(t, time.Since(tm).Milliseconds(), int64(50), int64(60))
 }
 
 // 测试周期性定时消息
-func TestTicker(t *testing.T) {
+func TestTime_NewTicker(t *testing.T) {
 	tm1 := time.Now()
 
 	// 每隔 50ms 发送一次信号
@@ -74,15 +72,13 @@ func TestTicker(t *testing.T) {
 		tm2 := <-tk.C
 
 		// 计算每次信号到达的时间
-		d := tm2.Sub(tm1)
-		assert.Equal(t, (n+1)*50, int(d.Milliseconds()))
-
+		assertion.Between(t, tm2.Sub(tm1).Milliseconds(), int64((n+1)*50), int64((n+1)*60))
 		n++
 	}
 }
 
 // 测试一次性定时器
-func TestTimer(t *testing.T) {
+func TestTime_NewTimer(t *testing.T) {
 	tm1 := time.Now()
 
 	// 50ms 后发送定时器信号
@@ -93,8 +89,7 @@ func TestTimer(t *testing.T) {
 	tm2 := <-ti.C
 
 	// 计算信号到达时间
-	d := tm2.Sub(tm1)
-	assert.Equal(t, 50, int(d.Milliseconds()))
+	assertion.Between(t, tm2.Sub(tm1).Milliseconds(), int64(50), int64(60))
 }
 
 // Timer 和 After 的异同

@@ -9,7 +9,7 @@ import (
 )
 
 var (
-    // 获取东八区时区
+	// 获取东八区时区
 	ZONE_LOCAL, _ = time.LoadLocation("Asia/Shanghai")
 
 	// Go 语言中格式化时间模板不是常见的 Y,M,S 等
@@ -178,12 +178,12 @@ func TestTime_Parse(t *testing.T) {
 		assert.Equal(t, 100000000, int(tm.Nanosecond()))
 	}
 
-    // 将一个标准 UTC 格式的时间转换为时间对象
+	// 将一个标准 UTC 格式的时间转换为时间对象
 	tm, err := time.Parse(TIME_LAYOUT_UTC, TIME_UTC)
 	assert.Nil(t, err)
 	checkResult(&tm)
 
-    // 将一个带时区偏移量的字符串转为时间对象c
+	// 将一个带时区偏移量的字符串转为时间对象c
 	tm, err = time.Parse(TIME_LAYOUT_OFF, TIME_OFF)
 	assert.Nil(t, err)
 	checkResult(&tm)
@@ -255,7 +255,7 @@ func TestTime_Marshal(t *testing.T) {
 }
 
 // 测试通过指定的时区对象解析时间字符串
-func TestParseTimeWithGivenLocationObject(t *testing.T) {
+func TestTime_ParseInLocation(t *testing.T) {
 	// 通过 Asia/Shanghai 作为时区对象解析时间字符串
 	tmLoc, err := time.ParseInLocation(TIME_LAYOUT_LOCAL, TIME_LOCAL, ZONE_LOCAL)
 	assert.Nil(t, err)
