@@ -7,7 +7,7 @@ import (
 
 // 客户端结构体
 type Client struct {
-	conn *Connection
+	conn *TCPConn
 }
 
 // 连接服务端
@@ -23,7 +23,7 @@ func Connect(address string) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	lClient.Printf("Connect to server %v", addr)
+	cLog.Printf("Connect to server %v", addr)
 
 	// 设置连接的发送和接收超时
 	// conn.SetReadDeadline(time.Now().Add(time.Second * 10))
@@ -31,14 +31,8 @@ func Connect(address string) (*Client, error) {
 
 	// 返回 Client 结构体
 	return &Client{
-		conn: NewConnection(conn),
+		conn: NewTCPConn(conn),
 	}, nil
-}
-
-// 关闭连接
-func (c *Client) Close() error {
-	lClient.Printf("Connection %v closed", c.conn.RemoteAddr())
-	return c.conn.Close()
 }
 
 // 发送请求数据, 返回
@@ -55,13 +49,13 @@ func (c *Client) sendRequest(action ActionCode, body interface{}) error {
 	if err := c.conn.Encode(&AskHeader{Action: action}); err != nil {
 		return err
 	}
-	lClient.Printf("Send ask header to %v, action=%v", c.conn.RemoteAddr(), action)
+	cLog.Printf("Send ask header to %v, action=%v", c.conn.RemoteAddr(), action)
 
 	// 发送请求内容
 	if err := c.conn.Encode(body); err != nil {
 		return err
 	}
-	lClient.Printf("Send ask body to %v, action=%v", c.conn.RemoteAddr(), action)
+	cLog.Printf("Send ask body to %v, action=%v", c.conn.RemoteAddr(), action)
 
 	return nil
 }
@@ -78,7 +72,7 @@ func (c *Client) receiveResponse(action ActionCode) (interface{}, error) {
 	if header.Action != action {
 		return nil, fmt.Errorf("invalid response action %v", header.Action)
 	}
-	lClient.Printf("Receive ack header from %v, action=%v", c.conn.RemoteAddr(), action)
+	cLog.Printf("Receive ack header from %v, action=%v", c.conn.RemoteAddr(), action)
 
 	// 根据响应头接收响应内容
 	var resp interface{} = nil
@@ -94,7 +88,13 @@ func (c *Client) receiveResponse(action ActionCode) (interface{}, error) {
 	if err := c.conn.Decode(resp); err != nil {
 		return nil, err
 	}
-	lClient.Printf("Receive ack body from %v, action=%v", c.conn.RemoteAddr(), action)
+	cLog.Printf("Receive ack body from %v, action=%v", c.conn.RemoteAddr(), action)
 
 	return resp, nil
+}
+
+// 关闭连接
+func (c *Client) Close() error {
+	cLog.Printf("Connection %v closed", c.conn.RemoteAddr())
+	return c.conn.Close()
 }

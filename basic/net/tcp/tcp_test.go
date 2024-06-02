@@ -23,11 +23,11 @@ func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 }
 
-func TestConnect(t *testing.T) {
+func TestTCP_Network(t *testing.T) {
 	// 启动服务器
 	server, err := ServerStart("0.0.0.0:8888")
 	assert.Nil(t, err)
-	defer server.Stop()
+	defer server.Close()
 
 	// 连接服务器
 	client, err := Connect("127.0.0.1:8888")
@@ -50,6 +50,4 @@ func TestConnect(t *testing.T) {
 	resp, err = client.Request(ACTION_SHUTDOWN, &ShutdownAsk{})
 	assert.Nil(t, err)
 	assert.Equal(t, &ShutdownAck{}, resp)
-
-	server.Join()
 }

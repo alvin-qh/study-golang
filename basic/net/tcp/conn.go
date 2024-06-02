@@ -6,15 +6,17 @@ import (
 	"sync/atomic"
 )
 
-type Connection struct {
-	conn   *net.TCPConn
-	dec    *gob.Decoder
-	enc    *gob.Encoder
-	closed int32
+// 包装 TCP 连接实例
+type TCPConn struct {
+	conn   *net.TCPConn // TCP 连接实例
+	dec    *gob.Decoder // 接收数据的解码实例
+	enc    *gob.Encoder // 发送数据的编码实例
+	closed int32        // 连接是否已经关闭
 }
 
-func NewConnection(conn *net.TCPConn) *Connection {
-	return &Connection{
+// 创建实例
+func NewTCPConn(conn *net.TCPConn) *TCPConn {
+	return &TCPConn{
 		conn:   conn,
 		dec:    gob.NewDecoder(conn),
 		enc:    gob.NewEncoder(conn),
@@ -22,38 +24,30 @@ func NewConnection(conn *net.TCPConn) *Connection {
 	}
 }
 
-func ConnectTo(addr *net.TCPAddr) (*Connection, error) {
-	conn, err := net.DialTCP("tcp", nil, addr)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Connection{
-		conn: conn,
-		dec:  gob.NewDecoder(conn),
-		enc:  gob.NewEncoder(conn),
-	}, nil
-}
-
-func (c *Connection) Encode(input interface{}) error {
+// 将数据编码后发送
+func (c *TCPConn) Encode(input interface{}) error {
 	return c.enc.Encode(input)
 }
 
-func (c *Connection) Decode(output interface{}) error {
+// 接收数据并解码
+func (c *TCPConn) Decode(output interface{}) error {
 	return c.dec.Decode(output)
 }
 
-func (c *Connection) RemoteAddr() net.Addr {
+// 获取远端连接地址
+func (c *TCPConn) RemoteAddr() net.Addr {
 	return c.conn.RemoteAddr()
 }
 
-func (c *Connection) Close() error {
+// 关闭当前连接
+func (c *TCPConn) Close() error {
 	if atomic.SwapInt32(&c.closed, 1) == 0 {
 		return c.conn.Close()
 	}
 	return nil
 }
 
-func (c *Connection) IsClosed() bool {
+// 返回当前连接是否已被关闭
+func (c *TCPConn) IsClosed() bool {
 	return atomic.LoadInt32(&c.closed) == 0
 }

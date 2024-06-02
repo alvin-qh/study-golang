@@ -60,10 +60,10 @@ func (c *Client) Request(pack Package) (Package, error) {
 
 // 发送请求
 func (c *Client) sendRequest(pack Package) error {
-	pack.SetSessionId(c.sessionId)
-
 	buf := bytes.NewBuffer(make([]byte, 0, 1024))
 	encoder := gob.NewEncoder(buf)
+
+	pack.SetSessionId(c.sessionId)
 
 	// 发送请求头
 	if err := encoder.Encode(pack); err != nil {
@@ -76,7 +76,7 @@ func (c *Client) sendRequest(pack Package) error {
 		return err
 	}
 
-	lClient.Printf("%v bytes was sent to %v", n, c.addr)
+	cLog.Printf("%v bytes was sent to %v", n, c.addr)
 	return nil
 }
 
@@ -88,7 +88,7 @@ func (c *Client) receiveResponse(action ActionCode) (Package, error) {
 	if err != nil {
 		return nil, err
 	}
-	lClient.Printf("%v bytes was received from %v", n, addr)
+	cLog.Printf("%v bytes was received from %v", n, addr)
 
 	decoder := gob.NewDecoder(bytes.NewReader(data))
 
@@ -103,12 +103,14 @@ func (c *Client) receiveResponse(action ActionCode) (Package, error) {
 		return nil, fmt.Errorf("invalid response action %v", header.Action)
 	}
 
+	cLog.Printf("received session id: %v, action=%v", header.SessionId, action)
+
 	// 确认是否携带错误信息
 	if !header.IsOk {
 		return nil, fmt.Errorf(header.Error)
 	}
 
-	//
+	// 保存 session id
 	c.sessionId = header.SessionId
 
 	// 根据响应类型创建响应数据类型
