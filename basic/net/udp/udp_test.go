@@ -26,12 +26,12 @@ func init() {
 
 func TestUDP_Network(t *testing.T) {
 	// 启动服务器
-	server, err := ServerStart("0.0.0.0:8888")
+	server, err := ServerStart("0.0.0.0:18888")
 	assert.Nil(t, err)
 	defer server.Close()
 
 	// 连接服务器
-	client, err := Connect("127.0.0.1:8888")
+	client, err := Connect("127.0.0.1:18888")
 	assert.Nil(t, err)
 	defer client.Close()
 

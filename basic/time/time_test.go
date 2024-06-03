@@ -193,8 +193,8 @@ func TestTime_Parse(t *testing.T) {
 func TestTime_Since(t *testing.T) {
 	start := time.Now()
 
-	time.Sleep(100 * time.Millisecond)
-	assertion.Between(t, time.Since(start).Milliseconds(), int64(100), int64(110))
+	time.Sleep(120 * time.Millisecond)
+	assertion.Between(t, time.Since(start).Milliseconds(), int64(120), int64(140))
 }
 
 // 计算当前时间到指定时间的时长

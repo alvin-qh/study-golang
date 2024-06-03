@@ -19,8 +19,8 @@ func TestHttp_Network(t *testing.T) {
 
 	// 实例化 Http 服务端
 	srv := &http.Server{
-		Addr:    ":8899", // 端口号
-		Handler: mux,     // 路由实例
+		Addr:    ":18888", // 端口号
+		Handler: mux,      // 路由实例
 	}
 	defer srv.Shutdown(context.Background())
 
@@ -52,13 +52,15 @@ func TestHttp_Network(t *testing.T) {
 		w.Write([]byte(fmt.Sprintf("Hello, %v!", name)))
 	})
 
+	success := false
+
 	// 启动客户端 goroutine
 	go func() {
 		// 生成访问 URL
-		uri := fmt.Sprintf("http://127.0.0.1:8899?name=%v", url.QueryEscape("Alvin"))
+		uri := fmt.Sprintf("http://127.0.0.1:18888?name=%v", url.QueryEscape("Alvin"))
 
 		// 最多重试 10 次, 访问服务端
-		for i := 0; i < 10; i++ {
+		for i := 0; i < 10 && !success; i++ {
 			// 通过指定 URL 向服务端发送请求, 获取响应结果
 			resp, err := http.Get(uri)
 			if err != nil {
@@ -76,7 +78,7 @@ func TestHttp_Network(t *testing.T) {
 			assert.Nil(t, err)
 			assert.Equal(t, "Hello, Alvin!", string(body))
 
-			break
+			success = true
 		}
 
 		// 完成测试, 关闭服务端
@@ -85,4 +87,6 @@ func TestHttp_Network(t *testing.T) {
 
 	// 等待服务端关闭
 	<-cShutdown
+
+	assert.True(t, success)
 }

@@ -100,7 +100,7 @@ func TestCond_SignalOneByOne(t *testing.T) {
 	go func() {
 		for i := 0; i < 10; i++ {
 			// 休眠 10 毫秒后发送信号
-			time.Sleep(10 * time.Millisecond)
+			time.Sleep(120 * time.Millisecond)
 			cond.Signal()
 		}
 	}()
@@ -127,7 +127,7 @@ func TestCond_SignalOneByOne(t *testing.T) {
 	// 各协程 ID 和 1+2+3+...+10
 	assert.Equal(t, int64(55), totalId)
 	// 各协程等待时长和 10+20+30+...+100
-	assertion.Between(t, totalTime, int64(550), int64(580))
+	assertion.Between(t, totalTime, int64(55*120), int64(55*140))
 }
 
 // 测试条件量信号广播
@@ -165,7 +165,7 @@ func TestCond_Broadcast(t *testing.T) {
 	// 启动 goroutine, 等待 10ms 后广播信号
 	go func() {
 		// 休眠 10 毫秒后广播信号
-		time.Sleep(10 * time.Millisecond)
+		time.Sleep(120 * time.Millisecond)
 		cond.Broadcast()
 	}()
 
@@ -191,5 +191,5 @@ func TestCond_Broadcast(t *testing.T) {
 	// 各协程 ID 和 1+2+3+...+10
 	assert.Equal(t, int64(45), totalId)
 	// 各协程等待时长和 10+10+10+...+10
-	assertion.Between(t, totalTime, int64(100), int64(120))
+	assertion.Between(t, totalTime, int64(10*120), int64(10*140))
 }

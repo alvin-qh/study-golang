@@ -126,7 +126,7 @@ func TestSizedPool_Get(t *testing.T) {
 	go func() {
 		// 将之前取出的元素按照 10ms 的间隔逐一归还
 		for _, elem := range rs {
-			time.Sleep(10 * time.Millisecond)
+			time.Sleep(120 * time.Millisecond)
 			elem.Release()
 		}
 	}()
@@ -147,7 +147,7 @@ func TestSizedPool_Get(t *testing.T) {
 			// 从池中获取元素的最长等待时间也也应为 pool.MaxSize() * 10ms, 增加 20 ms 作为其它运行损耗
 			ctx, cancel := context.WithTimeout(
 				context.Background(),
-				time.Duration(pool.MaxSize()*10+20)*time.Millisecond,
+				time.Duration(pool.MaxSize()*120+20)*time.Millisecond,
 			)
 			defer cancel()
 
@@ -167,5 +167,5 @@ func TestSizedPool_Get(t *testing.T) {
 	assert.Equal(t, int32(pool.MaxSize()), lastId)
 
 	// 确认第二次获取全部池元素消耗的时间
-	assertion.Between(t, time.Since(start).Milliseconds(), int64(pool.MaxSize()*10), int64(pool.MaxSize()*10+20))
+	assertion.Between(t, time.Since(start).Milliseconds(), int64(pool.MaxSize()*120), int64(pool.MaxSize()*120+20))
 }

@@ -10,7 +10,7 @@ import (
 // 断言 min <= val < max
 func Between[V c.Ordered](t *testing.T, val V, min, max V) {
 	if val < min || val >= max {
-		assert.Failf(t, "value is not between min and max", "value: %v, min: %v, max: %v", val, min, max)
+		t.Errorf("value is not between min and max, value: %v, min: %v, max: %v", val, min, max)
 	}
 }
 
