@@ -26,7 +26,7 @@ func TestChan_Simple(t *testing.T) {
 	// 异步执行函数
 	go func() {
 		// 休眠一段时间
-		time.Sleep(time.Millisecond * 100)
+		time.Sleep(10 * time.Millisecond)
 
 		// 向 chan 中写入字符串
 		ch <- "Hello"
@@ -36,13 +36,13 @@ func TestChan_Simple(t *testing.T) {
 
 	// 等待从 chan 中读取数据
 	s, ok := <-ch
-	d := time.Since(now).Milliseconds()
+	d := time.Since(now)
 
 	assert.True(t, ok)
 	assert.Equal(t, "Hello", s)
 
 	// 100ms 后接收到数据, 之前处于阻塞状态
-	assertion.Between(t, d, int64(100), int64(120))
+	assertion.DurationMatch(t, 10*time.Millisecond, d)
 }
 
 // 测试无缓冲的 chan 实例
@@ -55,7 +55,7 @@ func TestChan_Blocked(t *testing.T) {
 	// 第二个参数为 0 或缺省, 表示 chan 无缓冲
 	ch := make(chan string)
 
-	d := int64(0)
+	var d time.Duration
 
 	// 异步函数, 向 chan 中发送数据
 	go func() {
@@ -67,7 +67,7 @@ func TestChan_Blocked(t *testing.T) {
 			assert.True(t, ok)
 			assert.Equal(t, "send on closed channel", err.Error())
 
-			d = time.Since(start).Milliseconds()
+			d = time.Since(start)
 			wg.Done()
 		}()
 
@@ -75,14 +75,14 @@ func TestChan_Blocked(t *testing.T) {
 		ch <- "Hello"
 	}()
 
-	<-time.After(time.Millisecond * 100)
+	<-time.After(time.Millisecond * 10)
 	// 等待一段时间后关闭 chan, 并不接收 chan 中的数据
 	close(ch)
 
 	wg.Wait()
 
 	// 之前代码执行时间应该和等待时间相同
-	assertion.Between(t, d, int64(100), int64(120))
+	assertion.DurationMatch(t, 10*time.Millisecond, d)
 }
 
 // 测试无缓冲 chan 发送不阻塞情况
@@ -165,7 +165,7 @@ func TestChan_CheckedBlocked(t *testing.T) {
 	// 缓冲区写满后, 数据发送被阻塞, 此时 chan 的数据必须被消费掉, 否则无法写入新数据
 	ch := make(chan string, 1)
 
-	d := int64(0)
+	var d time.Duration
 
 	// 异步函数, 向 chan 中发送数据
 	go func() {
@@ -176,7 +176,7 @@ func TestChan_CheckedBlocked(t *testing.T) {
 			assert.True(t, ok)
 			assert.Equal(t, "send on closed channel", err.Error())
 
-			d = time.Since(start).Milliseconds()
+			d = time.Since(start)
 			wg.Done()
 		}()
 
@@ -186,13 +186,13 @@ func TestChan_CheckedBlocked(t *testing.T) {
 	}()
 
 	// 等待一段时间后关闭 chan, 并不接收 chan 中的数据
-	<-time.After(time.Millisecond * 100)
+	<-time.After(time.Millisecond * 10)
 	close(ch)
 
 	wg.Wait()
 
 	// 之前代码执行时间应该和等待时间相同
-	assertion.Between(t, d, int64(100), int64(120))
+	assertion.DurationMatch(t, 10*time.Millisecond, d)
 
 	// 缓冲区写满后被消费, 发送不阻塞
 
@@ -208,7 +208,7 @@ func TestChan_CheckedBlocked(t *testing.T) {
 		defer func() {
 			recover()
 
-			d = time.Since(start).Milliseconds()
+			d = time.Since(start)
 			wg.Done()
 		}()
 

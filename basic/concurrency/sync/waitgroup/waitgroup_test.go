@@ -19,12 +19,12 @@ func TestWaitGroup_Wait(t *testing.T) {
 		// 为等待组增加一个等待任务
 		wg.Add(1)
 
-		// 启动协程, 等待 100ms 后完成等待任务
+		// 启动协程, 等待 10ms 后完成等待任务
 		go func() {
 			// 协程结束后完成等待任务
 			defer wg.Done()
 
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(10 * time.Millisecond)
 		}()
 	}
 
@@ -34,5 +34,5 @@ func TestWaitGroup_Wait(t *testing.T) {
 	wg.Wait()
 
 	// 确定任务完成时长 100ms
-	assertion.Between(t, time.Since(start).Milliseconds(), int64(100), int64(120))
+	assertion.DurationMatch(t, 10*time.Millisecond, time.Since(start))
 }

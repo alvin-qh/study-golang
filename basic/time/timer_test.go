@@ -11,10 +11,10 @@ func TestTime_Sleep(t *testing.T) {
 	tm := time.Now()
 
 	// 休眠 50ms
-	time.Sleep(120 * time.Millisecond)
+	time.Sleep(10 * time.Millisecond)
 
 	// 计算当前时间和指定时间的差值, 相当于 time.Now().Sub(tm)
-	assertion.Between(t, time.Since(tm).Milliseconds(), int64(120), int64(140))
+	assertion.DurationMatch(t, 10*time.Millisecond, time.Since(tm))
 }
 
 // 测试定时信号
@@ -24,13 +24,13 @@ func TestTime_After(t *testing.T) {
 	tm1 := time.Now()
 
 	// 50ms 后发送信号
-	c := time.After(120 * time.Millisecond)
+	c := time.After(10 * time.Millisecond)
 
 	// 等待信号到达
 	tm2 := <-c
 
 	// 计算从发送信号到接收信号的时间差
-	assertion.Between(t, tm2.Sub(tm1).Milliseconds(), int64(120), int64(140))
+	assertion.DurationMatch(t, 10*time.Millisecond, tm2.Sub(tm1))
 }
 
 // 测试定时回调
@@ -42,7 +42,7 @@ func TestTime_AfterFunc(t *testing.T) {
 	defer close(ch)
 
 	// 50ms 后回调函数
-	time.AfterFunc(120*time.Millisecond, func() {
+	time.AfterFunc(10*time.Millisecond, func() {
 		// 发送一个空的信号
 		ch <- struct{}{}
 	})
@@ -53,7 +53,7 @@ func TestTime_AfterFunc(t *testing.T) {
 	<-ch
 
 	// 计算函数多久后进行回调
-	assertion.Between(t, time.Since(tm).Milliseconds(), int64(120), int64(140))
+	assertion.DurationMatch(t, 10*time.Millisecond, time.Since(tm))
 }
 
 // 测试周期性定时消息
@@ -61,7 +61,7 @@ func TestTime_NewTicker(t *testing.T) {
 	tm1 := time.Now()
 
 	// 每隔 50ms 发送一次信号
-	tk := time.NewTicker(120 * time.Millisecond)
+	tk := time.NewTicker(10 * time.Millisecond)
 	defer tk.Stop()
 
 	n := 0
@@ -72,7 +72,7 @@ func TestTime_NewTicker(t *testing.T) {
 		tm2 := <-tk.C
 
 		// 计算每次信号到达的时间
-		assertion.Between(t, tm2.Sub(tm1).Milliseconds(), int64((n+1)*120), int64((n+1)*140))
+		assertion.DurationMatch(t, time.Duration((n+1)*10)*time.Millisecond, tm2.Sub(tm1))
 		n++
 	}
 }
@@ -82,14 +82,14 @@ func TestTime_NewTimer(t *testing.T) {
 	tm1 := time.Now()
 
 	// 50ms 后发送定时器信号
-	ti := time.NewTimer(120 * time.Millisecond)
+	ti := time.NewTimer(10 * time.Millisecond)
 	defer ti.Stop()
 
 	// 等待定时器信号
 	tm2 := <-ti.C
 
 	// 计算信号到达时间
-	assertion.Between(t, tm2.Sub(tm1).Milliseconds(), int64(120), int64(140))
+	assertion.DurationMatch(t, 10*time.Millisecond, tm2.Sub(tm1))
 }
 
 // Timer 和 After 的异同

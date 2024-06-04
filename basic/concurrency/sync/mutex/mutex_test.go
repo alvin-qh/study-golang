@@ -134,7 +134,7 @@ func TestRWMutex_LockAndUnlock(t *testing.T) {
 
 		// 休眠 100ms 后, 在函数结束后解除一次读锁定
 		// 至此, 两次读锁都被解除
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(10 * time.Millisecond)
 	}()
 
 	start := time.Now()
@@ -144,7 +144,7 @@ func TestRWMutex_LockAndUnlock(t *testing.T) {
 	mut.Lock()
 	defer mut.Unlock()
 
-	assertion.Between(t, time.Since(start).Milliseconds(), int64(100), int64(120))
+	assertion.DurationMatch(t, 10*time.Millisecond, time.Since(start))
 }
 
 // 测试读锁的非阻塞加锁方式
@@ -205,7 +205,7 @@ func TestRWMutex_RLocker(t *testing.T) {
 	go func() {
 		defer lk.Unlock()
 
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(10 * time.Millisecond)
 	}()
 
 	start := time.Now()
@@ -215,5 +215,5 @@ func TestRWMutex_RLocker(t *testing.T) {
 	defer mut.Unlock()
 
 	// 确认写锁必须在读锁解除后才能成功
-	assertion.Between(t, time.Since(start).Milliseconds(), int64(100), int64(120))
+	assertion.DurationMatch(t, 10*time.Millisecond, time.Since(start))
 }

@@ -3,7 +3,7 @@ package semaphore
 import (
 	"context"
 	"runtime"
-	"study/basic/builtin/slice/utils"
+	"study/basic/testing/assertion"
 	"sync"
 	"testing"
 	"time"
@@ -47,7 +47,7 @@ func TestSemaphore_Weighted(t *testing.T) {
 
 	// 上一次获取信号量的时间
 	last := time.Now()
-	intervals := make([]int64, 0, 10)
+	intervals := make([]time.Duration, 0, 10)
 
 	// 启动 goroutine, 对 10 个信号量逐一占用
 	go func() {
@@ -57,7 +57,7 @@ func TestSemaphore_Weighted(t *testing.T) {
 		for n > 0 {
 			sem.Acquire(ctx, 1)
 
-			intervals = append(intervals, time.Since(last).Milliseconds())
+			intervals = append(intervals, time.Since(last))
 			last = time.Now()
 
 			n--
@@ -75,5 +75,7 @@ func TestSemaphore_Weighted(t *testing.T) {
 	assert.False(t, sem.TryAcquire(1))
 
 	// 确认每次释放和占用信号量的时间间隔都为 10 毫秒
-	assert.Equal(t, utils.Repeat(10, int64(10)), intervals)
+	for _, i := range intervals {
+		assertion.DurationMatch(t, 10*time.Millisecond, i)
+	}
 }

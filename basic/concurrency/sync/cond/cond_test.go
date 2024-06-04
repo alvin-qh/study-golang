@@ -35,7 +35,7 @@ func TestCond_NewCond(t *testing.T) {
 	cond := sync.NewCond(&mut)
 
 	// 声明一个接收结果的通道
-	ch := make(chan int64)
+	ch := make(chan time.Duration)
 
 	// 启动 goroutine, 等待 `sync.Cond` 实例的信号, 并计算等待时长
 	go func() {
@@ -49,18 +49,18 @@ func TestCond_NewCond(t *testing.T) {
 		cond.Wait()
 
 		// 计算信号等待时长
-		ch <- time.Since(start).Milliseconds()
+		ch <- time.Since(start)
 	}()
 
 	// 休眠 100ms 后, 向 `sync.Cond` 实例发送信号
 	// 此时 goroutine 中的等待会结束
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(10 * time.Millisecond)
 	// 发送信号
 	cond.Signal()
 
 	// 接收结果, 即 goroutine 等待时长
 	since := <-ch
-	assertion.Between(t, since, int64(100), int64(120))
+	assertion.DurationMatch(t, 10*time.Millisecond, since)
 }
 
 // 测试条件量信号
@@ -68,13 +68,19 @@ func TestCond_NewCond(t *testing.T) {
 // 通过 `sync.Cond` 实例, 每个 goroutine 可以调用 `Wait` 方法等待一个信号, 而调用 `Signal` 方法可以发送一次信号,
 // 即结束一个 goroutine 的等待, 其余 goroutine 仍处于继续等待的状态
 func TestCond_SignalOneByOne(t *testing.T) {
+	// 定义一个元素类型
+	type Elem struct {
+		id int64
+		d  time.Duration
+	}
+
 	var mut sync.Mutex
 
 	// 创建条件量
 	cond := sync.NewCond(&mut)
 
 	// 用于输出结果的信道实例
-	ch := make(chan []int64)
+	ch := make(chan Elem)
 	defer close(ch)
 
 	start := time.Now()
@@ -91,7 +97,7 @@ func TestCond_SignalOneByOne(t *testing.T) {
 			cond.Wait()
 
 			// 计算信号等待时长
-			ch <- []int64{id, time.Since(start).Milliseconds()}
+			ch <- Elem{id, time.Since(start)}
 		}(int64(i + 1))
 	}
 
@@ -100,21 +106,22 @@ func TestCond_SignalOneByOne(t *testing.T) {
 	go func() {
 		for i := 0; i < 10; i++ {
 			// 休眠 10 毫秒后发送信号
-			time.Sleep(120 * time.Millisecond)
+			time.Sleep(10 * time.Millisecond)
 			cond.Signal()
 		}
 	}()
 
-	var totalId, totalTime = int64(0), int64(0)
+	var totalId int64
+	var totalTime time.Duration
 
 	count := 0
 	// 通过信道获取所有 goroutine 的执行结果
 	for r := range ch {
 		// 计算每个 goroutine 函数 id 参数的总和
-		totalId += r[0]
+		totalId += r.id
 
 		// 记录每个 goroutine 等待时长的总和
-		totalTime += r[1]
+		totalTime += r.d
 
 		count++
 		// 接收 10 次结果后退出循环
@@ -126,8 +133,9 @@ func TestCond_SignalOneByOne(t *testing.T) {
 	// 确认每个 goroutine 都依次完成等待， 并发送结果
 	// 各协程 ID 和 1+2+3+...+10
 	assert.Equal(t, int64(55), totalId)
+
 	// 各协程等待时长和 10+20+30+...+100
-	assertion.Between(t, totalTime, int64(55*120), int64(55*140))
+	assertion.DurationMatch(t, 55*10*time.Millisecond, totalTime)
 }
 
 // 测试条件量信号广播
@@ -135,13 +143,19 @@ func TestCond_SignalOneByOne(t *testing.T) {
 // 通过 `sync.Cond` 类型的 `Broadcast` 方法, 可以将信号一次性发送给所有在该条件量等待的 goroutine,
 // 而不是类似 `Signal` 方法那样一次只发送一个信号
 func TestCond_Broadcast(t *testing.T) {
+	// 定义一个元素类型
+	type Elem struct {
+		id int64
+		d  time.Duration
+	}
+
 	var mut sync.Mutex
 
 	// 创建条件量
 	cond := sync.NewCond(&mut)
 
 	// 用于输出结果的信道实例
-	ch := make(chan []int64)
+	ch := make(chan Elem)
 	defer close(ch)
 
 	start := time.Now()
@@ -158,27 +172,28 @@ func TestCond_Broadcast(t *testing.T) {
 			cond.Wait()
 
 			// 计算信号等待时长
-			ch <- []int64{id, time.Since(start).Milliseconds()}
+			ch <- Elem{id, time.Since(start)}
 		}(int64(i))
 	}
 
 	// 启动 goroutine, 等待 10ms 后广播信号
 	go func() {
 		// 休眠 10 毫秒后广播信号
-		time.Sleep(120 * time.Millisecond)
+		time.Sleep(10 * time.Millisecond)
 		cond.Broadcast()
 	}()
 
-	var totalId, totalTime = int64(0), int64(0)
+	var totalId int64
+	var totalTime time.Duration
 
 	count := 0
 	// 通过信道获取所有 goroutine 的执行结果
 	for r := range ch {
 		// 计算每个 goroutine 函数 id 参数的总和
-		totalId += r[0]
+		totalId += r.id
 
 		// 记录每个 goroutine 等待时长的总和
-		totalTime += r[1]
+		totalTime += r.d
 
 		count++
 		// 接收 10 次结果后退出循环
@@ -191,5 +206,5 @@ func TestCond_Broadcast(t *testing.T) {
 	// 各协程 ID 和 1+2+3+...+10
 	assert.Equal(t, int64(45), totalId)
 	// 各协程等待时长和 10+10+10+...+10
-	assertion.Between(t, totalTime, int64(10*120), int64(10*140))
+	assertion.DurationMatch(t, 10*10*time.Millisecond, totalTime)
 }

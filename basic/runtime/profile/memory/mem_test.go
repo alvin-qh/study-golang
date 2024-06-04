@@ -2,6 +2,7 @@ package memory
 
 import (
 	"bytes"
+	"fmt"
 	"testing"
 	"time"
 
@@ -25,14 +26,16 @@ func TestProfile_Memory(t *testing.T) {
 	mem := make([]byte, 1024*1024*100)
 
 	// 等待 1 秒钟以产生内存 Profile 记录
-	time.Sleep(time.Millisecond * 500)
+	time.Sleep(500 * time.Millisecond)
 	mem[len(mem)-1] = 0
 
 	// 停止记录内存信息
 	pf.Stop()
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(500 * time.Millisecond)
+
+	fmt.Println(buf.String())
 
 	// 代码第 25 行进行了一次内存分配, 确认记录中包含该位置
-	hit := bytes.Index(buf.Bytes(), []byte("study-golang/basic/runtime/profile/memory/mem_test.go:25"))
+	hit := bytes.Index(buf.Bytes(), []byte("study-golang/basic/runtime/profile/memory/mem_test.go:26"))
 	assert.True(t, hit >= 0)
 }

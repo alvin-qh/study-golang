@@ -39,7 +39,7 @@ func TestFileLock_LockUnlock(t *testing.T) {
 		defer fl.Unlock()
 
 		// 进入锁临界区, 模拟计算时间 100ms
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(10 * time.Millisecond)
 
 		// 发送结果, 结果为
 		ch <- time.Since(start)
@@ -79,6 +79,6 @@ exit:
 		}
 	}
 
-	assertion.Between(t, r[0].Milliseconds(), int64(100), int64(120))
-	assertion.Between(t, r[1].Milliseconds(), int64(100+100), int64(100+100+20))
+	assertion.DurationMatch(t, 10*time.Millisecond, r[0])
+	assertion.DurationMatch(t, 20*time.Millisecond, r[1])
 }

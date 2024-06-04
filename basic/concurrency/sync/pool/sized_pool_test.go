@@ -112,8 +112,8 @@ func TestSizedPool_Get(t *testing.T) {
 		rs = append(rs, elem)
 	}
 
-	// 上面的操作未发生任何阻塞, 因为池中现存元素
-	assertion.Between(t, time.Since(start).Milliseconds(), int64(0), int64(10))
+	// 上面的操作未发生任何阻塞, 因为池中现存元素足够
+	assertion.DurationMatch(t, 0, time.Since(start))
 
 	// 共从池中获取 10 个元素
 	assert.Len(t, rs, pool.MaxSize())
@@ -126,7 +126,7 @@ func TestSizedPool_Get(t *testing.T) {
 	go func() {
 		// 将之前取出的元素按照 10ms 的间隔逐一归还
 		for _, elem := range rs {
-			time.Sleep(120 * time.Millisecond)
+			time.Sleep(10 * time.Millisecond)
 			elem.Release()
 		}
 	}()
@@ -145,10 +145,7 @@ func TestSizedPool_Get(t *testing.T) {
 
 			// 创建可超时上下文实例, 由于池的元素整体经过 pool.MaxSize() * 10ms 后才能释放完毕,
 			// 从池中获取元素的最长等待时间也也应为 pool.MaxSize() * 10ms, 增加 20 ms 作为其它运行损耗
-			ctx, cancel := context.WithTimeout(
-				context.Background(),
-				time.Duration(pool.MaxSize()*120+20)*time.Millisecond,
-			)
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 			defer cancel()
 
 			// 从池中获取元素
@@ -167,5 +164,5 @@ func TestSizedPool_Get(t *testing.T) {
 	assert.Equal(t, int32(pool.MaxSize()), lastId)
 
 	// 确认第二次获取全部池元素消耗的时间
-	assertion.Between(t, time.Since(start).Milliseconds(), int64(pool.MaxSize()*120), int64(pool.MaxSize()*120+20))
+	assertion.DurationMatch(t, 10*10*time.Millisecond, time.Since(start))
 }

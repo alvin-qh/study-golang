@@ -23,7 +23,7 @@ func TestBlockQueue_Offer(t *testing.T) {
 	// 启动一个 goroutine, 在 100ms 后出队一个元素
 	go func() {
 		// 等待 100ms 后, 从队列中弹出一个元素
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(10 * time.Millisecond)
 		val, ok := que.Poll(-1)
 
 		// 确认弹出了队列中第一个元素
@@ -36,7 +36,7 @@ func TestBlockQueue_Offer(t *testing.T) {
 	// 入队一个新元素, 总体耗时 100ms 以上 (包括等待队列出队)
 	r := que.Offer(context.Background(), 10)
 	assert.True(t, r)
-	assertion.Between(t, time.Since(start).Milliseconds(), int64(100), int64(120))
+	assertion.DurationMatch(t, 10*time.Millisecond, time.Since(start))
 
 	// 确认队列的长度和内容
 	assert.Equal(t, 10, que.Len())
@@ -76,7 +76,7 @@ func TestBlockQueue_OfferWithTimeout(t *testing.T) {
 
 	// 前 10 个元素入队不会超时
 	for i := 0; i < 10; i++ {
-		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
 
 		r := que.Offer(ctx, i)
 		cancel()
@@ -84,20 +84,20 @@ func TestBlockQueue_OfferWithTimeout(t *testing.T) {
 		assert.True(t, r)
 	}
 	// 确认前 10 个元素入队无需等待
-	assert.Less(t, time.Since(start).Milliseconds(), int64(100))
+	assert.Less(t, time.Since(start), 10*time.Millisecond)
 	assert.Equal(t, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, que.List())
 
 	start = time.Now()
 
 	// 入队第 11 个元素, 由于队列已满, 等待 100ms 后超时, 入队失败
-	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
 	r := que.Offer(ctx, 10)
 	cancel()
 
 	// 确认第 11 个元素入队失败
 	assert.False(t, r)
 	// 确认入队第 11 元素时等待了 100ms 后超时失败
-	assertion.Between(t, time.Since(start).Milliseconds(), int64(100), int64(120))
+	assertion.DurationMatch(t, 10*time.Millisecond, time.Since(start))
 	assert.Equal(t, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, que.List())
 
 	// 从队列中删除一个元素
@@ -111,6 +111,6 @@ func TestBlockQueue_OfferWithTimeout(t *testing.T) {
 	// 确认第 11 个元素再次入队成功
 	assert.True(t, r)
 	// 确认入队第 11 元素时未发生等待
-	assertion.Between(t, time.Since(start).Milliseconds(), int64(0), int64(20))
+	assert.Less(t, time.Since(start), 10*time.Millisecond)
 	assert.Equal(t, []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, que.List())
 }
