@@ -1,5 +1,11 @@
 package udp
 
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
 /**
  * Golang with UDP
  *
@@ -12,21 +18,11 @@ package udp
  *  3. goroutine 2: 监听一个发送 channel, 并将 channel 发来的数据通过 UDP 发送给客户端
  *  4. 接收的数据报带有发送方地址, 服务端需对每个发送方地址做标识, 以记录其状态
  */
-
-import (
-	"testing"
-	"time"
-
-	"github.com/stretchr/testify/assert"
-)
-
 func TestUDP_Network(t *testing.T) {
 	// 启动服务器
 	server, err := ServerStart(":18888")
 	assert.Nil(t, err)
 	defer server.Close()
-
-	time.Sleep(10 * time.Second)
 
 	// 连接服务器
 	client, err := Connect("127.0.0.1:18888")
