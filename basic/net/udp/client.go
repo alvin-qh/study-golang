@@ -5,7 +5,6 @@ import (
 	"encoding/gob"
 	"fmt"
 	"net"
-	"time"
 )
 
 // 客户端结构体
@@ -18,20 +17,20 @@ type Client struct {
 // 连接服务端
 func Connect(address string) (*Client, error) {
 	// 解析字符串地址
-	addr, err := net.ResolveUDPAddr("udp4", address)
+	addr, err := net.ResolveUDPAddr("udp", address)
 	if err != nil {
 		return nil, err
 	}
 
 	// 连接服务端
-	conn, err := net.DialUDP("udp4", nil, addr)
+	conn, err := net.DialUDP("udp", nil, addr)
 	if err != nil {
 		return nil, err
 	}
 
 	// 设置连接的发送和接收超时
-	conn.SetReadDeadline(time.Now().Add(time.Second * 10))
-	conn.SetWriteDeadline(time.Now().Add(time.Second * 30))
+	// conn.SetReadDeadline(time.Now().Add(time.Second * 10))
+	// conn.SetWriteDeadline(time.Now().Add(time.Second * 30))
 
 	// 返回 Client 结构体
 	return &Client{
@@ -44,7 +43,8 @@ func Connect(address string) (*Client, error) {
 func (c *Client) Close() error {
 	var err error
 	if c.conn != nil {
-		err = c.conn.Close() // 关闭与服务端的连接
+		// 关闭与服务端的连接
+		err = c.conn.Close()
 		c.conn = nil
 	}
 	return err

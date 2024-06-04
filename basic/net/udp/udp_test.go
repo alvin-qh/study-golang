@@ -14,21 +14,19 @@ package udp
  */
 
 import (
-	"runtime"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func init() {
-	runtime.GOMAXPROCS(runtime.NumCPU())
-}
-
 func TestUDP_Network(t *testing.T) {
 	// 启动服务器
-	server, err := ServerStart("0.0.0.0:18888")
+	server, err := ServerStart(":18888")
 	assert.Nil(t, err)
 	defer server.Close()
+
+	time.Sleep(10 * time.Second)
 
 	// 连接服务器
 	client, err := Connect("127.0.0.1:18888")

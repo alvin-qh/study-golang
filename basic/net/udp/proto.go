@@ -6,7 +6,7 @@ import "errors"
 type ActionCode int
 
 const (
-	PACKAGE_LIMIT = 1024
+	PACKAGE_LIMIT = 1024 * 60
 )
 
 // 业务代码转字符串

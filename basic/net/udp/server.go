@@ -37,14 +37,14 @@ type Response struct {
 // 启动服务器
 func ServerStart(address string) (*Server, error) {
 	// 解析监听地址
-	addr, err := net.ResolveUDPAddr("udp4", address)
+	addr, err := net.ResolveUDPAddr("udp", address)
 	if err != nil {
 		sLog.Fatalf("Cannot resolve address %v", address)
 		return nil, err
 	}
 
 	// 监听指定端口和地址
-	conn, err := net.ListenUDP("udp4", addr)
+	conn, err := net.ListenUDP("udp", addr)
 	if err != nil {
 		sLog.Fatalf("Cannot Listen UDP at %v", address)
 		return nil, err
@@ -153,7 +153,7 @@ func (s *Server) handleSendMessage(ch <-chan Response) {
 	// 从 channel 中获取待发送的数据
 	for resp := range ch {
 		// 将数据写入 UDP 连接
-		buf := bytes.NewBuffer(make([]byte, 0, PACKAGE_LIMIT))
+		buf := bytes.NewBuffer(make([]byte, 0))
 		enc := gob.NewEncoder(buf)
 
 		// 将发送数据编码后写入缓冲
