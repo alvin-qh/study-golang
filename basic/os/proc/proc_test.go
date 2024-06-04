@@ -77,7 +77,7 @@ func TestOS_StartProcess(t *testing.T) {
 	cmd := platform.Choose(
 		platform.Windows,
 		"C:\\Windows\\system32\\cmd.exe",
-		"ls",
+		"/usr/bin/ls",
 	)
 	args := platform.Choose(
 		platform.Windows,
