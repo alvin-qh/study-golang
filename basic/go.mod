@@ -1,13 +1,15 @@
 module study/basic
 
-go 1.22
+go 1.22.0
+
+toolchain go1.22.4
 
 require github.com/stretchr/testify v1.9.0
 
 require (
 	github.com/joho/godotenv v1.5.1
-	golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8
-	golang.org/x/sync v0.7.0
+	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0
+	golang.org/x/sync v0.8.0
 )
 
 require (
