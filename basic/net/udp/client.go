@@ -107,7 +107,7 @@ func (c *Client) receiveResponse(action ActionCode) (Package, error) {
 
 	// 确认是否携带错误信息
 	if !header.IsOk {
-		return nil, fmt.Errorf(header.Error)
+		return nil, fmt.Errorf("%v", header.Error)
 	}
 
 	// 保存 session id
