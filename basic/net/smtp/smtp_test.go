@@ -12,7 +12,7 @@ func TestSMTP_NewSMTP(t *testing.T) {
 	assert.Nil(t, err)
 
 	assert.Equal(t, "smtp.163.com", smtp.Host)
-	assert.Equal(t, 465, smtp.Port)
+	assert.Equal(t, 25, smtp.Port)
 	assert.Equal(t, "quhao317@163.com", smtp.Sender)
 }
 

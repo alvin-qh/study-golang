@@ -162,7 +162,7 @@ func TestSlice_Reference(t *testing.T) {
 	s2 := s1
 
 	// 两个变量是不同变量
-	assert.NotSame(t, s1, s2)
+	assert.NotSame(t, &s1, &s2)
 
 	// 两个切片的元素地址相同, 即元素位于相同内存空间
 	assert.Same(t, &s1[0], &s2[0])

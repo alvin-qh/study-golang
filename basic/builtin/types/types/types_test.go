@@ -116,13 +116,13 @@ func TestType_TypeConvert(t *testing.T) {
 
 		// 转换前后的两个变量不相同
 		assert.NotEqual(t, v2, v1)
-		assert.NotSame(t, v2, v1)
+		assert.NotSame(t, &v2, &v1)
 
 		var v3 int32 = int32(v2)
 
 		// 转换前后的两个变量不相同
 		assert.NotEqual(t, v3, v2)
-		assert.NotSame(t, v3, v2)
+		assert.NotSame(t, &v3, &v2)
 
 		// 转换前后的两个变量值相同但类型不同
 		assert.EqualValues(t, v2, v3)
