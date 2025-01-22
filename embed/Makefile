@@ -1,11 +1,11 @@
-BINARY_NAME=out/viper-demo
+BINARY_NAME=out/embed-demo
 
 .PHONY: all
 all: build test
 
 .PHONY: build
 build:
-	go build -o ${BINARY_NAME} main.go
+	go build -ldflags="-s -w" -pgo=auto -o ${BINARY_NAME} main.go
 
 .PHONY: test
 test:

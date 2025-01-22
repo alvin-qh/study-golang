@@ -2,7 +2,10 @@ package web
 
 import (
 	"embed"
+	"encoding/base64"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,8 +15,44 @@ var (
 	STATIC_FS embed.FS
 )
 
+const (
+	staticPathPrefix   = "/asset/"
+	cacheControlHeader = "Cache-Control"
+	cacheControlValue  = "public, max-age=2592000" // 缓存一个月
+	eTagHeader         = "ETag"
+	ifNoneMatchHeader  = "If-None-Match"
+)
+
 func createEngine() *gin.Engine {
 	engine := gin.Default()
+
+	engine.Use(func(c *gin.Context) {
+		// 如果请求的 URI 以 `/asset/` 开头, 则设置缓存头
+		if strings.HasPrefix(c.Request.URL.Path, "/asset/") {
+			c.Header(cacheControlHeader, cacheControlValue)
+
+			fileName := c.Request.URL.Path[1:]
+			f, err := STATIC_FS.Open(fileName)
+			if err == nil {
+				st, err := f.Stat()
+				if err != nil {
+					c.Abort()
+					return
+				}
+				eTag := fmt.Sprintf("%v-%v", base64.StdEncoding.EncodeToString([]byte(st.Name())), st.Size())
+				c.Header(eTagHeader, eTag)
+
+				if match := c.GetHeader(ifNoneMatchHeader); match == eTag {
+					if strings.Contains(match, eTag) {
+						c.Status(http.StatusNotModified)
+						c.Abort()
+						return
+					}
+				}
+			}
+		}
+		c.Next()
+	})
 
 	// `gin` 框架官方支持内嵌文件系统的方法
 	// 缺点是: 文件系统的路径会成为 URL 的一部分, 例如: 要通过 `/asset/asset/index.html` 来访问文件
