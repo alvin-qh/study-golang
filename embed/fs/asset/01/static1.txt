@@ -1,0 +1,1 @@
+asset/01/static1.txt file
