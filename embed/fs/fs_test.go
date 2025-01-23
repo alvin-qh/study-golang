@@ -58,14 +58,29 @@ func TestOperateEmbedFileFromFS(t *testing.T) {
 		"asset/02/static2.txt file\n",
 	}
 
-    fileOperate := func (index int, name string)  {
-        
-    }
-
-	for n, name := range fileNames {
+	assertFile := func(fileName string, index int) {
 		// 根据嵌入式文件的路径读取文件内容
-		f, err := STATIC_ASSETS.Open(name)
+		f, err := STATIC_ASSETS.Open(fileName)
 		assert.Nil(t, err)
-		assert.Equal(t, expectContent[n], string(data))
+
+		defer f.Close()
+
+		// 获取嵌入式文件的信息
+		stat, err := f.Stat()
+		assert.Nil(t, err)
+
+		buf := make([]byte, stat.Size())
+
+		// 读取文件内容
+		n, err := f.Read(buf)
+		assert.Nil(t, err)
+
+		assert.Equal(t, n, len(buf))
+		assert.Equal(t, expectContent[index], string(buf))
+	}
+
+	// 读取集合中列出的所有嵌入式文件
+	for n, name := range fileNames {
+		assertFile(name, n)
 	}
 }
