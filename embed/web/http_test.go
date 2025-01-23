@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// 测试读取内嵌文件系统的 `index.html` 文件
+// 测试读取内嵌文件系统的 `asset/index.html` 文件
 func TestGetStaticHTMLFile(t *testing.T) {
 	// 通过设定的 URI 访问文件系统 `asset/index.html` 文件
 	// `index.html` 文件为 HTTP 默认文件, 可以省略
@@ -27,16 +27,16 @@ func TestGetStaticHTMLFile(t *testing.T) {
 
 	// 获取响应的 `Body` 内容
 	html := w.Body.String()
-	assert.Contains(t, html, `<link rel="stylesheet" href="css/main.css">`)
-	assert.Contains(t, html, `<title>Go Embed Asset</title>`)
-	assert.Contains(t, html, "<h1>Hello, Go Embed</h1>")
-	assert.Contains(t, html, `<script type="module" src="js/main.js"></script>`)
+
+	file, err := STATIC_FS.ReadFile("asset/index.html")
+	assert.Nil(t, err)
+
+	assert.Equal(t, string(file), html)
 }
 
-// 测试读取内嵌文件系统的 `index.html` 文件
+// 测试读取内嵌文件系统的 `asset/js/main.js` 文件
 func TestGetStaticJSFile(t *testing.T) {
-	// 通过设定的 URI 访问文件系统 `asset/index.html` 文件
-	// `index.html` 文件为 HTTP 默认文件, 可以省略
+	// 通过设定的 URI 访问文件系统 `asset/js/main.js` 文件
 	req, err := http.NewRequest("GET", "/asset/js/main.js", nil)
 	assert.Nil(t, err)
 
@@ -52,8 +52,9 @@ func TestGetStaticJSFile(t *testing.T) {
 
 	// 获取响应的 `Body` 内容
 	html := w.Body.String()
-	assert.Contains(t, html, `<link rel="stylesheet" href="css/main.css">`)
-	assert.Contains(t, html, `<title>Go Embed Asset</title>`)
-	assert.Contains(t, html, "<h1>Hello, Go Embed</h1>")
-	assert.Contains(t, html, `<script type="module" src="js/main.js"></script>`)
+
+	file, err := STATIC_FS.ReadFile("asset/js/main.js")
+	assert.Nil(t, err)
+
+	assert.Equal(t, string(file), html)
 }
