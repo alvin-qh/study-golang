@@ -1,6 +1,7 @@
 package fs
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -58,6 +59,7 @@ func TestOperateEmbedFileFromFS(t *testing.T) {
 		"asset/02/static2.txt file\n",
 	}
 
+	// 打开 `embed.FS` 中的指定路径的文件, 并确认文件内容
 	assertFile := func(fileName string, index int) {
 		// 根据嵌入式文件的路径读取文件内容
 		f, err := STATIC_ASSETS.Open(fileName)
@@ -68,6 +70,10 @@ func TestOperateEmbedFileFromFS(t *testing.T) {
 		// 获取嵌入式文件的信息
 		stat, err := f.Stat()
 		assert.Nil(t, err)
+
+		assert.Greater(t, stat.Size(), int64(1))
+		assert.False(t, stat.IsDir())
+		assert.Equal(t, filepath.Base(fileName), stat.Name())
 
 		buf := make([]byte, stat.Size())
 
