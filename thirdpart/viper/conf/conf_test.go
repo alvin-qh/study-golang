@@ -5,7 +5,6 @@ import (
 	"errors"
 	"io"
 	"os"
-	"strings"
 	"study/thirdpart/viper/logging"
 	"testing"
 
@@ -89,18 +88,18 @@ func TestConfObject(t *testing.T) {
 	)
 
 	// 设置读取当前路径下的 ini 配置文件
-	conf.SetConfigName("conf.ini")
+	conf.SetConfigName("conf.toml")
+	conf.SetConfigType("toml")
 	conf.AddConfigPath(".")
-	conf.SetConfigType("ini")
 
 	// 也可以直接设置配置文件的路径和名称, 取代上面三行代码
-	// conf.SetConfigFile("../demo/conf.ini")
+	// conf.SetConfigFile("./conf.ini")
 
 	err := conf.ReadInConfig()
 	assert.NoError(t, err)
 
 	assert.Equal(t, "localhost", conf.GetString("host.address"))
-	assert.Equal(t, []string{"5799", "6029"}, strings.Split(conf.GetString("host.ports"), ","))
+	assert.Equal(t, []int{5799, 6029}, conf.GetIntSlice("host.ports"))
 
 	assert.Equal(t, "198.0.0.1", conf.GetString("database.warehouse_host"))
 }
