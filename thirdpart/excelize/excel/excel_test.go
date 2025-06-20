@@ -2,8 +2,8 @@ package excel
 
 import (
 	"strconv"
-	"study/thirdpart/excelize/data"
 	"testing"
+	"thirdpart/excelize/data"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/xuri/excelize/v2"
