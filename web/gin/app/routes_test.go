@@ -7,10 +7,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"study/thirdpart/gin/app/routes"
-	"study/thirdpart/gin/core/server"
 	"testing"
 	"time"
+
+	"web/gin/app/routes"
+	"web/gin/core/server"
 
 	"github.com/stretchr/testify/assert"
 )

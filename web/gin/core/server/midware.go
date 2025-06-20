@@ -8,10 +8,11 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"study/thirdpart/gin/core/conf"
-	"study/thirdpart/gin/core/utils/callstack"
-	"study/thirdpart/gin/core/utils/value"
 	"time"
+
+	"web/gin/core/conf"
+	"web/gin/core/utils/callstack"
+	"web/gin/core/utils/value"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"

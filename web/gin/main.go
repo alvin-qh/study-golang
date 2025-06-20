@@ -1,10 +1,10 @@
 package main
 
 import (
-	_ "study/thirdpart/gin/app"
-	"study/thirdpart/gin/core/conf"
-	"study/thirdpart/gin/core/server"
-	"study/thirdpart/gin/core/utils/http"
+	_ "web/gin/app"
+	"web/gin/core/conf"
+	"web/gin/core/server"
+	"web/gin/core/utils/http"
 )
 
 const (

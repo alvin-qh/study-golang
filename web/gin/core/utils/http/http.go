@@ -3,8 +3,9 @@ package http
 import (
 	"context"
 	"net/http"
-	"study/thirdpart/gin/core/utils/signal"
 	"time"
+
+	"web/gin/core/utils/signal"
 
 	log "github.com/sirupsen/logrus"
 )

@@ -1,4 +1,4 @@
-module study/thirdpart/gin
+module web/gin
 
 go 1.23.5
 

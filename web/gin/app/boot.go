@@ -2,10 +2,11 @@ package app
 
 import (
 	"net/http"
-	"study/thirdpart/gin/app/routes"
-	"study/thirdpart/gin/core/conf"
-	"study/thirdpart/gin/core/server"
-	"study/thirdpart/gin/core/utils/maptostruct"
+
+	"web/gin/app/routes"
+	"web/gin/core/conf"
+	"web/gin/core/server"
+	"web/gin/core/utils/maptostruct"
 
 	"github.com/gin-gonic/gin"
 )

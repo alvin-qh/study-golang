@@ -4,9 +4,10 @@ import (
 	"html/template"
 	"io"
 	"reflect"
-	"study/thirdpart/gin/core/conf"
-	"study/thirdpart/gin/core/utils/conv"
 	"time"
+
+	"web/gin/core/conf"
+	"web/gin/core/utils/conv"
 
 	"github.com/gin-gonic/gin"
 )

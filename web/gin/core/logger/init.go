@@ -5,8 +5,9 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"study/thirdpart/gin/core/conf"
 	"time"
+
+	"web/gin/core/conf"
 
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	log "github.com/sirupsen/logrus"

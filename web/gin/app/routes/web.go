@@ -3,8 +3,9 @@ package routes
 import (
 	"fmt"
 	"net/http"
-	"study/thirdpart/gin/core/server"
 	"time"
+
+	"web/gin/core/server"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
