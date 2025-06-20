@@ -1,4 +1,4 @@
-module study/thirdpart/gota
+module thirdpart/gota
 
 go 1.23.0
 

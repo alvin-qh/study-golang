@@ -11,7 +11,7 @@ import (
 	"math"
 	"testing"
 
-	"study/thirdpart/gota/utils"
+	"thirdpart/gota/utils"
 
 	"github.com/go-gota/gota/series"
 	"github.com/stretchr/testify/assert"

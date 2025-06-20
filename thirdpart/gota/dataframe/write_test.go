@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"study/thirdpart/gota/utils"
 	"testing"
+	"thirdpart/gota/utils"
 
 	df "github.com/go-gota/gota/dataframe"
 	"github.com/stretchr/testify/assert"

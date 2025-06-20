@@ -2,8 +2,9 @@ package series
 
 import (
 	"math"
-	"study/thirdpart/gota/utils"
 	"testing"
+
+	"thirdpart/gota/utils"
 
 	"github.com/go-gota/gota/series"
 	"github.com/stretchr/testify/assert"
