@@ -70,6 +70,7 @@
     "isatty",
     "isprefix",
     "Jeffail",
+    "joho",
     "klauspost",
     "LDFLAGS",
     "leodido",
@@ -149,7 +150,8 @@
     "varuint",
     "vasile",
     "waitgroup",
-    "Wrapable"
+    "Wrapable",
+    "xuri"
   ],
   "flagWords": [],
   "enabled": true

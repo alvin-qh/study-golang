@@ -1,4 +1,4 @@
-module study/thirdpart/googlesafe
+module thirdpart/googlesafe
 
 go 1.22.2
 
