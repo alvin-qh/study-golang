@@ -1,6 +1,6 @@
 package main
 
-import "study/embed/web"
+import "embed-asset/web"
 
 func main() {
 	web.StartServer("0.0.0.0:12345")
