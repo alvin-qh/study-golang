@@ -67,10 +67,10 @@ func TestCallerState_ListStackInfo(t *testing.T) {
 		// 输出当前调用信息
 		cs := ListStackInfo(10)
 		assert.Equal(t, "study/basic/runtime/callerstate.TestCallerState_ListStackInfo.func1", cs[0].FuncName)
-		assert.Equal(t, 69, cs[0].LineNo)
+		assert.Equal(t, 68, cs[0].LineNo)
 		assert.Equal(t, dir, cs[0].FileName)
 
-		assert.Equal(t, "study/basic/runtime/callerstate.TestCallerState_ListStackInfo", cs[1].FuncName)
+		assert.Equal(t, "study/basic/runtime/callerstate.TestCallerState_ListStackInfo.func1", cs[1].FuncName)
 		assert.Regexp(t, `.+?[\\/]basic[\\/]runtime[\\/]callerstate[\\/]callerstate_test.go`, cs[1].FileName)
 	}()
 
