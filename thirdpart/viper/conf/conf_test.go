@@ -5,8 +5,9 @@ import (
 	"errors"
 	"io"
 	"os"
-	"study/thirdpart/viper/logging"
 	"testing"
+
+	"thirdpart/viper/logging"
 
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"

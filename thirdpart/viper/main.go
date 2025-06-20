@@ -2,7 +2,7 @@ package main
 
 import (
 	"path"
-	"study/thirdpart/viper/logging"
+	"thirdpart/viper/logging"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
