@@ -28,7 +28,7 @@ func loadPlugin(plugName string) Runnable {
 		panic(err)
 	}
 
-	factory, ok := symb.(func() interface{})
+	factory, ok := symb.(func() any)
 	if !ok {
 		panic(fmt.Errorf("symbol `Create` cannot cast to function"))
 	}

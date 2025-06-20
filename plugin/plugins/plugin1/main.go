@@ -11,6 +11,6 @@ func (p *Plugin1) Run(args string) int {
 	return 0
 }
 
-func Create() interface{} {
+func Create() any {
 	return new(Plugin1)
 }

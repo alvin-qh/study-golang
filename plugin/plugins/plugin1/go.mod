@@ -1,3 +1,3 @@
-module study/plugin/p1
+module plugin/p1
 
 go 1.21.2
