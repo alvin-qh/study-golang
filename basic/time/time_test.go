@@ -1,7 +1,7 @@
 package time
 
 import (
-	"study/basic/testing/assertion"
+	"basic/testing/assertion"
 	"testing"
 	"time"
 

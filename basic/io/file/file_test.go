@@ -1,10 +1,10 @@
 package file
 
 import (
+	"basic/io/pathex"
+	"basic/testing/assertion"
 	"io"
 	"os"
-	"study/basic/io/pathex"
-	"study/basic/testing/assertion"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

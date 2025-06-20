@@ -1,8 +1,8 @@
 package file
 
 import (
+	"basic/io/file/cross"
 	"os"
-	"study/basic/io/file/cross"
 	"time"
 )
 

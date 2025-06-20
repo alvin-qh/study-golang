@@ -2,11 +2,11 @@ package zip
 
 import (
 	"archive/zip"
+	"basic/io/archive/common"
 	"io"
 	"os"
 	"path/filepath"
 	"runtime"
-	"study/basic/io/archive/common"
 )
 
 // Zip 归档文件结构体

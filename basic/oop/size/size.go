@@ -1,8 +1,8 @@
 package size
 
 import (
+	errs "basic/oop/errors"
 	"fmt"
-	errs "study/basic/oop/errors"
 )
 
 // 定义 Size 结构体

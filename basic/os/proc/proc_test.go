@@ -1,12 +1,12 @@
 package proc
 
 import (
+	"basic/io/pipe"
+	"basic/os/platform"
 	"bytes"
 	"fmt"
 	"os"
 	"strings"
-	"study/basic/io/pipe"
-	"study/basic/os/platform"
 	"testing"
 	"time"
 

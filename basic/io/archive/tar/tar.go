@@ -2,12 +2,12 @@ package tar
 
 import (
 	"archive/tar"
+	"basic/io/archive/common"
 	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"runtime"
-	"study/basic/io/archive/common"
 )
 
 // 归档一个文件

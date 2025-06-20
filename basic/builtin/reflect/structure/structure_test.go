@@ -70,7 +70,7 @@ func TestStructure_PackagePath(t *testing.T) {
 
 	// 获取结构体名称
 	path := s.PackagePath()
-	assert.Equal(t, "study/basic/builtin/reflect/structure", path)
+	assert.Equal(t, "basic/builtin/reflect/structure", path)
 }
 
 // 测试获取结构体字段实例

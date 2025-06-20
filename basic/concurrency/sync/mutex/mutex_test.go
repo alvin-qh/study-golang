@@ -1,8 +1,8 @@
 package routine
 
 import (
+	"basic/testing/assertion"
 	"runtime"
-	"study/basic/testing/assertion"
 	"sync"
 	"testing"
 	"time"

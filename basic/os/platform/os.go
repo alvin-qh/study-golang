@@ -1,10 +1,10 @@
 package platform
 
 import (
+	"basic/expression"
 	"math/bits"
 	"runtime"
 	"strings"
-	"study/basic/expression"
 )
 
 type OSType uint

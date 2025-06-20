@@ -1,8 +1,8 @@
 package buf
 
 import (
+	"basic/testing/assertion"
 	"bytes"
-	"study/basic/testing/assertion"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

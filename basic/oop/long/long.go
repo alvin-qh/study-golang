@@ -1,8 +1,8 @@
 package long
 
 import (
+	errs "basic/oop/errors"
 	"strconv"
-	errs "study/basic/oop/errors"
 )
 
 // 定义 int64 为 Long 类型, 相当于给 int64 类型一个别名

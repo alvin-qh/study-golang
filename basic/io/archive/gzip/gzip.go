@@ -1,11 +1,11 @@
 package gzip
 
 import (
+	"basic/io/archive/common"
+	"basic/io/archive/tar"
 	"compress/gzip"
 	"os"
 	"runtime"
-	"study/basic/io/archive/common"
-	"study/basic/io/archive/tar"
 )
 
 // 定义结构体

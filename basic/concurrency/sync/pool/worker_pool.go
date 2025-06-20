@@ -1,8 +1,8 @@
 package pool
 
 import (
+	"basic/log"
 	"os"
-	"study/basic/log"
 	"sync"
 	"sync/atomic"
 )

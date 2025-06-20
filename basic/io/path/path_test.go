@@ -6,13 +6,13 @@
 package path
 
 import (
+	"basic/expression"
+	"basic/os/platform"
+	"basic/testing/assertion"
+	"basic/testing/testit"
 	"os"
 	"path/filepath"
 	"strings"
-	"study/basic/expression"
-	"study/basic/os/platform"
-	"study/basic/testing/assertion"
-	"study/basic/testing/testit"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

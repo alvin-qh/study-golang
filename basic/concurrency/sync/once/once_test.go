@@ -1,7 +1,7 @@
 package once
 
 import (
-	"study/basic/testing/assertion"
+	"basic/testing/assertion"
 	"sync"
 	"testing"
 	"time"

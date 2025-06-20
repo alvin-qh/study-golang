@@ -1,9 +1,9 @@
 package testit
 
 import (
+	"basic/os/platform"
 	"flag"
 	"fmt"
-	"study/basic/os/platform"
 	"testing"
 )
 

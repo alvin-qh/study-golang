@@ -1,8 +1,8 @@
 package pool
 
 import (
+	"basic/builtin/slice/utils"
 	"strconv"
-	"study/basic/builtin/slice/utils"
 	"sync"
 	"testing"
 	"time"
