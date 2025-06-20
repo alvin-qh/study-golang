@@ -139,6 +139,6 @@ func TestNestedFormatter(t *testing.T) {
 
 	assert.Equal(t, fmt.Sprintf(
 		"[2023-08-15T17:13:00+08:00] "+
-			"(%s:%d study/thirdpart/logrus/logging.TestNestedFormatter)"+
+			"(%s:%d thirdpart/logrus/logging.TestNestedFormatter)"+
 			"\x1b[37m [DEBUG] \x1b[0mHello\n", currentFilename, line+1), hook.String())
 }

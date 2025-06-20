@@ -3,8 +3,9 @@ package main
 import (
 	"errors"
 	"fmt"
-	"study/thirdpart/logrus/logging"
 	"time"
+
+	"thirdpart/logrus/logging"
 
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	log "github.com/sirupsen/logrus"
