@@ -77,16 +77,17 @@ func TestOS_Add(t *testing.T) {
 func TestOS_IsOSMatch(t *testing.T) {
 	assert.True(t, IsOSMatch(Windows|Linux|Darwin))
 
-	if runtime.GOOS == "windows" {
+	switch runtime.GOOS {
+	case "windows":
 		assert.True(t, IsOSMatch(Windows))
 		assert.False(t, IsOSMatch(Linux|Darwin))
-	} else if runtime.GOOS == "linux" {
+	case "linux":
 		assert.True(t, IsOSMatch(Linux))
 		assert.False(t, IsOSMatch(Windows|Darwin))
-	} else if runtime.GOOS == "darwin" {
+	case "darwin":
 		assert.True(t, IsOSMatch(Darwin))
 		assert.False(t, IsOSMatch(Windows|Linux))
-	} else {
+	default:
 		t.Error("unknown os")
 	}
 }
@@ -95,16 +96,17 @@ func TestOS_IsOSMatch(t *testing.T) {
 func TestOS_IsOSNotMatch(t *testing.T) {
 	assert.False(t, IsOSNotMatch(Windows|Linux|Darwin))
 
-	if runtime.GOOS == "windows" {
+	switch runtime.GOOS {
+	case "windows":
 		assert.True(t, IsOSNotMatch(Linux|Darwin))
 		assert.False(t, IsOSNotMatch(Windows))
-	} else if runtime.GOOS == "linux" {
+	case "linux":
 		assert.True(t, IsOSNotMatch(Windows|Darwin))
 		assert.False(t, IsOSNotMatch(Linux))
-	} else if runtime.GOOS == "darwin" {
+	case "darwin":
 		assert.True(t, IsOSNotMatch(Windows|Linux))
 		assert.False(t, IsOSNotMatch(Darwin))
-	} else {
+	default:
 		t.Error("unknown os")
 	}
 }
@@ -114,19 +116,20 @@ func TestOS_RunIfOSMatch(t *testing.T) {
 	matched := false
 
 	// 测试匹配当前系统标识
-	if runtime.GOOS == "windows" {
+	switch runtime.GOOS {
+	case "windows":
 		RunIfOSMatch(Windows, func() {
 			matched = true
 		})
-	} else if runtime.GOOS == "linux" {
+	case "linux":
 		RunIfOSMatch(Linux, func() {
 			matched = true
 		})
-	} else if runtime.GOOS == "darwin" {
+	case "darwin":
 		RunIfOSMatch(Darwin, func() {
 			matched = true
 		})
-	} else {
+	default:
 		t.Error("unknown os")
 	}
 	assert.True(t, matched)
@@ -134,19 +137,20 @@ func TestOS_RunIfOSMatch(t *testing.T) {
 	matched = false
 
 	// 测试在多个标识中匹配当前系统标识
-	if runtime.GOOS == "windows" {
+	switch runtime.GOOS {
+	case "windows":
 		RunIfOSMatch(Windows|Darwin, func() {
 			matched = true
 		})
-	} else if runtime.GOOS == "linux" {
+	case "linux":
 		RunIfOSMatch(Linux|Windows, func() {
 			matched = true
 		})
-	} else if runtime.GOOS == "darwin" {
+	case "darwin":
 		RunIfOSMatch(Darwin|Linux, func() {
 			matched = true
 		})
-	} else {
+	default:
 		t.Error("unknown os")
 	}
 	assert.True(t, matched)
@@ -154,19 +158,20 @@ func TestOS_RunIfOSMatch(t *testing.T) {
 	matched = false
 
 	// 匹配不到当前系统标识
-	if runtime.GOOS == "windows" {
+	switch runtime.GOOS {
+	case "windows":
 		RunIfOSMatch(Linux|Darwin, func() {
 			matched = true
 		})
-	} else if runtime.GOOS == "linux" {
+	case "linux":
 		RunIfOSMatch(Darwin|Windows, func() {
 			matched = true
 		})
-	} else if runtime.GOOS == "darwin" {
+	case "darwin":
 		RunIfOSMatch(Windows|Linux, func() {
 			matched = true
 		})
-	} else {
+	default:
 		t.Error("unknown os")
 	}
 	assert.False(t, matched)
@@ -174,13 +179,14 @@ func TestOS_RunIfOSMatch(t *testing.T) {
 
 // 测试根据操作系统标识获取不同的值
 func TestOS_Choose(t *testing.T) {
-	if runtime.GOOS == "windows" {
+	switch runtime.GOOS {
+	case "windows":
 		assert.Equal(t, "windows", Choose(Windows, "windows", ""))
-	} else if runtime.GOOS == "linux" {
+	case "linux":
 		assert.Equal(t, "linux", Choose(Linux, "linux", ""))
-	} else if runtime.GOOS == "darwin" {
+	case "darwin":
 		assert.Equal(t, "darwin", Choose(Darwin, "darwin", ""))
-	} else {
+	default:
 		t.Error("unknown os")
 	}
 }

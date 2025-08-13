@@ -126,7 +126,7 @@ func TestRWMutex_LockAndUnlock(t *testing.T) {
 	mut.RLock()
 
 	// 解除一次读锁定
-	mut.RUnlock() //lint:ignore SA2001 just unlock
+	mut.RUnlock()
 
 	// 启动 goroutine, 加读锁后 100ms 后解除锁
 	go func() {
