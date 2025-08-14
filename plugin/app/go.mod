@@ -1,4 +1,4 @@
-module plugin/app
+module study/plugin/app
 
 go 1.25.0
 
