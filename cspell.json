@@ -60,6 +60,7 @@
     "GONOPROXY",
     "GONOSUMDB",
     "gonum",
+    "googlesafe",
     "GOPATH",
     "gopkg",
     "GOPRIVATE",
