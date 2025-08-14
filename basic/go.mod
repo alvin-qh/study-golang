@@ -6,8 +6,8 @@ require github.com/stretchr/testify v1.10.0
 
 require (
 	github.com/joho/godotenv v1.5.1
-	golang.org/x/exp v0.0.0-20250620022241-b7579e27df2b
-	golang.org/x/sync v0.15.0
+	golang.org/x/exp v0.0.0-20250813145105-42675adae3e6
+	golang.org/x/sync v0.16.0
 )
 
 require (
