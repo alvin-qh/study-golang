@@ -1,9 +1,15 @@
 DIST_DIR=dist
 
+.PHONY: all
+all: test build
+
 .PHONY: build
 build:
-	mkdir -p "${DIST_DIR}"
 	cd app && go build -ldflags="-s -w" -pgo=auto -o "../${DIST_DIR}/app"
+
+.PHONY: test
+test:
+	cd app && go test -v ./...
 
 .PHONY: run
 run:

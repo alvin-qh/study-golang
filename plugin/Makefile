@@ -1,6 +1,6 @@
 DIST_DIR=dist
 
-.PHONY: build
+.PHONY: all
 build: build-plugin1 build-plugin2 build-app
 
 .PHONY: build-plugin1
@@ -12,11 +12,14 @@ build-plugin2:
 	cd ./plugins/plugin2 && go build -ldflags="-s -w" -pgo=auto -buildmode=plugin -o "../../${DIST_DIR}/p2.so"
 
 .PHONY: build-app
-build-app:
+build-app: test
 	cd ./app && go build -ldflags="-s -w" -pgo=auto -o "../${DIST_DIR}/app"
 
+.PHONY: test
+test: build-plugin1 build-plugin2
+	cd app && go test -v ./...
+
 .PHONY: run
-run: export PLUGIN_PATH=../${DIST_DIR}
 run: build-plugin1 build-plugin2
 	cd app && go run main.go
 

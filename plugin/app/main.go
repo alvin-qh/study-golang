@@ -10,12 +10,17 @@ type Runnable interface {
 	Run(args string) int
 }
 
-func main() {
+func makePluginPath() string {
 	pluginPath := os.Getenv("PLUGIN_PATH")
 	if pluginPath == "" {
-		pluginPath = "./"
+		pluginPath = "../dist"
 	}
 
+	return pluginPath
+}
+
+func main() {
+	pluginPath := makePluginPath()
 	fmt.Println("PLUGIN_PATH:", pluginPath)
 
 	runner := loadPlugin(fmt.Sprintf("%s/p1.so", pluginPath))
