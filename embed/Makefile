@@ -5,7 +5,7 @@ all: test build
 
 .PHONY: build
 build:
-	go build -ldflags="-s -w" -pgo=auto -o ${DIST_DIR}/embed
+	go build -ldflags="-s -w" -pgo=auto -o "${DIST_DIR}/embed"
 
 .PHONY: test
 test:
