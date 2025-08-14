@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"thirdpart/viper/logging"
+	"study/thirdpart/viper/logging"
 
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
