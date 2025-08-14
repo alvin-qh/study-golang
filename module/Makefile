@@ -1,13 +1,15 @@
-TARGET_DIR=dist
+DIST_DIR=dist
 
 .PHONY: build
 build:
-	mkdir -p dist
-	cd app && go get -u ./...
-	cd app && go build -o app
-	mv app/app dist
+	mkdir -p "${DIST_DIR}"
+	cd app && go build -ldflags="-s -w" -pgo=auto -o "../${DIST_DIR}/app"
+
+.PHONY: run
+run:
+	cd app && go run main.go
 
 .PHONY: clean
 clean:
 	go clean
-	rm -rf "${TARGET_DIR}"
+	rm -rf "${DIST_DIR}"
