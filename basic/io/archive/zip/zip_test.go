@@ -1,8 +1,8 @@
 package zip
 
 import (
-	"basic/io/archive/common"
 	"os"
+	"study/basic/io/archive/common"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

@@ -31,7 +31,7 @@ func TestReflect_TypeOf(t *testing.T) {
 
 	// 获取变量的反射实例
 	tp = reflect.TypeOf(obj)
-	assert.Equal(t, "basic/builtin/reflect/core.User[struct]", GetFullTypeName(tp))
+	assert.Equal(t, "study/basic/builtin/reflect/core.User[struct]", GetFullTypeName(tp))
 
 	// 获取指针变量的反射实例
 	tp = reflect.TypeOf(&obj)
@@ -80,7 +80,7 @@ func TestReflect_Elem(t *testing.T) {
 
 	// 获取指针所指向的实例类型
 	tp = tp.Elem()
-	assert.Equal(t, "basic/builtin/reflect/core.User[struct]", GetFullTypeName(tp))
+	assert.Equal(t, "study/basic/builtin/reflect/core.User[struct]", GetFullTypeName(tp))
 }
 
 // 通过反射读取实例值
@@ -102,7 +102,7 @@ func TestReflect_ValueOf(t *testing.T) {
 
 	// 获取变量的值反射实例
 	tv = reflect.ValueOf(obj)
-	assert.Equal(t, "basic/builtin/reflect/core.User[struct]", GetFullTypeName(tv.Type()))
+	assert.Equal(t, "study/basic/builtin/reflect/core.User[struct]", GetFullTypeName(tv.Type()))
 
 	// 根据名称获取 `Id` 字段的值, 并转为 `int` 类型
 	assert.Equal(t, 1, int(tv.FieldByName("Id").Int()))
@@ -160,7 +160,7 @@ func TestReflect_ValueOfPtr(t *testing.T) {
 
 	// 获取指针指向的实例值实例
 	tv = tv.Elem()
-	assert.Equal(t, "basic/builtin/reflect/core.User[struct]", GetFullTypeName(tv.Type()))
+	assert.Equal(t, "study/basic/builtin/reflect/core.User[struct]", GetFullTypeName(tv.Type()))
 	assert.Equal(t, 1, int(tv.FieldByName("Id").Int()))
 	assert.Equal(t, "Alvin", tv.FieldByName("Name").String())
 	assert.Equal(t, 'M', rune(tv.FieldByName("Gender").Int()))
@@ -183,7 +183,7 @@ func TestReflect_ValueOfPtr(t *testing.T) {
 
 	// 再次从 interface{} 类型解除引用, 获取其原始值
 	tv = tv.Elem()
-	assert.Equal(t, "basic/builtin/reflect/core.User[struct]", GetFullTypeName(tv.Type()))
+	assert.Equal(t, "study/basic/builtin/reflect/core.User[struct]", GetFullTypeName(tv.Type()))
 	assert.Equal(t, 1, int(tv.FieldByName("Id").Int()))
 	assert.Equal(t, "Alvin", tv.FieldByName("Name").String())
 	assert.Equal(t, 'M', rune(tv.FieldByName("Gender").Int()))

@@ -1,8 +1,8 @@
 package testing
 
 import (
-	"basic/testing/testit"
 	"os"
+	"study/basic/testing/testit"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

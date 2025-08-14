@@ -1,15 +1,15 @@
 package file
 
 import (
-	"basic/io/pathex"
-	"basic/os/platform"
-	"basic/testing/assertion"
-	"basic/testing/testit"
 	"fmt"
 	"os"
 	"os/user"
 	"path/filepath"
 	"strconv"
+	"study/basic/io/pathex"
+	"study/basic/os/platform"
+	"study/basic/testing/assertion"
+	"study/basic/testing/testit"
 
 	"testing"
 	"time"

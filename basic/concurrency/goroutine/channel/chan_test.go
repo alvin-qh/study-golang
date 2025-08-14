@@ -1,9 +1,9 @@
 package channel
 
 import (
-	"basic/testing/assertion"
 	"runtime"
 	"strconv"
+	"study/basic/testing/assertion"
 	"sync"
 	"testing"
 	"time"

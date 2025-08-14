@@ -1,10 +1,10 @@
 package pool
 
 import (
-	"basic/builtin/slice/utils"
-	"basic/testing/assertion"
 	"context"
 	"fmt"
+	"study/basic/builtin/slice/utils"
+	"study/basic/testing/assertion"
 	"sync"
 	"sync/atomic"
 	"testing"

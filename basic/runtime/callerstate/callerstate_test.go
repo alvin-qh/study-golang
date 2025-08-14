@@ -20,7 +20,7 @@ func TestCallerState_Where(t *testing.T) {
 	// 输出当前调用信息
 	cs, err := Where()
 	assert.Nil(t, err)
-	assert.Equal(t, "basic/runtime/callerstate.TestCallerState_Where", cs.FuncName)
+	assert.Equal(t, "study/basic/runtime/callerstate.TestCallerState_Where", cs.FuncName)
 	assert.Equal(t, 21, cs.LineNo)
 	assert.Equal(t, dir, cs.FileName)
 
@@ -28,7 +28,7 @@ func TestCallerState_Where(t *testing.T) {
 		// 输出当前调用信息
 		cs, err = Where()
 		assert.Nil(t, err)
-		assert.Equal(t, "basic/runtime/callerstate.TestCallerState_Where.func1", cs.FuncName)
+		assert.Equal(t, "study/basic/runtime/callerstate.TestCallerState_Where.func1", cs.FuncName)
 		assert.Equal(t, 29, cs.LineNo)
 		assert.Equal(t, dir, cs.FileName)
 	}()
@@ -36,11 +36,11 @@ func TestCallerState_Where(t *testing.T) {
 	// 输出当前调用信息
 	cs, err = Where()
 	assert.Nil(t, err)
-	assert.Equal(t, "basic/runtime/callerstate.TestCallerState_Where", cs.FuncName)
+	assert.Equal(t, "study/basic/runtime/callerstate.TestCallerState_Where", cs.FuncName)
 	assert.Equal(t, 37, cs.LineNo)
 	assert.Equal(t, dir, cs.FileName)
 
-	assert.Equal(t, "basic/runtime/callerstate.TestCallerState_Where:"+dir+"(37)", cs.String())
+	assert.Equal(t, "study/basic/runtime/callerstate.TestCallerState_Where:"+dir+"(37)", cs.String())
 }
 
 // 获取调用方堆栈信息
@@ -56,7 +56,7 @@ func TestCallerState_ListStackInfo(t *testing.T) {
 
 	// 输出当前调用信息
 	cs := ListStackInfo(10)
-	assert.Equal(t, "basic/runtime/callerstate.TestCallerState_ListStackInfo", cs[0].FuncName)
+	assert.Equal(t, "study/basic/runtime/callerstate.TestCallerState_ListStackInfo", cs[0].FuncName)
 	assert.True(t, cs[0].LineNo >= 58 && cs[0].LineNo <= 59)
 	assert.Equal(t, dir, cs[0].FileName)
 
@@ -66,17 +66,17 @@ func TestCallerState_ListStackInfo(t *testing.T) {
 	func() {
 		// 输出当前调用信息
 		cs := ListStackInfo(10)
-		assert.Equal(t, "basic/runtime/callerstate.TestCallerState_ListStackInfo.func1", cs[0].FuncName)
+		assert.Equal(t, "study/basic/runtime/callerstate.TestCallerState_ListStackInfo.func1", cs[0].FuncName)
 		assert.Equal(t, 68, cs[0].LineNo)
 		assert.Equal(t, dir, cs[0].FileName)
 
-		assert.Equal(t, "basic/runtime/callerstate.TestCallerState_ListStackInfo.func1", cs[1].FuncName)
+		assert.Equal(t, "study/basic/runtime/callerstate.TestCallerState_ListStackInfo.func1", cs[1].FuncName)
 		assert.Regexp(t, `.+?[\\/]basic[\\/]runtime[\\/]callerstate[\\/]callerstate_test.go`, cs[1].FileName)
 	}()
 
 	// 输出当前调用信息
 	cs = ListStackInfo(10)
-	assert.Equal(t, "basic/runtime/callerstate.TestCallerState_ListStackInfo", cs[0].FuncName)
+	assert.Equal(t, "study/basic/runtime/callerstate.TestCallerState_ListStackInfo", cs[0].FuncName)
 	assert.True(t, cs[0].LineNo >= 78 && cs[0].LineNo <= 79)
 	assert.Equal(t, dir, cs[0].FileName)
 

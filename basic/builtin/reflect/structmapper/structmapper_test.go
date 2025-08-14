@@ -1,7 +1,7 @@
 package structmapper
 
 import (
-	"basic/builtin/reflect/structure"
+	"study/basic/builtin/reflect/structure"
 	"testing"
 	"time"
 

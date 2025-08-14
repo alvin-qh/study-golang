@@ -1,10 +1,10 @@
 package proc
 
 import (
-	"basic/os/platform"
 	"os"
 	"os/user"
 	"strconv"
+	"study/basic/os/platform"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

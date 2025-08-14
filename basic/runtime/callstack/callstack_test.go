@@ -21,7 +21,7 @@ func TestCallStack_CallStack(t *testing.T) {
 	// 第 1 行为协程信息, 形如: goroutine 6 [running]:
 	assert.Regexp(t, `goroutine \d+ \[running\]:`, lines[0])
 	// 第 2 行为当前调用函数, 形如: basic/runtime/callstack.CallStack()
-	assert.Equal(t, "basic/runtime/callstack.CallStack()", lines[1])
+	assert.Equal(t, "study/basic/runtime/callstack.CallStack()", lines[1])
 	// 第 3 行为第 2 行的详细说明, 形如: .../basic/runtime/callstack/call_stack.go:17 +0x45
 	assert.Regexp(t, `.+?/basic/runtime/callstack/callstack.go:\d+ \+0x[a-f0-9]+`, lines[2])
 
@@ -42,7 +42,7 @@ func TestCallStack_CallStack(t *testing.T) {
 		lines = strings.Split(s, string(lineBreak))
 		assert.Regexp(t, `goroutine \d+ \[running\]:`, lines[0])
 
-		assert.Equal(t, "basic/runtime/callstack.CallStack()", lines[1])
+		assert.Equal(t, "study/basic/runtime/callstack.CallStack()", lines[1])
 		assert.Regexp(t, `.+?/basic/runtime/callstack/callstack.go:\d+ \+0x[a-f0-9]+`, lines[2])
 
 		assert.Regexp(t, `basic/runtime/callstack.TestCallStack_CallStack.func2()`, lines[3])

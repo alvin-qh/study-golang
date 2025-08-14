@@ -1,9 +1,9 @@
 package size3d
 
 import (
-	errs "basic/oop/errors"
-	"basic/oop/size"
 	"fmt"
+	errs "study/basic/oop/errors"
+	"study/basic/oop/size"
 )
 
 // 定义 Size3D 结构体, 从 Size 结构体继承

@@ -1,9 +1,9 @@
 package semaphore
 
 import (
-	"basic/testing/assertion"
 	"context"
 	"runtime"
+	"study/basic/testing/assertion"
 	"sync"
 	"testing"
 	"time"

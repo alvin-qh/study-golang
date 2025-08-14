@@ -3,11 +3,11 @@ package oop
 import (
 	"testing"
 
-	errs "basic/oop/errors"
-	ifs "basic/oop/interfaces"
-	"basic/oop/long"
-	"basic/oop/size"
-	"basic/oop/size3d"
+	errs "study/basic/oop/errors"
+	ifs "study/basic/oop/interfaces"
+	"study/basic/oop/long"
+	"study/basic/oop/size"
+	"study/basic/oop/size3d"
 
 	"github.com/stretchr/testify/assert"
 )
