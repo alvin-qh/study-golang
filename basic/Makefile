@@ -11,6 +11,10 @@ build:
 test:
 	go test -v ./...
 
+.PHONY: run
+run:
+	go run main.go
+
 .PHONY: clean
 clean:
 	go clean
