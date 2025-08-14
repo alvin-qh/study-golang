@@ -1,8 +1,6 @@
-module thirdpart/excelize
+module study/thirdpart/excelize
 
-go 1.23.0
-
-toolchain go1.24.4
+go 1.25.0
 
 require (
 	github.com/stretchr/testify v1.10.0
@@ -22,8 +20,8 @@ require (
 	github.com/richardlehane/msoleps v1.0.4 // indirect
 	github.com/xuri/efp v0.0.1 // indirect
 	github.com/xuri/nfp v0.0.1 // indirect
-	golang.org/x/crypto v0.39.0 // indirect
-	golang.org/x/net v0.41.0 // indirect
-	golang.org/x/text v0.26.0 // indirect
+	golang.org/x/crypto v0.41.0 // indirect
+	golang.org/x/net v0.43.0 // indirect
+	golang.org/x/text v0.28.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
