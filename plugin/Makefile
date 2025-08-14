@@ -1,5 +1,8 @@
 TARGET_DIR=dist
 
+.PHONY: build
+build: build-plugin1 build-plugin2 build-app
+
 .PHONY: build-plugin1
 build-plugin1:
 	cd ./plugins/plugin1 && go build -buildmode=plugin -o ../../${TARGET_DIR}/p1.so
@@ -11,9 +14,6 @@ build-plugin2:
 .PHONY: build-app
 build-app:
 	cd ./app && go build -o ../dist/app
-
-.PHONY: build
-build: build-plugin1 build-plugin2 build-app
 
 .PHONY: clean
 clean:
