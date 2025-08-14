@@ -5,7 +5,7 @@ all: test build
 
 .PHONY: build
 build:
-	go build -ldflags="-s -w" -pgo=auto -o ${DIST_DIR}/basic
+	go build -ldflags="-s -w" -pgo=auto -o "${DIST_DIR}/basic"
 
 .PHONY: test
 test:
