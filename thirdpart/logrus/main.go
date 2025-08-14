@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"thirdpart/logrus/logging"
+	"study/thirdpart/logrus/logging"
 
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	log "github.com/sirupsen/logrus"

@@ -1,11 +1,12 @@
-BINARY_NAME=out/logrus-demo
-LOG_PATH=logging/logs
+DIST_DIR=dist
+LOG_DIR=logging/logs
 
 .PHONY: all
-all: build test
+all: test build
 
+.PHONY: build
 build:
-	go build -o ${BINARY_NAME} main.go
+	go build -ldflags="-s -w" -pgo=auto -o "${DIST_DIR}/logrus"
 
 .PHONY: test
 test:
@@ -18,5 +19,5 @@ run:
 .PHONY: clean
 clean:
 	go clean
-	rm -rf "$(dir ${BINARY_NAME})"
-	rm -rf "${LOG_PATH}"
+	rm -rf "${DIST_DIR}"
+	rm -rf "${LOG_DIR}"
