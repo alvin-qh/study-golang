@@ -6,7 +6,6 @@ all: test build
 .PHONY: build
 build:
 	go build -ldflags="-s -w" -pgo=auto -o "${DIST_DIR}/excelize"
-	cp .env "${DIST_DIR}"
 
 .PHONY: test
 test:
