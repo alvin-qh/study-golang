@@ -1,4 +1,4 @@
-module embed-asset
+module study/embed
 
 go 1.25.0
 
