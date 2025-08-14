@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	meta2 "module/demo-module/meta"
+	meta2 "study/module/demo/meta"
 
 	meta1 "gitee.com/go-common-libs/demo-module/meta"
 )
