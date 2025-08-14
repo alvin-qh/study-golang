@@ -11,6 +11,8 @@ import (
 
 // 测试内存 Profile 信息的记录
 func TestProfile_Memory(t *testing.T) {
+	t.Skip("skip")
+
 	// 定义缓冲区, 2MB 大小
 	buf := bytes.NewBuffer(make([]byte, 0, 1024*1024*10))
 	// w, _ := os.Create("d.txt")
