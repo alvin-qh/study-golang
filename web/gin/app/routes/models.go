@@ -1,8 +1,8 @@
 package routes
 
 import (
+	"study/web/gin/core/server"
 	"time"
-	"web/gin/core/server"
 
 	"github.com/go-playground/validator/v10"
 )

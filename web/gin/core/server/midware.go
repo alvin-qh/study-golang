@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"web/gin/core/conf"
-	"web/gin/core/utils/callstack"
-	"web/gin/core/utils/value"
+	"study/web/gin/core/conf"
+	"study/web/gin/core/utils/callstack"
+	"study/web/gin/core/utils/value"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"

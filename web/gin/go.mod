@@ -1,6 +1,6 @@
-module web/gin
+module study/web/gin
 
-go 1.23.5
+go 1.25.0
 
 require (
 	github.com/antonfisher/nested-logrus-formatter v1.3.1

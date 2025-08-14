@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"web/gin/core/utils/signal"
+	"study/web/gin/core/utils/signal"
 
 	log "github.com/sirupsen/logrus"
 )

@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"time"
 
-	"web/gin/core/conf"
+	"study/web/gin/core/conf"
 
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	log "github.com/sirupsen/logrus"

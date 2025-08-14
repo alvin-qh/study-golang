@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"web/gin/core/server"
+	"study/web/gin/core/server"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"

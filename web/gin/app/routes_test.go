@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"web/gin/app/routes"
-	"web/gin/core/server"
+	"study/web/gin/app/routes"
+	"study/web/gin/core/server"
 
 	"github.com/stretchr/testify/assert"
 )

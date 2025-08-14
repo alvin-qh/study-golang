@@ -1,11 +1,11 @@
-BINARY_NAME=out/viper-demo
+DIST_DIR=dist
 
 .PHONY: all
-all: build test
+all: test build
 
 .PHONY: build
 build:
-	go build -o ${BINARY_NAME} main.go
+	go build -ldflags="-s -w" -pgo=auto -o "${DIST_DIR}/gin"
 
 .PHONY: test
 test:
@@ -18,5 +18,4 @@ run:
 .PHONY: clean
 clean:
 	go clean
-	rm -rf "$(dir ${BINARY_NAME})"
-	rm -rf "./dist"
+	rm -rf "${DIST_DIR}"

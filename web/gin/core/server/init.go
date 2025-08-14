@@ -1,7 +1,7 @@
 package server
 
 import (
-	_ "web/gin/core/logger"
+	_ "study/web/gin/core/logger"
 
 	"github.com/gin-gonic/gin"
 )

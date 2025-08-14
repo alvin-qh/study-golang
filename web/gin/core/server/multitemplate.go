@@ -2,7 +2,7 @@ package server
 
 import (
 	"path/filepath"
-	"web/gin/core/conf"
+	"study/web/gin/core/conf"
 
 	"github.com/gin-contrib/multitemplate"
 )

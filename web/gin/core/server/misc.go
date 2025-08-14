@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"time"
 
-	"web/gin/core/conf"
-	"web/gin/core/utils/conv"
+	"study/web/gin/core/conf"
+	"study/web/gin/core/utils/conv"
 
 	"github.com/gin-gonic/gin"
 )
