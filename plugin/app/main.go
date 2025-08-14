@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"plugin"
 )
 
@@ -10,15 +11,22 @@ type Runnable interface {
 }
 
 func main() {
-	runner := loadPlugin("./p1.so")
+	pluginPath := os.Getenv("PLUGIN_PATH")
+	if pluginPath == "" {
+		pluginPath = "./"
+	}
+
+	fmt.Println("PLUGIN_PATH:", pluginPath)
+
+	runner := loadPlugin(fmt.Sprintf("%s/p1.so", pluginPath))
 	runner.Run("Hello")
 
-	runner = loadPlugin("./p2.so")
+	runner = loadPlugin(fmt.Sprintf("%s/p2.so", pluginPath))
 	runner.Run("OK")
 }
 
-func loadPlugin(plugName string) Runnable {
-	plug, err := plugin.Open(plugName)
+func loadPlugin(path string) Runnable {
+	plug, err := plugin.Open(path)
 	if err != nil {
 		panic(err)
 	}
