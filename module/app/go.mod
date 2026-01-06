@@ -1,6 +1,6 @@
 module study/module/app
 
-go 1.25.0
+go 1.25.5
 
 replace study/module/demo => ../module
 

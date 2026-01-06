@@ -1,10 +1,10 @@
 module study/thirdpart/dotenv
 
-go 1.25.0
+go 1.25.5
 
 require (
 	github.com/joho/godotenv v1.5.1
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 )
 
 require (
