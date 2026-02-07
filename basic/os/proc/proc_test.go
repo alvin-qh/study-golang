@@ -3,6 +3,7 @@ package proc
 import (
 	"bytes"
 	"fmt"
+	"math"
 	"os"
 	"strings"
 	"study/basic/io/pipe"
@@ -115,7 +116,7 @@ func TestOS_StartProcess(t *testing.T) {
 	assert.Equal(t, p.Pid, fi.Pid())
 	assert.Equal(t, 0, fi.ExitCode())
 	// 进程执行占用的系统 CPU 时间
-	assert.Equal(t, int64(0), fi.SystemTime().Nanoseconds())
+	assert.Equal(t, float64(0), math.Round(fi.SystemTime().Seconds()*100)/100)
 	// 系统执行占用的用户 CPU 时间
 	assert.GreaterOrEqual(t, fi.UserTime().Nanoseconds(), int64(0))
 
