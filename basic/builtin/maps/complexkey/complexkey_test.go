@@ -1,4 +1,4 @@
-package complexkey
+package complexkey_test
 
 import (
 	"testing"

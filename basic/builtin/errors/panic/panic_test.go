@@ -1,4 +1,4 @@
-package panic
+package panic_test
 
 import (
 	"fmt"

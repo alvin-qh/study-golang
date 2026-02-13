@@ -32,7 +32,7 @@ func CreatePoint(x float64, y float64) *Point {
 //
 // 返回 `x` 成员变量值
 func (p *Point) GetX() float64 {
-    // Go 中可以直接访问 C 结构体 中的字段
+	// Go 中可以直接访问 C 结构体 中的字段
 	return float64(Point(*p).x)
 }
 
