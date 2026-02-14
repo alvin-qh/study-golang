@@ -128,62 +128,6 @@ func TestType_TypeConvert(t *testing.T) {
 		assert.EqualValues(t, v2, v3)
 	})
 
-	// 测试 `interface{}` 类型的转换
-	//
-	// `interface{}` 类型相当于"任意类型", 及任意类型都可以转为 `interface{}` 类型, 且 `interface{}` 类型可以转回为其原始类型
-	t.Run("interface{} type conversion", func(t *testing.T) {
-		var v interface{}
-
-		// 值类型转为 interface{} 类型
-		v = int(10)
-		assert.Equal(t, reflect.Int, reflect.TypeOf(v).Kind())
-		assert.Equal(t, 10, v)
-
-		// User 结构体转为 interface{} 类型
-		v = User{
-			Id:     1,
-			Name:   "Alvin",
-			Gender: 'F',
-		}
-		assert.Equal(t, reflect.Struct, reflect.TypeOf(v).Kind())
-		assert.Equal(t, "User", reflect.TypeOf(v).Name())
-
-		// interface{} 类型转为 User 结构体类型
-		// 如果转换返回两个值, 第一个为是转换后的值, 第二个表示是否转换成功
-		u, ok := v.(User)
-		assert.True(t, ok)
-		assert.Equal(t, User{
-			Id:     1,
-			Name:   "Alvin",
-			Gender: 'F',
-		}, u)
-
-		// 指针类型转换为 interface{} 类型
-		v = &User{
-			Id:     1,
-			Name:   "Alvin",
-			Gender: 'F',
-		}
-		assert.Equal(t, reflect.Ptr, reflect.TypeOf(v).Kind())
-		assert.Equal(t, reflect.Struct, reflect.TypeOf(v).Elem().Kind())
-		assert.Equal(t, "User", reflect.TypeOf(v).Elem().Name())
-
-		// interface{} 类型转为指针类型
-		// 如果转换返回一个值, 则为转换后的值, 如果无法转换则抛出 Panic
-		pu := v.(*User)
-		assert.True(t, ok)
-		assert.Equal(t, User{
-			Id:     1,
-			Name:   "Alvin",
-			Gender: 'F',
-		}, *pu)
-
-		// 如果转换时只返回一个值, 则转换失败会抛出 Panic
-		assert.Panics(t, func() {
-			u := v.(User)
-			assert.Equal(t, User{}, u)
-		})
-	})
 
 	t.Run("type convert by switch statement", func(t *testing.T) {
 

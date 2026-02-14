@@ -33,7 +33,7 @@ type User struct {
 
 // 测试查找结构体字段标签
 func TestStructMapper_findTag(t *testing.T) {
-	// 生成结构体反射工具类型对象
+	// 通过反射获取变量 User 的元数据对象
 	s, err := structure.New(&User{})
 	assert.Nil(t, err)
 
@@ -41,11 +41,11 @@ func TestStructMapper_findTag(t *testing.T) {
 	f, err := s.FindField("Id")
 	assert.Nil(t, err)
 
-	// 实例化 MapToStruct 对象, 以 json 为 tag key
+	// 实例化 MapToStruct 对象, 以 struct 为 tag key
 	m := structmapper.New("struct")
 	assert.Equal(t, "id", m.FindTag(&f))
 
-	// 实例化 MapToStruct 对象, 设置不存在的 tag key
+	// 实例化 MapToStruct 对象, 设置一个不存在的 tag key
 	m = structmapper.New("unknown")
 	assert.Equal(t, "id", m.FindTag(&f))
 }
@@ -99,6 +99,7 @@ func TestStructMapper_DecodeStruct(t *testing.T) {
 
 // 测试将切片解码到结构体切片中
 func TestStructMapper_DecodeSlice(t *testing.T) {
+	// 创建一个包含两个 map 对象的 slice 集合
 	s := []any{
 		map[string]any{
 			"id":       100,

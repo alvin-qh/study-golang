@@ -28,7 +28,7 @@ func GetFullTypeName(t reflect.Type) string {
 func SetValueByReflect(ptr interface{}, newVal interface{}) (err error) {
 	// ptr 参数转为 Value 类型
 	tv := reflect.ValueOf(ptr)
-	if tv.Kind() != reflect.Ptr { // 判断 ptr 参数是否为指针类型
+	if tv.Kind() != reflect.Pointer { // 判断 ptr 参数是否为指针类型
 		return ErrInvalidPtr
 	}
 

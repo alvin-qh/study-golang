@@ -10,16 +10,16 @@ import (
 // 将所给类型转换为 `time.Time` 类型
 //
 // 该函数作为默认的时间转换函数, 传入 `MapToStruct` 的 `mappers` 字段中
-func mapTime(v any) (r any, err error) {
+func mapTime(obj any) (r any, err error) {
 	// 根据值的不同类型进行不同的转换
-	switch _v := v.(type) {
+	switch val := obj.(type) {
 	case string:
 		// 将字符串表示的时间转为 time.Time 类型
-		r, err = time.Parse(time.RFC3339, _v)
+		r, err = time.Parse(time.RFC3339, val)
 		if err != nil {
-			r, err = time.Parse(time.TimeOnly, _v)
+			r, err = time.Parse(time.TimeOnly, val)
 			if err != nil {
-				r, err = time.Parse(time.DateOnly, _v)
+				r, err = time.Parse(time.DateOnly, val)
 			}
 		}
 
@@ -28,13 +28,13 @@ func mapTime(v any) (r any, err error) {
 		}
 	case float64:
 		// 将 float64 表示的时间转为 time.Time 类型
-		r = time.Unix(0, int64(v.(float64))*int64(time.Millisecond))
+		r = time.Unix(0, int64(val)*int64(time.Millisecond))
 	case int64:
 		// 将 int64 表示的时间转为 time.Time 类型
-		r = time.Unix(0, v.(int64)*int64(time.Millisecond))
+		r = time.Unix(0, val*int64(time.Millisecond))
 	default:
 		// 其它类型, 不做任何转换
-		r = v
+		r = val
 	}
 	return
 }
@@ -68,6 +68,7 @@ type StructMapper struct {
 //
 // 该函数传入标签名称, 返回 `MapToStruct` 实例
 func New(tag string) *StructMapper {
+	// 返回 StructMapper 结构体指针
 	return &StructMapper{
 		tag: tag,
 		mappers: map[reflect.Type]MapperFn{

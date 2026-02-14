@@ -190,7 +190,7 @@ func TestReflect_ValueOfPtr(t *testing.T) {
 	assert.Equal(t, 'M', rune(tv.FieldByName("Gender").Int()))
 }
 
-// 通过反射读取"切片"实例值
+// 通过反射读取 "切片" 实例值
 //
 // 若 `reflect.Value` 实例引用了一个切片类型值, 则可以通过 `reflect.Value` 实例提供的一组切片反射方法对其进行操作, 包括:
 //   - `reflect.Value.Len()`
@@ -233,7 +233,7 @@ func TestReflect_ValueOfSlice(t *testing.T) {
 	assert.Equal(t, "Hello", val.Interface().(string))
 }
 
-// 通过反射读取"字典"实例值
+// 通过反射读取 "字典" 实例值
 func TestReflect_ValueOfMap(t *testing.T) {
 	// 定义字典类型变量, 类型转为 any 类型
 	var obj any = map[string]any{"a": 1, "b": "Hello", "c": false}
@@ -296,14 +296,14 @@ func Add(a, b int) (r int) {
 // 测试通过反射调用函数
 func TestReflect_Call(t *testing.T) {
 	// 将函数作为变量赋值给 interface{} 类型变量
-	var f any = Add
+	var fn any = Add
 
 	// 获取函数变量类型
-	tp := reflect.TypeOf(f)
+	tp := reflect.TypeOf(fn)
 	assert.Equal(t, ".[func]", utils.GetFullTypeName(tp))
 
 	// 获取函数变量的反射值
-	tv := reflect.ValueOf(f)
+	tv := reflect.ValueOf(fn)
 
 	// 构建调用函数的参数列表
 	args := []reflect.Value{

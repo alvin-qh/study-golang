@@ -6,12 +6,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// 测试数组指针
+// 测试使用数组指针
 //
 // 通过 `&<数组变量>` 可以获取数组的指针, 通过 `*<数组指针>` 可以得到数组本身
 //
 // 另外, 和 C 语言不同, Go 语言不支持通过 `+/-` 运算操作数组指针, 仍是通过下标来访问指定数组元素
-func TestArray_Pointer(t *testing.T) {
+func TestArray_UsePointer(t *testing.T) {
 	a := [...]int{1, 2, 3}
 
 	// 获取数组的指针

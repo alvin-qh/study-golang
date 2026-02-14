@@ -32,7 +32,7 @@ func TestDefer_InFunction(t *testing.T) {
 	func() {
 		// 尽管在每个循环的范围内都使用了 defer
 		// defer 后的函数也不会在每次循环结束后执行
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			defer func() { count++ }()
 		}
 
