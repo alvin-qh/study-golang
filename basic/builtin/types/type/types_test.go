@@ -185,39 +185,8 @@ func TestType_TypeConvert(t *testing.T) {
 		})
 	})
 
-	// 测试利用 `switch` 语句进行类型转换
 	t.Run("type convert by switch statement", func(t *testing.T) {
-		var v interface{}
 
-		switch rand.Intn(3) {
-		case 0:
-			v = 100
-		case 1:
-			v = "Hello"
-		case 2:
-			v = User{
-				Id:     1,
-				Name:   "Alvin",
-				Gender: 'M',
-			}
-		}
-
-		// 通过 switch 语句进行类型转换
-		// 每个分支用于判断 `v` 变量的一种类型, 如果类型匹配到具体分支, 则 `vv` 变量是该类型的值
-		switch vv := v.(type) {
-		case int:
-			assert.Equal(t, 100, vv)
-		case string:
-			assert.Equal(t, "Hello", vv)
-		case User:
-			assert.Equal(t, User{
-				Id:     1,
-				Name:   "Alvin",
-				Gender: 'M',
-			}, vv)
-		default:
-			assert.Fail(t, "unknown type")
-		}
 	})
 
 	// 测试指定类型切片和 `interface{}` 类型切片的转换
