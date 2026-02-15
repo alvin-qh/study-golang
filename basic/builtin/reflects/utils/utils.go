@@ -6,6 +6,7 @@ import (
 	"reflect"
 )
 
+// 定义全局错误变量
 var (
 	ErrInvalidPtr = errors.New("ptr must an address")
 )
@@ -25,14 +26,14 @@ func GetFullTypeName(t reflect.Type) string {
 // 要对一个对象的值进行设置, 需要操作该对象的地址, 否则会报告"非地址类型异常", 即:
 //   - `ptr`: 要设置的变量的指针
 //   - `newVal`: 要设置的新值
-func SetValueByReflect(ptr interface{}, newVal interface{}) (err error) {
-	// ptr 参数转为 Value 类型
+func SetValueByReflect(ptr any, newVal any) (err error) {
+	// 将 ptr 指针参数转为反射类型
 	tv := reflect.ValueOf(ptr)
-	if tv.Kind() != reflect.Pointer { // 判断 ptr 参数是否为指针类型
-		return ErrInvalidPtr
+	if tv.Kind() == reflect.Pointer {
+		// 通过 Elem() 函数解引指针类型, 获取 ptr 指向的变量, 并设置新的值
+		tv.Elem().Set(reflect.ValueOf(newVal))
+	} else {
+		err = ErrInvalidPtr
 	}
-
-	// 通过 Elem() 函数解引指针类型, 获取 ptr 指向的变量, 并设置新的值
-	tv.Elem().Set(reflect.ValueOf(newVal))
-	return nil
+	return
 }

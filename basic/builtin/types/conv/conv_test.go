@@ -3,6 +3,7 @@ package conv_test
 import (
 	"math/rand"
 	"reflect"
+	"study/basic/builtin/types/conv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,26 +14,6 @@ type User struct {
 	Id     int
 	Name   string
 	Gender rune
-}
-
-// 创建类型不同的对象
-func makeDifferentTypeObject() any {
-	var obj any
-
-	// 根据 0~2 的随机数结果, 创建不同类型的对象
-	switch rand.Intn(3) {
-	case 0:
-		obj = 100 // 创建整数类型对象
-	case 1:
-		obj = "Hello" // 创建字符串类型对象
-	case 2:
-		obj = User{ // 创建结构体类型对象
-			Id:     1,
-			Name:   "Alvin",
-			Gender: 'M',
-		}
-	}
-	return obj
 }
 
 // 测试 `any` 类型的转换
@@ -119,6 +100,26 @@ func TestConv_ForceConvert(t *testing.T) {
 	assert.EqualValues(t, v2, v3)
 }
 
+// 创建类型不同的对象
+func makeDifferentTypeObject() any {
+	var obj any
+
+	// 根据 0~2 的随机数结果, 创建不同类型的对象
+	switch rand.Intn(3) {
+	case 0:
+		obj = 100 // 创建整数类型对象
+	case 1:
+		obj = "Hello" // 创建字符串类型对象
+	case 2:
+		obj = User{ // 创建结构体类型对象
+			Id:     1,
+			Name:   "Alvin",
+			Gender: 'M',
+		}
+	}
+	return obj
+}
+
 // 测试利用 `switch` 语句进行类型转换
 func TestConv_ConvertWithSwitch(t *testing.T) {
 	// 创建不同类型的对象
@@ -140,4 +141,30 @@ func TestConv_ConvertWithSwitch(t *testing.T) {
 	default:
 		assert.Fail(t, "unknown type")
 	}
+}
+
+// 测试指定类型切片和 `any` 类型切片的转换
+//
+// 在 Go 语言中, 一般不推荐使用 `any` 类型的切片, 即 `[]any` 类型, 如果要用泛化类型表示数组,
+// 则使用 `any` 直接表示即可
+//
+// 注意, 要在 `[]any` 类型切片和其它类型切片间转换, 则需要通过一个 `O(n)` 复杂度的循环才能完成
+func TestConv_SliceTypeConversion(t *testing.T) {
+	// 定义 any 类型变量
+	var v any = []int{1, 2, 3, 4, 5}
+	assert.Equal(t, reflect.Slice, reflect.TypeOf(v).Kind())
+
+	// 将 any 类型转为指定类型切片类型
+	s, ok := conv.AnyToSlice[int](v)
+	assert.True(t, ok)
+	assert.Equal(t, []int{1, 2, 3, 4, 5}, s)
+
+	// 将指定类型的切片转为 `[]any` 类型
+	vs := conv.TypedSliceToAnySlice([]int{1, 2, 3, 4, 5})
+	assert.Len(t, vs, 5)
+
+	// 将 `[]any` 类型切片转为指定类型
+	s, ok = conv.AnySliceToTypedSlice[int](vs)
+	assert.True(t, ok)
+	assert.Equal(t, []int{1, 2, 3, 4, 5}, s)
 }

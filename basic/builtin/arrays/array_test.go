@@ -91,7 +91,7 @@ func TestArray_MultiDim(t *testing.T) {
 //
 // 如果数组元素类型为 `interface{}`, 则意味着这个数组可以存储各类元素值
 func TestArray_AnyType(t *testing.T) {
-	arr := [...]interface{}{"Hello", 1, false} // 声明一个项类型为 interface{} 类型的数组, 即数组项可以为任意类型
+	arr := [...]any{"Hello", 1, false} // 声明一个项类型为 interface{} 类型的数组, 即数组项可以为任意类型
 
 	assert.Len(t, arr, 3)
 	assert.Equal(t, "string", reflect.TypeOf(arr[0]).Name())

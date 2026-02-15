@@ -1,4 +1,4 @@
-package channel
+package channel_test
 
 import (
 	"runtime"
@@ -15,9 +15,9 @@ func init() {
 	runtime.GOMAXPROCS(0)
 }
 
-// 测试基本的 chan 实例
+// 测试基本的 `chan` 实例
 //
-// routine A 可以通过 chan 可以按顺序发送数据, routine B 可以通过 chan 接收该数据
+// routine A 可以通过 `chan` 可以按顺序发送数据, routine B 可以通过 `chan` 接收该数据
 func TestChan_Simple(t *testing.T) {
 	// 创建一个 chan 实例, 字符串类型, 缓冲区 100 个元素
 	ch := make(chan string, 100)
@@ -45,9 +45,9 @@ func TestChan_Simple(t *testing.T) {
 	assertion.DurationMatch(t, 10*time.Millisecond, d)
 }
 
-// 测试无缓冲的 chan 实例
+// 测试无缓冲的 `chan` 实例
 //
-// 如果 chan 实例不具备缓冲, 则会阻塞发送方, 直到接收方读取了发送的数据
+// 如果 `chan` 实例不具备缓冲, 则会阻塞发送方, 直到接收方读取了发送的数据
 func TestChan_Blocked(t *testing.T) {
 	wg := sync.WaitGroup{}
 	wg.Add(1)
@@ -227,13 +227,23 @@ func TestChan_CheckedBlocked(t *testing.T) {
 	assert.LessOrEqual(t, d, time.Millisecond)
 }
 
+// 返回一个 chan, 可以读取通过 fn 函数不断的产生数据
+func Generator[T any](fn func(c chan T)) chan T {
+	c := make(chan T)
+	go func() {
+		fn(c)
+		close(c)
+	}()
+	return c
+}
+
 // 测试通过 range 关键字读取 chan 中的数据
 //
 // 可以通过 range 关键字读取一个 chan 中的数据, 知道 chan 被关闭
 func TestChan_Range(t *testing.T) {
 	// 产生一个 chan 实例, 并定义向 chan 中写数据的函数
 	gen := Generator(func(ch chan string) {
-		for i := 0; i < 10; i++ {
+		for i := range 10 {
 			ch <- strconv.Itoa(i)
 		}
 	})

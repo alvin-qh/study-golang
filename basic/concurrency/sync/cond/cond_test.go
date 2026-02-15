@@ -1,4 +1,4 @@
-package cond
+package cond_test
 
 import (
 	"runtime"

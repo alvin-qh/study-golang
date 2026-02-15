@@ -130,20 +130,22 @@ func TestStructure_AllFieldNames(t *testing.T) {
 
 // 测试根据方法名称调用方法
 func TestStructure_CallMethodByName(t *testing.T) {
+	// 创建结构体实例
 	u := User{
 		Id:     100,
 		Name:   "Alvin",
 		Gender: 'M',
 	}
 
+	// 获取结构体实例的元数据对象
 	s, err := structure.New(&u)
 	assert.Nil(t, err)
 
+	// 为结构体字段设置值
 	u.Name = "Alvin"
 
-	// 调用 `User` 结构体的 `String` 方法
+	// 通过反射调用 `User` 结构体的 `String` 方法, 确认返回值符合预期
 	r, err := s.CallMethodByName("String", 100)
 	assert.Nil(t, err)
-
 	assert.Equal(t, r[0], "user{Id: 100, Name: \"Alvin\", Gender: 77, Num: 100}")
 }

@@ -167,24 +167,31 @@ func (t *Structure) GetFieldTags(fields string, tag string) (string, error) {
 //	res := rVal.MethodByName("GetName").Call()
 //	res := rVal.Addr().MethodByName("GetName").Call()
 func (t *Structure) CallMethodByName(method string, args ...any) ([]any, error) {
+	// 通过反射获取指定名称的方法实例
 	m := t.rv.MethodByName(method)
 	if !m.IsValid() {
+		// 如果获取失败, 尝试以指针类型来获取实例的方法实例
 		m = t.rv.Addr().MethodByName(method)
 		if !m.IsValid() {
 			return nil, ErrInvalidMethodName
 		}
 	}
 
+	// 定义一个切片集合, 其元素类型为反射对象, 用于存储通过反射调用方法的参数
 	avs := make([]reflect.Value, 0, len(args))
 	for _, arg := range args {
+		// 将参数值按顺序加入参数切片集合中
 		avs = append(avs, reflect.ValueOf(arg))
 	}
 
+	// 调用方法, 获取返回值切片
 	res := m.Call(avs)
 
-	retVals := make([]any, 0, len(res))
+	// 定义一个切片集合, 用于存储通过反射调用方法的返回值
+	rvs := make([]any, 0, len(res))
 	for _, rv := range res {
-		retVals = append(retVals, rv.Interface())
+		// 从返回结果中获取反射的实际值
+		rvs = append(rvs, rv.Interface())
 	}
-	return retVals, nil
+	return rvs, nil
 }

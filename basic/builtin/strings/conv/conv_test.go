@@ -3,6 +3,7 @@ package conv_test
 import (
 	"strconv"
 	"study/basic/builtin/strings/conv"
+	"study/basic/builtin/strings/utils"
 	"testing"
 	"unsafe"
 
@@ -370,7 +371,7 @@ func TestUnsafe_StringData(t *testing.T) {
 	assert.Equal(t, byte('h'), *bs)
 
 	// 通过移动指针访问字符串中其它的字节数据
-	bs = conv.PtrAdd(bs, 6)
+	bs = utils.PtrAdd(bs, 6)
 	assert.Equal(t, byte('w'), *bs)
 }
 
@@ -389,7 +390,7 @@ func TestUnsafe_String(t *testing.T) {
 	assert.Equal(t, "hello", s)
 
 	// 获取字节切片的数据指针, 将指针移动 6 字节后, 将剩余部分转为字符串
-	s = unsafe.String(conv.PtrAdd(unsafe.SliceData(bs), 6), len(bs)-6)
+	s = unsafe.String(utils.PtrAdd(unsafe.SliceData(bs), 6), len(bs)-6)
 	assert.Equal(t, "world", s)
 
 	n := int64(7163384699739271026)

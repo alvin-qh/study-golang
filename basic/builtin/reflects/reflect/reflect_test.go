@@ -20,12 +20,19 @@ type User struct {
 //
 // 通过 `reflect.TypeOf` 函数可以获取变量的类型
 func TestReflect_TypeOf(t *testing.T) {
-	// 定义实际类型为 `int64` 类型
+	// 定义变量为 int64 类型
 	var obj any = int64(100)
 
 	// 获取变量的类型反射实例
 	tp := reflect.TypeOf(obj)
 	assert.Equal(t, ".int64[int64]", utils.GetFullTypeName(tp))
+
+	// 定义变量为 int64* 指针类型
+	obj = &obj
+
+	// 获取指针变量的反射实例
+	tp = reflect.TypeOf(obj)
+	assert.Equal(t, ".[ptr]", utils.GetFullTypeName(tp))
 
 	// 定义实际类型为 `User` 类型
 	obj = User{}
@@ -33,9 +40,14 @@ func TestReflect_TypeOf(t *testing.T) {
 	// 获取变量的反射实例
 	tp = reflect.TypeOf(obj)
 	assert.Equal(t, "study/basic/builtin/reflects/reflect_test.User[struct]", utils.GetFullTypeName(tp))
+}
 
+// 通过反射获取类型
+//
+// 通过 `reflect.TypeFor[T]()` 函数可以获取类型 `T` 的反射实例
+func TestReflect_TypeFor(t *testing.T) {
 	// 获取指针变量的反射实例
-	tp = reflect.TypeOf(&obj)
+	tp := reflect.TypeFor[*any]()
 	assert.Equal(t, ".[ptr]", utils.GetFullTypeName(tp))
 
 	// 获取指针变量的反射实例
@@ -43,15 +55,15 @@ func TestReflect_TypeOf(t *testing.T) {
 	assert.Equal(t, ".[interface]", utils.GetFullTypeName(tp))
 
 	// 获取切片变量的反射实例
-	tp = reflect.TypeOf([]int{1, 2, 3, 4})
+	tp = reflect.TypeFor[[]int]()
 	assert.Equal(t, ".[slice]", utils.GetFullTypeName(tp))
 
 	// 获取数组变量的反射实例
-	tp = reflect.TypeOf([...]int{1, 2, 3, 4})
+	tp = reflect.TypeFor[[4]int]()
 	assert.Equal(t, ".[array]", utils.GetFullTypeName(tp))
 
 	// 获取 Map 变量的反射实例
-	tp = reflect.TypeOf(map[string]any{"a": 1, "b": "Hello"})
+	tp = reflect.TypeFor[map[string]any]()
 	assert.Equal(t, ".[map]", utils.GetFullTypeName(tp))
 }
 

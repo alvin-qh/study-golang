@@ -52,13 +52,13 @@ func TestStructMapper_findTag(t *testing.T) {
 
 // 测试 `Decode` 方法错误参数
 //
-// 测试当 `target` 参数不正确时, `Decode` 方法返回预期的错误信息
+// 测试当 `Decode` 方法的 `target` 参数不正确时, `Decode` 方法返回预期的错误信息
 func TestStructMapper_DecodeWrongTarget(t *testing.T) {
+	// 根据字段标签创建 MapToStruct 实例
 	m := structmapper.New("struct")
 
+	// 传递错误对象参数, 返回预期错误
 	v := 123
-
-	// 传递错误的 `target` 参数, 返回预期错误
 	err := m.Decode(map[string]any{}, &v)
 	assert.EqualError(t, err, "\"target\" argument must be a struct pointer")
 }

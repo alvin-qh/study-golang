@@ -1,10 +1,23 @@
-package conv
+package utils
 
 import (
 	"reflect"
 	"unsafe"
 )
 
+// 对指针值加上指定的偏移量，返回新的指针地址
+//
+// 泛型参数:
+// - `P“: 指针类型，必须是指向 `E` 类型的指针
+// - `E“: 任意类型
+// 函数参数:
+// - `ptr“: 原始指针值
+// - `offset`: 要增加的字节偏移量
+// 返回值: 加上偏移量后的新指针
+func PtrAdd[P ~*E, E any](ptr P, offset uintptr) P {
+	p := unsafe.Pointer(ptr)
+	return P(unsafe.Add(p, offset))
+}
 
 // 将切片转换为字符串
 //
