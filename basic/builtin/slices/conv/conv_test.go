@@ -1,7 +1,7 @@
 package conv_test
 
 import (
-	"study/basic/builtin/slices/utils"
+	"study/basic/builtin/slices"
 	"testing"
 	"unsafe"
 
@@ -21,10 +21,10 @@ func TestUnsafe_SliceData(t *testing.T) {
 	assert.Equal(t, byte('h'), *ptr)
 
 	// 移动指针, 指向切片不同元素
-	ptr = utils.PtrAdd(ptr, 2)
+	ptr = slices.PtrAdd(ptr, 2)
 	assert.Equal(t, byte('l'), *ptr)
 
-	ptr = utils.PtrAdd(ptr, uintptr(len(bs)-1-2))
+	ptr = slices.PtrAdd(ptr, uintptr(len(bs)-1-2))
 	assert.Equal(t, byte('d'), *ptr)
 }
 
@@ -38,7 +38,7 @@ func TestUnsafe_Slice(t *testing.T) {
 	ptr := unsafe.SliceData(bs)
 
 	// 将字节指针向后移动 6 字节
-	ptr = utils.PtrAdd(ptr, 6)
+	ptr = slices.PtrAdd(ptr, 6)
 
 	// 将移动过的指针还原为切片
 	s := unsafe.Slice(ptr, len(bs)-6)

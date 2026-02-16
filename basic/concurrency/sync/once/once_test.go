@@ -1,4 +1,4 @@
-package once
+package once_test
 
 import (
 	"study/basic/testing/assertion"
@@ -19,6 +19,7 @@ import (
 // `sync.OnceFunc` 函数返回的结果是同步的, 即多个 goroutine 同时执行该函数时, 只会有一个 goroutine
 // 执行成功
 func TestOnce_OnceFunc(t *testing.T) {
+	// 定义一个计数器, 用于统计被包装函数的执行次数
 	count := 0
 
 	// 定义 Once 方法
@@ -26,20 +27,16 @@ func TestOnce_OnceFunc(t *testing.T) {
 		count++
 	})
 
+	// 定义等待组对象, 用于等待全部任务完成
 	var wg sync.WaitGroup
 
 	// 启动 10 个 goroutine
-	for i := 0; i < 10; i++ {
-		wg.Add(1)
-
+	for range 10 {
 		// 启动 goroutine, 在其中执行一次 OnceFunc
-		go func() {
-			defer wg.Done()
-
-			fn()
-		}()
+		wg.Go(func() { fn() })
 	}
 
+	// 等待任务结束
 	wg.Wait()
 
 	// 确认最终 OnceFunc 只被执行了一次
@@ -58,24 +55,22 @@ func TestOnce_OnceValue(t *testing.T) {
 		return time.Now()
 	})
 
+	// 定义等待组对象, 用于等待全部任务完成
 	var wg sync.WaitGroup
 
 	// 保持每次调用函数结果
 	rs := make([]time.Time, 10)
 
 	// 启动 10 个 goroutine
-	for i := 0; i < len(rs); i++ {
-		wg.Add(1)
-
+	for i := range rs {
 		// 启动 goroutine, 在其中重复调用前面产生的函数
-		go func() {
-			defer wg.Done()
-
+		wg.Go(func() {
 			time.Sleep(10 * time.Millisecond)
 			rs[i] = fn()
-		}()
+		})
 	}
 
+	// 等待所有任务结束
 	wg.Wait()
 
 	// 确认所有函数调用结果都是一样的
@@ -93,6 +88,7 @@ func TestOnce_OnceValues(t *testing.T) {
 		return time.Now(), int(time.Since(start).Milliseconds())
 	})
 
+	// 定义等待组对象, 用于等待全部任务完成
 	var wg sync.WaitGroup
 
 	// 保持每次调用函数结果
@@ -112,6 +108,7 @@ func TestOnce_OnceValues(t *testing.T) {
 		}()
 	}
 
+	// 等待所有任务结束
 	wg.Wait()
 
 	// 确认所有函数调用结果都是一样的

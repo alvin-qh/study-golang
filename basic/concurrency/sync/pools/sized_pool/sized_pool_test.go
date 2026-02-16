@@ -1,9 +1,10 @@
-package pool
+package sized_pool_test
 
 import (
 	"context"
 	"fmt"
-	"study/basic/builtin/slice/utils"
+	"study/basic/builtin/slices/utils"
+	sp "study/basic/concurrency/sync/pools/sized_pool"
 	"study/basic/testing/assertion"
 	"sync"
 	"sync/atomic"
@@ -25,7 +26,7 @@ func (v *Value) String() string {
 // 测试创建池对象
 func TestSizedPool_New(t *testing.T) {
 	// 创建一个具有 10 个元素容量的池
-	pool := NewSizedPool(10, func() *Value {
+	pool := sp.New(10, func() *Value {
 		return &Value{}
 	})
 
@@ -37,7 +38,7 @@ func TestSizedPool_New(t *testing.T) {
 func TestSizedPool_TryGet(t *testing.T) {
 	lastId := int32(0)
 
-	pool := NewSizedPool(10, func() *Value {
+	pool := sp.New(10, func() *Value {
 		id := atomic.AddInt32(&lastId, 1)
 		if id > 10 {
 			assert.Fail(t, "")
@@ -91,7 +92,7 @@ func TestSizedPool_Get(t *testing.T) {
 	lastId := int32(0)
 
 	// 创建池实例, 容量为 10
-	pool := NewSizedPool(10, func() *Value {
+	pool := sp.New(10, func() *Value {
 		id := atomic.AddInt32(&lastId, 1)
 		if id > 10 {
 			assert.Fail(t, "")
@@ -100,7 +101,7 @@ func TestSizedPool_Get(t *testing.T) {
 	})
 
 	// 创建切片, 存储从池中获取的元素
-	rs := make([]*SizedPoolElem[*Value], 0, pool.MaxSize())
+	rs := make([]*sp.Elem[*Value], 0, pool.MaxSize())
 
 	start := time.Now()
 
