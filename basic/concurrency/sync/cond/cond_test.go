@@ -55,11 +55,14 @@ func TestCond_NewCond(t *testing.T) {
 	// 休眠 100ms 后, 向 `sync.Cond` 实例发送信号
 	// 此时 goroutine 中的等待会结束
 	time.Sleep(10 * time.Millisecond)
+
 	// 发送信号
 	cond.Signal()
 
 	// 接收结果, 即 goroutine 等待时长
 	since := <-ch
+
+	// 确认等待时长, 此时等待时长应该在 10ms 左右
 	assertion.DurationMatch(t, 10*time.Millisecond, since)
 }
 
@@ -86,7 +89,7 @@ func TestCond_SignalOneByOne(t *testing.T) {
 	start := time.Now()
 
 	// 启动 10 个 goroutine
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		// 每个 goroutine 中, 等待信号, 并记录信号等待时间
 		go func(id int64) {
 			// 进入临界区
@@ -104,7 +107,7 @@ func TestCond_SignalOneByOne(t *testing.T) {
 	// 启动 goroutine, 分别通过条件量发送 10 次信号
 	// 每次信号唤醒一个等待, 则 10 次信号所有的 goroutine 都将被唤醒
 	go func() {
-		for i := 0; i < 10; i++ {
+		for range 10 {
 			// 休眠 10 毫秒后发送信号
 			time.Sleep(10 * time.Millisecond)
 			cond.Signal()
@@ -161,7 +164,7 @@ func TestCond_Broadcast(t *testing.T) {
 	start := time.Now()
 
 	// 启动 10 个 goroutine
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		// 每个 goroutine 中, 等待信号, 并记录信号等待时间
 		go func(id int64) {
 			// 进入临界区

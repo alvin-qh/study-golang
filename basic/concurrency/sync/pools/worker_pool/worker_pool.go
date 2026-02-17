@@ -2,21 +2,21 @@ package pool
 
 import (
 	"os"
-	"study/basic/log"
+	"study/basic/logs"
 	"sync"
 	"sync/atomic"
 )
 
 var (
 	lastTaskId atomic.Int64
-	logger     *log.Logger
+	logger     *logs.Logger
 )
 
 // 初始化任务池
 func init() {
 	// 初始化日志实例
-	logger = log.New()
-	logger.AddNewAppender(os.Stdout, log.LEVEL_DEBUG, log.Ldate|log.Ltime|log.Lshortfile)
+	logger = logs.New()
+	logger.AddNewAppender(os.Stdout, logs.LEVEL_DEBUG, logs.Ldate|logs.Ltime|logs.Lshortfile)
 }
 
 // 任务处理函数类型

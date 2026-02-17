@@ -2,7 +2,7 @@ package pool
 
 import (
 	"strconv"
-	"study/basic/builtin/slice/utils"
+	slices2 "study/basic/builtin/slices"
 	"sync"
 	"testing"
 	"time"
@@ -34,7 +34,7 @@ func TestTaskPool_Execute(t *testing.T) {
 		})
 
 		// 共执行 100 个任务
-		for i := 0; i < 100; i++ {
+		for i := range 100 {
 			// 执行任务
 			exec(
 				strconv.Itoa(i+1),
@@ -64,7 +64,7 @@ func TestTaskPool_Execute(t *testing.T) {
 
 	// 查看任务结果
 	assert.Len(t, rs, 100)
-	assert.ElementsMatch(t, utils.Range(1, 101, 1), rs)
+	assert.ElementsMatch(t, slices2.Range(1, 101, 1), rs)
 }
 
 // 测试任务池的优雅关闭
@@ -89,7 +89,7 @@ func TestTaskPool_CloseAndWait(t *testing.T) {
 		)
 
 		// 共执行 100 个任务
-		for i := 0; i < 100; i++ {
+		for i := range 100 {
 			// 执行任务
 			exec(
 				strconv.Itoa(i+1),

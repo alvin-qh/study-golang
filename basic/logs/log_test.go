@@ -1,10 +1,11 @@
-package log
+package logs_test
 
 import (
 	"bytes"
 	"io"
 	"os"
 	"strings"
+	"study/basic/logs"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,16 +13,16 @@ import (
 
 // 测试创建日志实例
 func TestLog_New(t *testing.T) {
-	log := New()
+	log := logs.New()
 
 	buf := bytes.NewBuffer(make([]byte, 0))
 
 	// 设定日志输出标记
-	fl := Ldate | Ltime | Lshortfile
-	log.AddNewAppender(os.Stdout, LEVEL_DEBUG, fl)
+	fl := logs.Ldate | logs.Ltime | logs.Lshortfile
+	log.AddNewAppender(os.Stdout, logs.LEVEL_DEBUG, fl)
 
 	// 将内存缓冲作为日志输出
-	log.AddNewAppender(buf, LEVEL_DEBUG, fl)
+	log.AddNewAppender(buf, logs.LEVEL_DEBUG, fl)
 
 	// 输出各种级别的日志
 	log.Debug("Test Debug Log")
@@ -58,14 +59,14 @@ func TestLog_WithFile(t *testing.T) {
 
 	defer f.Close()
 
-	log := New()
+	log := logs.New()
 
 	// 设定日志输出标记
-	fl := Ldate | Ltime | Lshortfile
-	log.AddNewAppender(os.Stdout, LEVEL_DEBUG, fl)
+	fl := logs.Ldate | logs.Ltime | logs.Lshortfile
+	log.AddNewAppender(os.Stdout, logs.LEVEL_DEBUG, fl)
 
 	// 将日志输出到文件
-	log.AddNewAppender(f, LEVEL_DEBUG, fl)
+	log.AddNewAppender(f, logs.LEVEL_DEBUG, fl)
 
 	// 输出各种级别的日志
 	log.Debug("Test Debug Log")

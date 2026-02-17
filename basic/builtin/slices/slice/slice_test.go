@@ -5,7 +5,7 @@ import (
 	"slices"
 	"testing"
 
-	slices_ "study/basic/builtin/slices"
+	slices2 "study/basic/builtin/slices"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -14,16 +14,22 @@ import (
 func TestSlice_Define(t *testing.T) {
 	// 创建切片类型变量, 此时切片为 nil, 长度为 0
 	var s []int
+
+	// 确认切片为 nil, 且长度为 0
 	assert.Nil(t, s)
 	assert.Equal(t, 0, len(s))
 
 	// 创建一个空的切片, 此时切片非 nil, 长度为 0
 	s = []int{}
+
+	// 确认切片非 nil, 且长度为 0
 	assert.NotNil(t, s)
 	assert.Equal(t, 0, len(s))
 
 	// 创建切片并初始化元素
 	s = []int{1, 2, 3, 4, 5}
+
+	// 确认切片长度和元素值
 	assert.NotNil(t, s)
 	assert.Equal(t, 5, len(s))
 	assert.Equal(t, []int{1, 2, 3, 4, 5}, s)
@@ -33,6 +39,8 @@ func TestSlice_Define(t *testing.T) {
 func TestSlice_Make(t *testing.T) {
 	// 创建切片, 初始长度 3
 	s := make([]int, 3)
+
+	// 确认切片的长度和 Capacity 值
 	assert.Equal(t, 3, len(s))
 	assert.Equal(t, 3, cap(s))
 	assert.Equal(t, []int{0, 0, 0}, s)
@@ -41,10 +49,14 @@ func TestSlice_Make(t *testing.T) {
 	s[0] = 1
 	s[1] = 2
 	s[2] = 3
+
+	// 确认切片元素值
 	assert.Equal(t, []int{1, 2, 3}, s)
 
 	// 创建切片, 长度为 0, Capacity 为 10
 	s = make([]int, 0, 10)
+
+	// 确认切片的长度和 Capacity 值
 	assert.Equal(t, 0, len(s))
 	assert.Equal(t, 10, cap(s))
 
@@ -65,11 +77,15 @@ func TestSlice_Make(t *testing.T) {
 func TestSlice_Cut(t *testing.T) {
 	// 定义长度为 0, Capacity 为 10 的切片
 	s := make([]int, 0, 10)
+
+	// 向切片中添加 5 个元素, 此时切片的长度为 5, Capacity 为 10
 	s = append(s, 1, 2, 3, 4, 5)
 
 	// 截取前 2 个元素
 	// 结果切片的长度为 `2`, Capacity 为 `10 - 0` 为 `0`
 	sc := s[:2]
+
+	// 确认截取后的切片长度、Capacity 和元素值
 	assert.Equal(t, 2, len(sc))
 	assert.Equal(t, 10, cap(sc))
 	assert.Equal(t, []int{1, 2}, sc)
@@ -77,6 +93,8 @@ func TestSlice_Cut(t *testing.T) {
 	// 截取后 3 个元素
 	// 结果切片的长度为 `3`, Capacity 为 `10 - 2` 为 `7`
 	sc = s[2:]
+
+	// 确认截取后的切片长度、Capacity 和元素值
 	assert.Equal(t, 3, len(sc))
 	assert.Equal(t, 8, cap(sc))
 	assert.Equal(t, []int{3, 4, 5}, sc)
@@ -84,6 +102,8 @@ func TestSlice_Cut(t *testing.T) {
 	// 截取第 3 个元素
 	// 结果切片的长度为 `1`, Capacity 为 `10 - 2` 为 `8`
 	sc = s[2:3]
+
+	// 确认截取后的切片长度、Capacity 和元素值
 	assert.Equal(t, 1, len(sc))
 	assert.Equal(t, 8, cap(sc))
 	assert.Equal(t, []int{3}, sc)
@@ -91,12 +111,16 @@ func TestSlice_Cut(t *testing.T) {
 	// 截取下标 2~4 的元素, 并通过第三个值指定 Capacity 的最大值为 `6`
 	// 结果切片的长度为 `3`, Capacity 为 `6 - 2` 为 `4`
 	sc = s[2:len(s):6]
+
+	// 确认截取后的切片长度、Capacity 和元素值
 	assert.Equal(t, 3, len(sc))
 	assert.Equal(t, 4, cap(sc))
 	assert.Equal(t, []int{3, 4, 5}, sc)
 
 	// 获取一个同类型空数组, 即长度为 `0`, Capacity 为 `0` 的切片
 	sc = s[:0:0]
+
+	// 确认截取后的切片长度、Capacity 和元素值
 	assert.Equal(t, []int{}, sc)
 }
 
@@ -106,15 +130,18 @@ func TestSlice_Append(t *testing.T) {
 	t.Run("append to nil slice", func(t *testing.T) {
 		// 创建 Nil 切片
 		var s []int
+
+		// 确认切片为 Nil, 且长度为 0
 		assert.Nil(t, s)
 
-		// Nil 切片的长度为 0
+		// 确认切片长度和 Capacity 值
 		assert.Equal(t, 0, len(s))
-		// Nil 切片的 Capacity 为 0
 		assert.Equal(t, 0, cap(s))
 
 		// 向空切片追加元素
 		s = append(s, 1)
+
+		// 向空切片追加元素, 此时切片不再为 Nil, 长度为 1, Capacity 为 1
 		assert.Equal(t, 1, len(s))
 		assert.Equal(t, 1, cap(s))
 		assert.Equal(t, []int{1}, s)
@@ -122,6 +149,8 @@ func TestSlice_Append(t *testing.T) {
 		// 向空切片中继续添加元素
 		// 当元素长度超过 Capability 时, 会自动扩大 Capability 长度
 		s = append(s, 2, 3, 4, 5, 6, 7)
+
+		// 确认切片长度和 Capacity 值, 此时切片长度为 7, Capacity 为 8
 		assert.Equal(t, 7, len(s))
 		assert.Equal(t, 8, cap(s))
 		assert.Equal(t, []int{1, 2, 3, 4, 5, 6, 7}, s)
@@ -134,6 +163,8 @@ func TestSlice_Append(t *testing.T) {
 		// 向空切片追加多个元素
 		// 在元素数量小于 Capacity 时, 不会增加 Capacity 长度
 		s = append(s, 1)
+
+		// 确认切片长度和 Capacity 值, 此时切片长度为 1, Capacity 为 5
 		assert.Len(t, s, 1)
 		assert.Equal(t, 5, cap(s))
 		assert.Equal(t, []int{1}, s)
@@ -141,6 +172,8 @@ func TestSlice_Append(t *testing.T) {
 		// 继续追加多个元素
 		// 当元素长度超过 Capability 时, 会自动扩大 Capability 长度
 		s = append(s, 2, 3, 4, 5, 6)
+
+		// 确认切片长度和 Capacity 值, 此时切片长度为 6, Capacity 为 10
 		assert.Len(t, s, 6)
 		assert.Equal(t, 10, cap(s))
 		assert.Equal(t, []int{1, 2, 3, 4, 5, 6}, s)
@@ -152,6 +185,8 @@ func TestSlice_Append(t *testing.T) {
 
 		// 删除下标为 2 的元素, 相当于切片中将下标小于 2 的元素和下标大于 2 的元素合并在一起
 		s = append(s[:2], s[3:]...)
+
+		// 确认切片元素值, 此时切片变为 [1, 2, 4, 5]
 		assert.Equal(t, []int{1, 2, 4, 5}, s)
 	})
 }
@@ -173,11 +208,16 @@ func TestSlice_Reference(t *testing.T) {
 
 	// 改变其中一个切片变量的元素, 另一个切片变量也同步修改
 	s2[1] = 20
+
+	// 确认两个切片的元素值, 此时 s1 和 s2 的元素值都变为 [1, 20, 3]
 	assert.Equal(t, []int{1, 20, 3}, s1)
+	assert.Equal(t, []int{1, 20, 3}, s2)
 
 	// 通过 append 函数追加元素, 此时会产生新切片
 	// 返回新切片, 之后 s1 和 s2 不再引用同一个切片
 	s2 = append(s2, 4)
+
+	// 确认两个切片的元素地址不同, 即元素位于不同内存空间
 	assert.NotSame(t, &s1[0], &s2[0])
 	assert.NotEqual(t, s2, s1)
 }
@@ -216,17 +256,19 @@ func TestSlice_Copy(t *testing.T) {
 }
 
 // 测试二分查找
-func TestSlices_BinarySearch(t *testing.T) {
+func TestSlice_BinarySearch(t *testing.T) {
 	// 对递增有序序列执行二分查找
 	t.Run("slices.BinarySearch", func(t *testing.T) {
 		// 生成有序递增序列
-		ns := slices_.Range(1, 1000, 1)
+		ns := slices2.Range(1, 1000, 1)
 
 		// 确认切片有序递增
 		assert.True(t, slices.IsSorted(ns))
 
 		// 对递增有序序列执行二分查找
 		v, ok := slices.BinarySearch(ns, 100)
+
+		// 如果查找成功, 则返回对应元素的值和 true; 否则返回 0 和 false
 		assert.True(t, ok)
 		assert.Equal(t, 99, v)
 	})
@@ -236,7 +278,7 @@ func TestSlices_BinarySearch(t *testing.T) {
 	// 则可以使用二分查找的回调函数版本, 回调函数用于对序列中的两个元素进行比较
 	t.Run("slices.BinarySearchFunc", func(t *testing.T) {
 		// 生成有序递减序列
-		ns := slices_.Range(1, 1000, 1)
+		ns := slices2.Range(1, 1000, 1)
 		slices.Reverse(ns)
 
 		// 确认序列有序递减
@@ -261,7 +303,7 @@ func TestSlices_Clip(t *testing.T) {
 	s := make([]int, 0, 100)
 
 	// 向切片中添加 20 个元素, 查看切片的长度和 Capacity 值
-	s = append(s, slices_.Range(0, 20, 1)...)
+	s = append(s, slices2.Range(0, 20, 1)...)
 	assert.Len(t, s, 20)
 	assert.Equal(t, 100, cap(s))
 
@@ -269,7 +311,7 @@ func TestSlices_Clip(t *testing.T) {
 	s = slices.Clip(s)
 	assert.Len(t, s, 20)
 	assert.Equal(t, 20, cap(s))
-	assert.Equal(t, slices_.Range(0, 20, 1), s)
+	assert.Equal(t, slices2.Range(0, 20, 1), s)
 }
 
 // 测试对切片 Capacity 值进行扩容
@@ -709,7 +751,7 @@ func TestSlices_Shuffle(t *testing.T) {
 	s := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 
 	// 乱序切片, 确认切片元素顺序被打乱
-	utils.Shuffle(s, 100)
+	slices2.Shuffle(s, 100)
 	assert.NotEqual(t, []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, s)
 
 	// 重新排序乱序后的切片, 恢复原始顺序

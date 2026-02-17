@@ -3,7 +3,7 @@ package sized_pool_test
 import (
 	"context"
 	"fmt"
-	"study/basic/builtin/slices/utils"
+	slices2 "study/basic/builtin/slices"
 	sp "study/basic/concurrency/sync/pools/sized_pool"
 	"study/basic/testing/assertion"
 	"sync"
@@ -82,7 +82,7 @@ func TestSizedPool_TryGet(t *testing.T) {
 	assert.Equal(t, 10, pool.Size())
 
 	// 确认从池中获取的共 10 个元素
-	assert.ElementsMatch(t, utils.Range(1, 11, 1), rs)
+	assert.ElementsMatch(t, slices2.Range(1, 11, 1), rs)
 }
 
 // 测试从池中获取元素
