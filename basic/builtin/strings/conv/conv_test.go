@@ -13,6 +13,7 @@ import (
 // 测试将值类型转为字符串
 func TestStrConv_Format(t *testing.T) {
 	// 将整数以所给进制转为字符串
+	//
 	// 需要指定结果的进制 (`base` 参数), 可以为 `2`, `4`, `8`, `10`, `16`, `32`, `64` 等
 	t.Run("strconv.FormatInt", func(t *testing.T) {
 		// 以 10 进制转换为字符串
@@ -33,6 +34,7 @@ func TestStrConv_Format(t *testing.T) {
 	})
 
 	// 测试将无符号整数以所给进制转为字符串
+	//
 	// 需要指定结果的进制 (`base` 参数), 可以位 `2`, `4`, `8`, `10`, `16`, `32`, `64` 等
 	t.Run("strconv.FormatUint", func(t *testing.T) {
 		// 以 10 进制转换为字符串
@@ -53,6 +55,7 @@ func TestStrConv_Format(t *testing.T) {
 	})
 
 	// 将浮点数以所给进制转为字符串
+	//
 	// 需要指定结果的格式 (`fmt` 参数), 可以为:
 	//   - 'b' (`-dddp±dddd`, 以 2 为低的指数)
 	//   - 'e' (`-d.dddde±dd`, 以 10 为底的指数)
@@ -94,6 +97,7 @@ func TestStrConv_Format(t *testing.T) {
 	})
 
 	// 将复数值转为字符串
+	//
 	// 需要指定结果的格式 (`fmt` 参数), 可以为
 	//   - 'b' (`-dddp±dddd`, 以 2 为低的指数)
 	//   - 'e' (`-d.dddde±dd`, 以 10 为底的指
@@ -107,6 +111,7 @@ func TestStrConv_Format(t *testing.T) {
 	// 需要指定保留小数位数 (`prec` 参数)
 	// 需要指定二进制位数, 可以为 `64` 和 `128`
 	t.Run("strconv.FormatComplex", func(t *testing.T) {
+		// 定义一个复数值
 		c := 100.002 + 20i
 
 		// 将复数转为小数格式字符串, 保留最多小数位
@@ -130,6 +135,7 @@ func TestStrConv_Format(t *testing.T) {
 // 测试将字符串转为值类型
 func TestStrConv_Parse(t *testing.T) {
 	// 将字符串按照要求的进制及二进制位数转为整数
+	//
 	// 需要指定结果整数的进制 (`base` 参数) 及二进制位数 (`bitSize` 参数)
 	// `bitSize` 参数可以为 `0`, `8`, `16`, `32`, `64`, `0` 表示自动判断
 	t.Run("strconv.ParseInt", func(t *testing.T) {
@@ -159,6 +165,7 @@ func TestStrConv_Parse(t *testing.T) {
 	})
 
 	// 将字符串按照要求的进制及二进制位数转为无符号整数
+	//
 	// 需要指定结果整数的进制 (`base` 参数) 及位数 (`bitSize` 参数)
 	// `bitSize` 参数可以为 `0`, `8`, `16`, `32`, `64`, `0` 表示自动判断
 	t.Run("strconv.ParseUint", func(t *testing.T) {
@@ -224,6 +231,7 @@ func TestStrConv_Parse(t *testing.T) {
 	})
 
 	// 将字符串转为复数
+	//
 	// 需要指定复数的二进制位数 (`bitSize` 参数), 可以为 `0`, `64` 和 `128`, `0` 表示自动判断
 	t.Run("strconv.ParseComplex", func(t *testing.T) {
 		// 将小数格式字符串转为复数
@@ -248,6 +256,7 @@ func TestStrConv_Parse(t *testing.T) {
 //
 // 相当于 `strconv.FormatInt(int64(100), 10)` 函数
 func TestStrConv_Itoa(t *testing.T) {
+	// 将整数转为字符串, 默认以 10 进制转换, 确认转换结果为 "100"
 	s := strconv.Itoa(100)
 	assert.Equal(t, "100", s)
 }
@@ -256,11 +265,14 @@ func TestStrConv_Itoa(t *testing.T) {
 //
 // 相当于 `strconv.ParseInt("100", 10, 0)` 函数, 并且返回值位 `int` 类型
 func TestStrConv_Atoi(t *testing.T) {
+	// 将字符串转为整数
 	n, err := strconv.Atoi("100")
 
+	// 确认转换成功, 错误为 nil, 转换结果为 100
 	assert.Nil(t, err)
 	assert.Equal(t, 100, n)
 
+	// 测试转换错误, 字符串中不包含非数字字符, 确认 error 错误
 	_, err = strconv.Atoi("abcd")
 	assert.EqualError(t, err, "strconv.Atoi: parsing \"abcd\": invalid syntax")
 }
@@ -269,25 +281,37 @@ func TestStrConv_Atoi(t *testing.T) {
 func TestStrConv_Append(t *testing.T) {
 	// 将一个整数转为字符串, 并追加到一个字节串之后
 	t.Run("strconv.AppendInt", func(t *testing.T) {
+		// 定义一个字节切片
 		s := []byte("Hello ")
 
+		// 将整数转为字符串, 并追加到字节切片之后, 确认追加后的字节切片内容为 "Hello 100"
 		bs := strconv.AppendInt(s, 100, 10)
+
+		// 确认追加后的字节切片内容
 		assert.Equal(t, []byte("Hello 100"), bs)
 	})
 
 	// 将一个布尔值转为字符串, 并追加到一个字节串之后
 	t.Run("strconv.AppendBool", func(t *testing.T) {
+		// 定义一个字节切片
 		s := []byte("Hello ")
 
+		// 将布尔值转为字符串, 并追加到字节切片之后, 确认追加后的字节切片内容为 "Hello true"
 		bs := strconv.AppendBool(s, true)
+
+		// 确认追加后的字节切片内容
 		assert.Equal(t, []byte("Hello true"), bs)
 	})
 
 	// 将一个浮点数转为字符串, 并追加到一个字节串之后
 	t.Run("strconv.AppendFloat", func(t *testing.T) {
+		// 定义一个字节切片
 		s := []byte("Hello ")
 
+		// 将浮点数转为字符串, 并追加到字节切片之后, 确认追加后的字节切片内容为 "Hello 100.002"
 		bs := strconv.AppendFloat(s, 100.002, 'f', -1, 64)
+
+		// 确认追加后的字节切片内容
 		assert.Equal(t, []byte("Hello 100.002"), bs)
 	})
 }
@@ -317,28 +341,40 @@ func TestStrConv_IsGraphic(t *testing.T) {
 // 测试字符
 func TestStrConv_Quote(t *testing.T) {
 	// 将字符串转为“双引号”包围的字符串字面量
+	//
 	// 返回的字符串会被一对双引号包围, 并对其中的特殊字符进行转义
 	t.Run("strconv.Quote", func(t *testing.T) {
+		// 测试字符串中包含特殊字符, 包括制表符、双引号、非 ASCII 字符等, 确认转换结果正确
 		s := strconv.Quote(`Fran & Freddie's Diner	"☺", Ok`)
 
+		// 确认转换结果正确, 注意, 结果中会包含字符最外层的双引号
 		assert.Equal(t, `"Fran & Freddie's Diner\t\"☺\", Ok"`, s)
+
+		// 测试字符串中包含特殊字符, 包括制表符、双引号、非 ASCII 字符等, 确认转换结果正确
 		assert.Equal(t, "\"Fran & Freddie's Diner\\t\\\"☺\\\", Ok\"", s)
 	})
 
 	// 将特殊字符转为转义字符
+	//
 	// 注意, 结果中会包含字符最外层的单引号
 	t.Run("strconv.QuoteRune", func(t *testing.T) {
+		// 将制表符转为转义字符, 确认转换结果正确
 		c := strconv.QuoteRune('	')
+
+		// 确认转换结果正确, 注意, 结果中会包含字符最外层的单引号
 		assert.Equal(t, `'\t'`, c)
 	})
 
 	// 将字符转为 Unicode 表示
+	//
 	// 返回一个字符串, 内容为一个单引号包围的 Unicode 字符
 	// 对于非可见字符, 会返回其转义字符, 例如 `\n`, `\t` 等
 	t.Run("strconv.QuoteRuneToGraphic", func(t *testing.T) {
+		// 将制表符转为 Unicode 表示, 确认转换结果正确
 		s := strconv.QuoteRuneToGraphic('	')
 		assert.Equal(t, `'\t'`, s)
 
+		// 将一个图形字符转为 Unicode 表示, 确认转换结果正确
 		s = strconv.QuoteRuneToGraphic('\u263a')
 		assert.Equal(t, `'☺'`, s)
 
