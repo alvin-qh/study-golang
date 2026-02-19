@@ -46,6 +46,7 @@ func TestStructure_Properties(t *testing.T) {
 	u.Name = "Emma"
 	u.Gender = 'F'
 
+	// 确认结构体字段值已经被修改
 	assert.Equal(t, 2, u.Id)
 	assert.Equal(t, "Emma", u.Name)
 	assert.Equal(t, 'F', u.Gender)

@@ -1,8 +1,9 @@
-package channel_test
+package chans_test
 
 import (
 	"runtime"
 	"strconv"
+	"study/basic/concurrency/goroutine/chans"
 	"study/basic/testing/assertion"
 	"sync"
 	"testing"
@@ -36,9 +37,14 @@ func TestChan_Simple(t *testing.T) {
 
 	// 等待从 chan 中读取数据
 	s, ok := <-ch
+
+	// 记录从 chan 中读取数据的时间
 	d := time.Since(now)
 
+	// 确认从 chan 中读取数据成功, 即 chan 没有被关闭
 	assert.True(t, ok)
+
+	// 确认从 chan 中读取的数据正确
 	assert.Equal(t, "Hello", s)
 
 	// 100ms 后接收到数据, 之前处于阻塞状态
@@ -49,12 +55,14 @@ func TestChan_Simple(t *testing.T) {
 //
 // 如果 `chan` 实例不具备缓冲, 则会阻塞发送方, 直到接收方读取了发送的数据
 func TestChan_Blocked(t *testing.T) {
-	wg := sync.WaitGroup{}
+	// 定义一个等待组对象, 并添加一个需要等待的 goroutine
+	var wg sync.WaitGroup
 	wg.Add(1)
 
-	// 第二个参数为 0 或缺省, 表示 chan 无缓冲
-	ch := make(chan string)
+	// 定义字符串类型的 chan 对象, 第二个参数为 0 或缺省, 表示 chan 无缓冲
+	ch := make(chan string /*, 0*/)
 
+	// 用于记录发送方被阻塞时间的时间变量
 	var d time.Duration
 
 	// 异步函数, 向 chan 中发送数据
@@ -64,9 +72,12 @@ func TestChan_Blocked(t *testing.T) {
 		defer func() {
 			// 获取 chan 被关闭的异常
 			err, ok := recover().(error)
+
+			// 确认 chan 被关闭以及捕获到的异常正确
 			assert.True(t, ok)
 			assert.Equal(t, "send on closed channel", err.Error())
 
+			// 记录发送方被阻塞的时间
 			d = time.Since(start)
 			wg.Done()
 		}()
@@ -75,10 +86,11 @@ func TestChan_Blocked(t *testing.T) {
 		ch <- "Hello"
 	}()
 
-	<-time.After(time.Millisecond * 10)
 	// 等待一段时间后关闭 chan, 并不接收 chan 中的数据
+	<-time.After(time.Millisecond * 10)
 	close(ch)
 
+	// 等待 goroutine 执行完毕
 	wg.Wait()
 
 	// 之前代码执行时间应该和等待时间相同
@@ -89,22 +101,28 @@ func TestChan_Blocked(t *testing.T) {
 //
 // 如果 chan 本身不具备缓冲, 则需要保证接收方可以及时从 chan 中读取
 func TestChan_NonBlocked(t *testing.T) {
-	d := time.Duration(0)
-
-	wg := sync.WaitGroup{}
+	// 定义一个等待组对象, 并添加一个需要等待的 goroutine
+	var wg sync.WaitGroup
 	wg.Add(1)
 
+	// 定义字符串类型的 chan 对象, 第二个参数为 0 或缺省, 表示 chan 无缓冲
 	ch := make(chan string)
+	defer close(ch)
+
+	// 用于记录发送方被阻塞时间的时间变量
+	d := time.Duration(0)
 
 	// 异步函数, 向 chan 中发送数据
 	go func() {
 		defer wg.Done()
 
+		// 记录发送方被阻塞的时间
 		start := time.Now()
 
 		// 发送数据, 此时由于立即有接收方接收数据, 所以发送不会阻塞
 		ch <- "Hello"
 
+		// 记录发送方被阻塞的时间
 		d = time.Since(start)
 	}()
 
@@ -112,9 +130,9 @@ func TestChan_NonBlocked(t *testing.T) {
 	s := <-ch
 	assert.Equal(t, s, "Hello")
 
-	close(ch)
-
+	// 等待 goroutine 执行完毕
 	wg.Wait()
+
 	// 之前的代码执行时间很短暂
 	assert.Less(t, d, time.Millisecond)
 }
@@ -123,33 +141,35 @@ func TestChan_NonBlocked(t *testing.T) {
 //
 // 具备缓冲区的 chan 可以在读取不及时的情况下, 仍有一定的缓冲保证发送不阻塞
 func TestChan_CheckedNonBlocked(t *testing.T) {
-	d := time.Duration(0)
-
-	// 具备缓冲的 chan 实例
-	// 在缓冲区没写满之前, 数据发送不被阻塞
-
-	wg := sync.WaitGroup{}
+	// 定义一个等待组对象, 并添加一个需要等待的 goroutine
+	var wg sync.WaitGroup
 	wg.Add(1)
 
 	// 第二个参数指定了缓冲区大小, 即缓存多少个发送实例
 	ch := make(chan string, 1)
+	defer close(ch)
+
+	// 用于记录发送方被阻塞时间的时间变量
+	d := time.Duration(0)
 
 	// 异步函数, 向 chan 中发送数据
 	go func() {
+		defer wg.Done()
+
+		// 记录发送方被阻塞的时间
 		start := time.Now()
-		defer func() {
-			d = time.Since(start)
-			wg.Done()
-		}()
 
 		// 发送数据, 此时由于没有任何接收方, 所以发送会被阻塞
 		ch <- "Hello"
+
+		// 记录发送方被阻塞的时间
+		d = time.Since(start)
 	}()
 
 	// 等待一段时间后关闭 chan, 并不接收 chan 中的数据
 	<-time.After(time.Millisecond * 100)
-	close(ch)
 
+	// 等待 goroutine 执行完毕
 	wg.Wait()
 
 	// 队列不阻塞, 所以执行时间很短暂
@@ -170,6 +190,8 @@ func TestChan_CheckedBlocked(t *testing.T) {
 	// 异步函数, 向 chan 中发送数据
 	go func() {
 		start := time.Now()
+
+		// 捕获 panic
 		defer func() {
 			// 获取 chan 被关闭的异常
 			err, ok := recover().(error)
@@ -227,27 +249,18 @@ func TestChan_CheckedBlocked(t *testing.T) {
 	assert.LessOrEqual(t, d, time.Millisecond)
 }
 
-// 返回一个 chan, 可以读取通过 fn 函数不断的产生数据
-func Generator[T any](fn func(c chan T)) chan T {
-	c := make(chan T)
-	go func() {
-		fn(c)
-		close(c)
-	}()
-	return c
-}
-
 // 测试通过 range 关键字读取 chan 中的数据
 //
 // 可以通过 range 关键字读取一个 chan 中的数据, 知道 chan 被关闭
 func TestChan_Range(t *testing.T) {
 	// 产生一个 chan 实例, 并定义向 chan 中写数据的函数
-	gen := Generator(func(ch chan string) {
+	gen := chans.Generator(func(ch chan string) {
 		for i := range 10 {
 			ch <- strconv.Itoa(i)
 		}
 	})
 
+	// 用于记录从 chan 中读取的数据的字符串切片
 	r := make([]string, 0, 100)
 
 	// 通过 range 关键字逐个从 chan 中读取数据, 直到 chan 被关闭
