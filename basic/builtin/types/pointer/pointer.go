@@ -20,7 +20,11 @@ var (
 // - `offset`: 要增加的字节偏移量
 // 返回值: 加上偏移量后的新指针
 func PtrAdd[P ~*E, E any](ptr P, offset uintptr) P {
+	// 将指针转为 unsafe.Pointer 类型
+	// Go 语言中禁止直接对指针直接进行算术运算，但可以将指针转为 unsafe.Pointer 类型后进行算术运算
 	p := unsafe.Pointer(ptr)
+
+	// 使用 unsafe.Add 函数将指针加上指定的偏移量，并返回新的指针, 将结果转回 P 指针类型
 	return P(unsafe.Add(p, offset))
 }
 
