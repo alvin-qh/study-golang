@@ -2,7 +2,6 @@ package conv_test
 
 import (
 	"math/rand"
-	"reflect"
 	"study/basic/builtin/types/conv"
 	"testing"
 
@@ -129,16 +128,20 @@ func TestConv_ConvertWithSwitch(t *testing.T) {
 	// 每个分支用于判断 `v` 变量的一种类型, 如果类型匹配到具体分支, 则 `vv` 变量是该类型的值
 	switch val := obj.(type) {
 	case int:
+		// 确认变量 v 的实际类型为 `int` 类型, 且 v 的值为 100
 		assert.Equal(t, 100, val)
 	case string:
+		// 确认变量 v 的实际类型为 `string` 类型, 且 v 的值为 "Hello"
 		assert.Equal(t, "Hello", val)
 	case User:
+		// 确认变量 v 的实际类型为 `User` 类型, 且 v 的值为 User{1, "Alvin", 'M'}
 		assert.Equal(t, User{
 			Id:     1,
 			Name:   "Alvin",
 			Gender: 'M',
 		}, val)
 	default:
+		// 如果没有匹配到任何分支, 则说明 obj 的类型未知, 这时应该让测试失败
 		assert.Fail(t, "unknown type")
 	}
 }
@@ -150,20 +153,20 @@ func TestConv_ConvertWithSwitch(t *testing.T) {
 //
 // 注意, 要在 `[]any` 类型切片和其它类型切片间转换, 则需要通过一个 `O(n)` 复杂度的循环才能完成
 func TestConv_SliceTypeConversion(t *testing.T) {
-	// 定义 any 类型变量
+	// 定义 any 类型变量, 并确认其实际类型为 `[]int` 类型
 	var v any = []int{1, 2, 3, 4, 5}
-	assert.Equal(t, reflect.Slice, reflect.TypeOf(v).Kind())
+	assert.IsType(t, []int{}, v)
 
-	// 将 any 类型转为指定类型切片类型
+	// 将 any 类型转为指定类型切片类型, 并确认转换成功, 且转换后的切片值为 []int{1, 2, 3, 4, 5}
 	s, ok := conv.AnyToSlice[int](v)
 	assert.True(t, ok)
 	assert.Equal(t, []int{1, 2, 3, 4, 5}, s)
 
-	// 将指定类型的切片转为 `[]any` 类型
+	// 将指定类型的切片转为 `[]any` 类型, 并确认转换后的切片长度为 5
 	vs := conv.TypedSliceToAnySlice([]int{1, 2, 3, 4, 5})
-	assert.Len(t, vs, 5)
+	assert.Equal(t, []any{1, 2, 3, 4, 5}, vs)
 
-	// 将 `[]any` 类型切片转为指定类型
+	// 将 `[]any` 类型切片转为指定类型, 并确认转换成功, 且转换后的切片值为 []int{1, 2, 3, 4, 5}
 	s, ok = conv.AnySliceToTypedSlice[int](vs)
 	assert.True(t, ok)
 	assert.Equal(t, []int{1, 2, 3, 4, 5}, s)

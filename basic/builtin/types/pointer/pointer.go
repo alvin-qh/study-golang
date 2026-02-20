@@ -25,6 +25,12 @@ func PtrAdd[P ~*E, E any](ptr P, offset uintptr) P {
 }
 
 // 获取结构体各字段的 Offset 值
+//
+// 参数:
+// - `v`: 结构体变量或结构体指针变量
+// 返回值:
+// - `map[string]uintptr`: 字段名称与 Offset 值的映射
+// - `error`: 如果参数不是结构体类型，则返回错误
 func FieldOffsets(v any) (map[string]uintptr, error) {
 	// 获取变量的类型信息
 	t := reflect.TypeOf(v)
