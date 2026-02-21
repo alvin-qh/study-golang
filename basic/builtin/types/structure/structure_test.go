@@ -8,6 +8,8 @@ import (
 )
 
 // 定义结构体
+//
+// 结构体具备三个字段属性
 type User struct {
 	Id     int
 	Name   string
@@ -15,17 +17,13 @@ type User struct {
 }
 
 // 测试初始化结构体实例
-func TestStructure_NewObject(t *testing.T) {
+func TestStructure_Initialize(t *testing.T) {
 	// 定义结构体变量并进行初始化
 	var u User = User{
 		Id:     1,
 		Name:   "Alvin",
 		Gender: 'M',
 	}
-
-	// 查看变量类型
-	assert.Equal(t, reflect.Struct, reflect.TypeFor[User]().Kind())
-	assert.Equal(t, "User", reflect.TypeFor[User]().Name())
 
 	assert.Equal(t, 1, u.Id)
 	assert.Equal(t, "Alvin", u.Name)

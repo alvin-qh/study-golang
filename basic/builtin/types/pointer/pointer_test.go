@@ -133,6 +133,15 @@ func TestUnsafe_PointerMovement(t *testing.T) {
 	})
 }
 
+// 定义结构体, 测试结构体内存布局
+//
+// 该结构体的内存布局为:
+//
+// | I1 | I2 | I3 | I4 | A |
+// 结构体的各字段按 8 字节对齐, 其中 I1, I2, I3 对齐到 8 字节, 共占用 8 字节 (导致 I1 的实际占用内存为 2 字节),
+// I4 占用 8 字节,
+// A 占用 24 字节, 为切片结构体占用, 参考 `reflect.SliceHeader`,
+// 整个结构体共占用 40 字节
 type Value struct {
 	I1 int8   // 实际占用 2 字节
 	I2 int16  // 实际占用 2 字节
@@ -143,9 +152,10 @@ type Value struct {
 
 // 测试获取结构体类型的内存布局
 func TestUnsafe_StructLayout(t *testing.T) {
-	v := Value{}
+	// 定义结构体变量
+	var v Value
 
-	// 获取结构体内存大小, 以字节为单位
+	// 获取结构体变量占用内存的字节数, 确认结构体占用内存为 40 字节
 	size := unsafe.Sizeof(v)
 	assert.Equal(t, 40, int(size))
 
@@ -160,31 +170,34 @@ func TestUnsafe_StructLayout(t *testing.T) {
 			unsafe.Sizeof(v.A),
 	))
 
-	// 获取结构体内存对齐方式, 以 8 字节对齐
+	// 获取结构体内存对齐方式, 确认结构体内存对齐方式为 8 字节
 	align := unsafe.Alignof(v)
 	assert.Equal(t, 8, int(align))
 
-	// 获取结构体各字段相对于结构体地址的偏移量
+	// 确认 I1 字段偏移量为 0 字节
 	offI1 := unsafe.Offsetof(v.I1)
 	assert.Equal(t, 0, int(offI1))
 
+	// 确认 I2 字段偏移量为 2 字节
 	offI2 := unsafe.Offsetof(v.I2)
 	assert.Equal(t, 2, int(offI2))
 
+	// 确认 I3 字段偏移量为 4 字节
 	offI3 := unsafe.Offsetof(v.I3)
 	assert.Equal(t, 4, int(offI3))
 
+	// 确认 I4 字段偏移量为 8 字节
 	offI4 := unsafe.Offsetof(v.I4)
 	assert.Equal(t, 8, int(offI4))
 
+	// 确认 A 字段偏移量为 16 字节
 	offA := unsafe.Offsetof(v.A)
 	assert.Equal(t, 16, int(offA))
-
-	_ = v
 }
 
-// 测试结构体指针
+// 测试结构体的裸指针
 func TestUnsafe_PointerOfStruct(t *testing.T) {
+	// 定义结构体变量
 	v := Value{
 		I1: 1,
 		I2: 2,
@@ -194,16 +207,34 @@ func TestUnsafe_PointerOfStruct(t *testing.T) {
 	}
 
 	// 获取结构体各字段相对结构体变量地址的偏移量
+	// 该函数返回一个 map, key 为字段名, value 为字段偏移量
 	offs, err := pointer.FieldOffsets(v)
 	assert.Nil(t, err)
 
-	// 获取结构体的指针
+	// 确认结构体各字段偏移量值
+	assert.Equal(t, map[string]uintptr{
+		"I1": 0,
+		"I2": 2,
+		"I3": 4,
+		"I4": 8,
+		"A":  16,
+	}, offs)
+
+	// 获取结构体的裸指针
 	pv := unsafe.Pointer(&v)
 
-	// 已结构体地址为基础, 通过指针移动访问结构体各字段
+	// 将裸指针移动到结构体偏移 0 位置 (I1 字段的偏移量), 获取 1 字节数值, 结果为 1
 	assert.Equal(t, int8(1), *pointer.PtrAdd((*int8)(pv), offs["I1"]))
+
+	// 将裸指针移动到结构体偏移 2 位置 (I2 字段的偏移量), 获取 2 字节数值, 结果为 2
 	assert.Equal(t, int16(2), *pointer.PtrAdd((*int16)(pv), offs["I2"]))
+
+	// 将裸指针移动到结构体偏移 4 位置 (I3 字段的偏移量), 获取 4 字节数值, 结果为 3
 	assert.Equal(t, int32(3), *pointer.PtrAdd((*int32)(pv), offs["I3"]))
+
+	// 将裸指针移动到结构体偏移 8 位置 (I4 字段的偏移量), 获取 8 字节数值, 结果为 4
 	assert.Equal(t, int64(4), *pointer.PtrAdd((*int64)(pv), offs["I4"]))
+
+	// 将裸指针移动到结构体偏移 16 位置 (A 字段的偏移量), 获取 24 字节数值, 结果为切片结构体, 对应切片对象值为 "abc"
 	assert.Equal(t, []rune{'a', 'b', 'c'}, *pointer.PtrAdd((*[]rune)(pv), offs["A"]))
 }

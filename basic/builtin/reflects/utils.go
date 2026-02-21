@@ -21,6 +21,16 @@ func GetFullTypeName(t reflect.Type) string {
 	return fmt.Sprintf("%v.%v[%v]", t.PkgPath(), t.Name(), t.Kind().String())
 }
 
+// 获取一个值所属类型的完全限定名
+//
+// 完全限定名由 `<pkgPath>.<name>[<kind>]` 组成, 其中:
+//   - `pkgPath` 表示类型所在包的路径, 系统内置类型为 `""`
+//   - `Name` 为类型名称, `array`, `ptr`, `interface`, `slice`, `map` 为空
+//   - `kind` 为 `reflect.Kind` 类型枚举, 通过 `String` 函数获取其字符串表达
+func GetValueFullTypeName(obj any) string {
+	return GetFullTypeName(reflect.TypeOf(obj))
+}
+
 // 通过反射设置变量值
 //
 // 要对一个对象的值进行设置, 需要操作该对象的地址, 否则会报告"非地址类型异常", 即:

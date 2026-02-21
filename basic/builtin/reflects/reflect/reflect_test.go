@@ -16,38 +16,109 @@ type User struct {
 	Gender rune
 }
 
-// 通过反射获取变量类型
+// 通过反射获取变量的类型信息
 //
-// 通过 `reflect.TypeOf` 函数可以获取变量的类型
+// 通过 `reflect.TypeOf` 函数可以获取变量的类型信息, 返回 `reflect.Type` 类型实例, 基本信息包括:
+// - 名称: `reflect.Type.Name()`: 获取变量所属类型的名称, 对于指针 (Pointer), 切片 (Slice), 字典 (Map) 等类型则返回空字符串
+// - 类型: `reflect.Type.Kind()`: 获取变量所属类型的类型, 返回 `reflect.Kind` 类型枚举值, 参见 `reflect.Kind` 类型
+// - 包路径: `reflect.Type.PkgPath()`: 获取变量所属类型所在的包路径, 对于内置类型则返回空字符串
 func TestReflect_TypeOf(t *testing.T) {
-	// 定义变量为 int64 类型
-	var obj any = int64(100)
+	// 定义一个 any 类型变量
+	var obj any
 
-	// 获取变量的类型反射实例
+	// 令 any 类型变量存储整型值
+	obj = int64(100)
+
+	// 获取 any 变量的类型反射实例
 	tp := reflect.TypeOf(obj)
-	assert.Equal(t, ".int64[int64]", reflects.GetFullTypeName(tp))
 
-	// 定义变量为 int64* 指针类型
+	// 确认 any 变量的实际类型名称为 `int64`, 类型为 `reflect.Int64`, 包路径为空字符串 (内置类型)
+	assert.Equal(t, "int64", tp.Name())
+	assert.Equal(t, reflect.Int64, tp.Kind())
+	assert.Equal(t, "", tp.PkgPath())
+
+	// 令 any 变量存储指针类型值
 	obj = &obj
 
-	// 获取指针变量的反射实例
+	// 获取 any 变量的类型反射实例
 	tp = reflect.TypeOf(obj)
-	assert.Equal(t, ".[ptr]", reflects.GetFullTypeName(tp))
 
-	// 定义实际类型为 `User` 类型
+	// 确认 any 变量的实际类型名称为空字符串 (指针类型), 类型为 `reflect.Pointer`, 包路径为空字符串 (内置类型)
+	assert.Equal(t, "", tp.Name())
+	assert.Equal(t, reflect.Pointer, tp.Kind())
+	assert.Equal(t, "", tp.PkgPath())
+
+	// 令 any 变量存储切片类型值
+	obj = make([]string, 0)
+
+	// 获取 any 变量的类型反射实例
+	tp = reflect.TypeOf(obj)
+
+	// 确认 any 变量的实际类型名称为空字符串 (切片类型), 类型为 `reflect.Slice`, 包路径为空字符串 (内置类型)
+	assert.Equal(t, "", tp.Name())
+	assert.Equal(t, reflect.Slice, tp.Kind())
+	assert.Equal(t, "", tp.PkgPath())
+
+	// 令 any 变量存储字典类型值
+	obj = make(map[string]string, 0)
+
+	// 获取 any 变量的类型反射实例
+	tp = reflect.TypeOf(obj)
+
+	// 确认 any 变量的实际类型名称为空字符串 (字典类型), 类型为 `reflect.Map`, 包路径为空字符串 (内置类型)
+	assert.Equal(t, "", tp.Name())
+	assert.Equal(t, reflect.Map, tp.Kind())
+	assert.Equal(t, "", tp.PkgPath())
+
+	// 令 any 存储自定义结构体类型值
 	obj = User{}
 
-	// 获取变量的反射实例
+	// 获取 any 变量的类型反射实例
 	tp = reflect.TypeOf(obj)
-	assert.Equal(t, "study/basic/builtin/reflects/reflect_test.User[struct]", reflects.GetFullTypeName(tp))
+
+	// 确认 any 变量的实际类型名称为结构体类型名称, 类型为 `reflect.Struct`, 包路径为结构体所在包路径
+	assert.Equal(t, "User", tp.Name())
+	assert.Equal(t, reflect.Struct, tp.Kind())
+	assert.Equal(t, "study/basic/builtin/reflects/reflect_test", tp.PkgPath())
 }
 
-// 通过反射获取类型
+// 测试 `reflects.GetFullTypeName` 函数, 获取变量所属类型的限定名
+func TestReflects_GetFullTypeName(t *testing.T) {
+	// 定义 any 类型变量
+	var obj any
+
+	// 令 any 变量存储整型值, 确认其类型限定名称
+	obj = int64(100)
+	assert.Equal(t, ".int64[int64]", reflects.GetValueFullTypeName(obj))
+
+	// 令 any 存储指针类型值, 确认其类型限定名称
+	obj = &obj
+	assert.Equal(t, ".[ptr]", reflects.GetValueFullTypeName(obj))
+
+	// 令 any 变量存储切片类型值, 确认其类型限定名称
+	obj = make([]string, 0)
+	assert.Equal(t, ".[slice]", reflects.GetValueFullTypeName(obj))
+
+	// 令 any 变量存储字典类型值
+	obj = make(map[string]string, 0)
+	assert.Equal(t, ".[map]", reflects.GetValueFullTypeName(obj))
+
+	// 令 any 存储结构体类型值, 确认其限定名称
+	obj = User{}
+	assert.Equal(t, "study/basic/builtin/reflects/reflect_test.User[struct]", reflects.GetValueFullTypeName(obj))
+}
+
+// 通过泛型获取类型名称
 //
-// 通过 `reflect.TypeFor[T]()` 函数可以获取类型 `T` 的反射实例
+// 通过 `reflect.TypeFor[T]()` 函数可以通过泛型方式获取类型 `T` 的类型对象
+//
+// 通过泛型的方法, 可有效的减少反射带来的性能损失
 func TestReflect_TypeFor(t *testing.T) {
+	tp := reflect.TypeFor[int]()
+	assert.Equal(t, ".int[int]", reflects.GetFullTypeName(tp))
+
 	// 获取指针变量的反射实例
-	tp := reflect.TypeFor[*any]()
+	tp = reflect.TypeFor[*any]()
 	assert.Equal(t, ".[ptr]", reflects.GetFullTypeName(tp))
 
 	// 获取指针变量的反射实例
