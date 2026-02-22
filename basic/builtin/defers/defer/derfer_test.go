@@ -1,4 +1,4 @@
-package defers_test
+package defer_test
 
 import (
 	"testing"
