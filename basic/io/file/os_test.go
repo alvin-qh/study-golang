@@ -20,7 +20,7 @@ import (
 // 测试获取文件 (或路径) 的属性
 func TestOS_Stat(t *testing.T) {
 	// 获取路径的信息
-	t.Run("for directory", func(t *testing.T) {
+	t.Run("For Directory", func(t *testing.T) {
 		name := pathex.RandomDirName()
 		defer os.RemoveAll(name)
 
@@ -43,7 +43,7 @@ func TestOS_Stat(t *testing.T) {
 	})
 
 	// 获取文件的信息
-	t.Run("for file", func(t *testing.T) {
+	t.Run("For File", func(t *testing.T) {
 		name := pathex.RandomFileName()
 		defer os.Remove(name)
 
@@ -67,7 +67,7 @@ func TestOS_Stat(t *testing.T) {
 	})
 
 	// 获取文件所有者
-	t.Run("get file owner", func(t *testing.T) {
+	t.Run("Get File Owner", func(t *testing.T) {
 		testit.SkipTimeOnOS(t, platform.Windows)
 
 		name := pathex.RandomFileName()
@@ -294,7 +294,7 @@ func TestOS_MkdirAll(t *testing.T) {
 // 测试删除文件或目录
 func TestOS_Remove(t *testing.T) {
 	// 删除文件
-	t.Run("delete file", func(t *testing.T) {
+	t.Run("Delete File", func(t *testing.T) {
 		name := pathex.RandomFileName()
 
 		// 创建一个文件
@@ -315,7 +315,7 @@ func TestOS_Remove(t *testing.T) {
 	})
 
 	// 删除目录
-	t.Run("delete directory", func(t *testing.T) {
+	t.Run("Delete Directory", func(t *testing.T) {
 		name := pathex.RandomDirName()
 
 		// 创建一个目录
@@ -371,7 +371,7 @@ func TestOS_RemoveAll(t *testing.T) {
 // 移动文件指的是将文件从一个路径移动到另一个路径, 包括所咋目录的变更和文件名的更改
 func TestOS_Move(t *testing.T) {
 	// 测试文件移动
-	t.Run("move file", func(t *testing.T) {
+	t.Run("Move File", func(t *testing.T) {
 		// 定义两个文件名
 		nameBefore := pathex.RandomFileName()
 		nameAfter := pathex.RandomFileName()
@@ -402,7 +402,7 @@ func TestOS_Move(t *testing.T) {
 	})
 
 	// 测试目录移动
-	t.Run("move dir", func(t *testing.T) {
+	t.Run("Move Directory", func(t *testing.T) {
 		// 定义两个文件名
 		nameBefore := pathex.RandomDirName()
 		nameAfter := pathex.RandomDirName()

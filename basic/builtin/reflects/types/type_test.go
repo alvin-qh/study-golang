@@ -155,18 +155,20 @@ func TestType_ElemOfPointerType(t *testing.T) {
 	tp := reflect.TypeOf(obj)
 	assert.Equal(t, reflect.Pointer, tp.Kind())
 
-	// 获取指针所指向的值的实际类型
+	// 获取指针所指向的值的实际类型, 确认其类型即类型名称
 	tp = tp.Elem()
 	assert.Equal(t, reflect.Int, tp.Kind())
+	assert.Equal(t, "int", tp.Name())
 
 	// obj 保存指向结构体的指针
 	obj = &User{}
 
-	// 获取指针变量的类型
+	// 获取指针变量的类型, 确认其类型为指针类型
 	tp = reflect.TypeOf(obj)
-	assert.Equal(t, ".[ptr]", reflects.GetFullTypeName(tp))
+	assert.Equal(t, reflect.Pointer, tp.Kind())
 
-	// 获取指针所指向的实例类型
+	// 获取指针所指向的实例类型, 确认其类型即类型名称
 	tp = tp.Elem()
-	assert.Equal(t, "study/basic/builtin/reflects/reflect_test.User[struct]", reflects.GetFullTypeName(tp))
+	assert.Equal(t, reflect.Struct, tp.Kind())
+	assert.Equal(t, "User", tp.Name())
 }

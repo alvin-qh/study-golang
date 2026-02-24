@@ -115,7 +115,7 @@ func Itoa[T ~int](n T) string {
 // 测试泛型约束及其衍生类型
 func TestGeneric_Itoa(t *testing.T) {
 	// 测试 int 类型参数转换为字符串
-	t.Run("int", func(t *testing.T) {
+	t.Run("Int Type Value", func(t *testing.T) {
 		// 定义 int 类型变量
 		n := int(100)
 
@@ -127,7 +127,7 @@ func TestGeneric_Itoa(t *testing.T) {
 	})
 
 	// 测试 int 类型的衍生类型参数转换为字符串
-	t.Run("derived type", func(t *testing.T) {
+	t.Run("Derived Int Type", func(t *testing.T) {
 		// 定义 int 类型的衍生类型 NN, 该类型也满足泛型约束, 因此也可以作为参数调用泛型函数
 		type NN int
 

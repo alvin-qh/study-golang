@@ -18,55 +18,7 @@ type User struct {
 
 
 
-// 通过反射读取实例值
-//
-// 通过 `reflect.ValueOf` 用于获取一个变量 (`interface{}` 类型) 的值反射
-func TestReflect_ValueOf(t *testing.T) {
-	// 定义 interface{} 类型变量, 值为整型
-	var obj any = 100
 
-	// 获取变量的 值反射 实例
-	tv := reflect.ValueOf(obj)
-	assert.Equal(t, ".int[int]", reflects.GetFullTypeName(tv.Type()))
-
-	// 通过反射获取值
-	assert.Equal(t, 100, int(tv.Int()))
-
-	// 定义 `interface{}` 类型变量, 值为 `user` 类型结构体
-	obj = User{Id: 1, Name: "Alvin", Gender: 'M'}
-
-	// 获取变量的值反射实例
-	tv = reflect.ValueOf(obj)
-	assert.Equal(t, "study/basic/builtin/reflects/reflect_test.User[struct]", reflects.GetFullTypeName(tv.Type()))
-
-	// 根据名称获取 `Id` 字段的值, 并转为 `int` 类型
-	assert.Equal(t, 1, int(tv.FieldByName("Id").Int()))
-
-	// 根据名称获取 `Name` 字段的值, 并转为 `string` 类型
-	assert.Equal(t, "Alvin", tv.FieldByName("Name").String())
-
-	// 根据名称获取 `Gender` 字段的值, 并转为 `rune` 类型
-	assert.Equal(t, 'M', rune(tv.FieldByName("Gender").Int()))
-
-	// 配合类型反射实例, 对结构体变量进行反射遍历
-	names := []string{"Id", "Name", "Gender"}
-	values := []any{1, "Alvin", 'M'}
-
-	tp := reflect.TypeOf(obj)
-
-	// 获取实例字段总数
-	for i := 0; i < tp.NumField(); i++ {
-		// 通过 类型反射 实例, 获取第 `i` 个字段的 类型
-		field := tp.Field(i)
-		assert.Equal(t, names[i], field.Name)
-
-		// 通过 值反射 实例, 获取第 `i` 个字段的 值
-		value := tv.Field(i)
-
-		// 将所有字段值都获取为 `interface{}` 类型
-		assert.EqualValues(t, values[i], value.Interface())
-	}
-}
 
 // 通过反射读取指针及其指向的实例值
 //

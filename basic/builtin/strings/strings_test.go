@@ -27,6 +27,7 @@ func TestStrings_Compare(t *testing.T) {
 
 	// 测试对两个字符串进行忽略大小写的比较, 返回是否相等
 	t.Run("strings.EqualFold", func(t *testing.T) {
+		// 忽略大小写判断两个字符串是否相等
 		assert.True(t, strings.EqualFold(s, "ABC"))
 	})
 }
@@ -35,6 +36,7 @@ func TestStrings_Compare(t *testing.T) {
 func TestStrings_Contains(t *testing.T) {
 	s := "Hello,大家好"
 
+	// 确认字符串是否包含子字符串, 字符串中包含 "大", 但不包含 "好大"
 	assert.True(t, strings.Contains(s, ",大"))
 	assert.False(t, strings.Contains(s, "好大"))
 }
@@ -336,18 +338,33 @@ func TestStrings_Cut(t *testing.T) {
 
 // 测试字符串读取器, 用于从字符串中读取不同数据
 func TestStrings_Reader(t *testing.T) {
-	// 获取 `Reader` 长度
-	t.Run("length", func(t *testing.T) {
+	// 获取 `Reader` 的长度和大小
+	//
+	// 其中, `Reader` 对象的 `.Len()` 方法返回流中可读取数据的字节长度,
+	// 而 `.Size()` 方法返回流中数据的总长度
+	//
+	// 所以一个流建立后, 其 `Size()` 方法的返回值值不会改变, 但随着读取过程中读指针的移动,
+	// `Len()` 方法的返回值会不断变化
+	t.Run("Get Length and Size", func(t *testing.T) {
 		// 通过字符串创建一个读取器实例
 		r := strings.NewReader("abcdefghijklmnopqrstuvwxyz")
 
 		// 获取可读取字节数
 		assert.Equal(t, 26, r.Len())
 		assert.Equal(t, int64(26), r.Size())
+
+		data := make([]byte, 5)
+
+		n, err := r.Read(data)
+		assert.Nil(t, err)
+		assert.Equal(t, 5, n)
+
+		assert.Equal(t, 21, r.Len())
+		assert.Equal(t, int64(26), r.Size())
 	})
 
 	// 依次读取指定字节内容
-	t.Run("read", func(t *testing.T) {
+	t.Run("Read Bytes Sequentially", func(t *testing.T) {
 		// 通过字符串创建一个读取器实例
 		r := strings.NewReader("abcdefghijklmnopqrstuvwxyz")
 
@@ -367,8 +384,8 @@ func TestStrings_Reader(t *testing.T) {
 		assert.Equal(t, "klmno", string(data[:5]))
 	})
 
-	// 读取字节
-	t.Run("read byte", func(t *testing.T) {
+	// 读取单个字节并撤销
+	t.Run("Read and Unread Byte", func(t *testing.T) {
 		// 通过字符串创建一个读取器实例
 		r := strings.NewReader("abcdefghijklmnopqrstuvwxyz")
 
@@ -387,8 +404,8 @@ func TestStrings_Reader(t *testing.T) {
 		assert.Equal(t, 'a', rune(b))
 	})
 
-	// 读取字符
-	t.Run("read rune", func(t *testing.T) {
+	// 读取单个字符并撤销
+	t.Run("Read and Unread Rune", func(t *testing.T) {
 		// 通过字符串创建一个读取器实例
 		r := strings.NewReader("abcdefghijklmnopqrstuvwxyz")
 
@@ -409,8 +426,8 @@ func TestStrings_Reader(t *testing.T) {
 		assert.Equal(t, 'a', c)
 	})
 
-	// 从指定位置读取字节
-	t.Run("read at", func(t *testing.T) {
+	// 从指定位置读取指定长度的字节
+	t.Run("Read At Specific Position", func(t *testing.T) {
 		// 通过字符串创建一个读取器实例
 		r := strings.NewReader("abcdefghijklmnopqrstuvwxyz")
 
@@ -425,7 +442,7 @@ func TestStrings_Reader(t *testing.T) {
 	})
 
 	// 测试移动读取位置
-	t.Run("seek", func(t *testing.T) {
+	t.Run("Seek Reader Position", func(t *testing.T) {
 		// 通过字符串创建一个读取器实例
 		r := strings.NewReader("abcdefghijklmnopqrstuvwxyz")
 
@@ -452,7 +469,7 @@ func TestStrings_Reader(t *testing.T) {
 	})
 
 	// 重新设置字符串内容
-	t.Run("reset", func(t *testing.T) {
+	t.Run("Reset Reader Content", func(t *testing.T) {
 		// 通过字符串创建一个读取器实例
 		r := strings.NewReader("abcdefghijklmnopqrstuvwxyz")
 

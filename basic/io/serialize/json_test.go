@@ -39,7 +39,7 @@ const (
 // 测试 JSON 序列号
 func TestJSON_Marshal(t *testing.T) {
 	// 将 Map 实例序列化为 JSON 字符串
-	t.Run("marshal map to json", func(t *testing.T) {
+	t.Run("Marshal Map To JSON", func(t *testing.T) {
 		// 产生一个 map 对象, key 为 string, value 任意
 		m := map[string]interface{}{
 			"id":    1,
@@ -66,7 +66,7 @@ func TestJSON_Marshal(t *testing.T) {
 	//   - 结构体的所有被序列化字段名称必须以大写字母开头 (即公开属性)
 	//   - 可以通过字段 tag 设置结构体字段转换后的字段名, 如: `json:name`; `omitempty` 表示如果字段为空,
 	//     则不出现在 JSON 结果中, 例如 `json:name,omitempty`
-	t.Run("marshal struct to json", func(t *testing.T) {
+	t.Run("Marshal Struct To JSON", func(t *testing.T) {
 		// 产生结构体变量, 指针类型
 		u := JSONUser{
 			Id:    1,
@@ -85,7 +85,7 @@ func TestJSON_Marshal(t *testing.T) {
 	})
 
 	// 设置 JSON 序列化结果的格式
-	t.Run("marshal with indent", func(t *testing.T) {
+	t.Run("Marshal With Indent To JSON", func(t *testing.T) {
 		// 产生结构体变量, 指针类型
 		u := JSONUser{
 			Id:    1,
@@ -104,7 +104,7 @@ func TestJSON_Marshal(t *testing.T) {
 	})
 
 	// 如果在结构体字段上标记 `omitempty`, 则当该字段为 `nil` 时不会包含在 JSON 序列化结果中
-	t.Run("struct omitempty field", func(t *testing.T) {
+	t.Run("Struct Omitempty Field To JSON", func(t *testing.T) {
 		// 产生结构体变量, 指针类型
 		// 结构体 Email 字段的 tag 标记为 omitempty, 所以如果为空, 则不出现在结果 json 中
 		u := JSONUser{

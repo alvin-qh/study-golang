@@ -127,7 +127,7 @@ func TestSlice_Cut(t *testing.T) {
 // 测试通过 `append` 函数追加元素
 func TestSlice_Append(t *testing.T) {
 	// 测试为 Nil 切片追加元素
-	t.Run("append to nil slice", func(t *testing.T) {
+	t.Run("Append to Nil Slice", func(t *testing.T) {
 		// 创建 Nil 切片
 		var s []int
 
@@ -157,7 +157,7 @@ func TestSlice_Append(t *testing.T) {
 	})
 
 	// 测试向空切片中追加元素
-	t.Run("append to empty slice", func(t *testing.T) {
+	t.Run("Append to Empty Slice", func(t *testing.T) {
 		s := make([]int, 0, 5)
 
 		// 向空切片追加多个元素
@@ -180,7 +180,7 @@ func TestSlice_Append(t *testing.T) {
 	})
 
 	// 测试通过 `append` 函数删除切片元素
-	t.Run("delete slice element by append", func(t *testing.T) {
+	t.Run("Delete Slice Element By Append", func(t *testing.T) {
 		s := []int{1, 2, 3, 4, 5}
 
 		// 删除下标为 2 的元素, 相当于切片中将下标小于 2 的元素和下标大于 2 的元素合并在一起

@@ -59,7 +59,7 @@ func TestUnsafe_PointerMovement(t *testing.T) {
 	n := 0x1234567890ABCDEF
 
 	// 通过 uint32 类型指针访问 int64 变量
-	t.Run("access int64 variable by uint32 pointer", func(t *testing.T) {
+	t.Run("Access Int64 Variable By Uint32 Pointer", func(t *testing.T) {
 		// 将 int* 转为 unsafe.Pointer 类型
 		pn := unsafe.Pointer(&n)
 
@@ -93,7 +93,7 @@ func TestUnsafe_PointerMovement(t *testing.T) {
 	})
 
 	// 通过 uint8 类型指针访问 int64 变量
-	t.Run("access int64 variable by uint8 pointer", func(t *testing.T) {
+	t.Run("Access Int64 Variable By Uint8 Pointer", func(t *testing.T) {
 		// 将 int* 转为 unsafe.Pointer 类型
 		pn := unsafe.Pointer(&n)
 

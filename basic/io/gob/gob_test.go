@@ -123,7 +123,7 @@ type Order struct {
 // 此时可通过 `gob.Register` 方法对类型进行注册, 从而让编码器可以正确识别类型
 func TestGob_InterfaceType(t *testing.T) {
 	// 未注册类型前, 对包含 `interface{}` 类型字段的结构体实例进行编码, 返回类型未注册错误
-	t.Run("without register", func(t *testing.T) {
+	t.Run("Encode Fails Without Type Registration", func(t *testing.T) {
 		buf := bytes.NewBuffer(make([]byte, 0))
 
 		enc := gob.NewEncoder(buf)
@@ -144,7 +144,7 @@ func TestGob_InterfaceType(t *testing.T) {
 	})
 
 	// 注册了 `interface{}` 将表示的类型后, 对应的结构体实例方可正确序列化
-	t.Run("with register", func(t *testing.T) {
+	t.Run("Encode Succeeds With Type Registration", func(t *testing.T) {
 		// 注册类型
 		gob.Register(Product{})
 
