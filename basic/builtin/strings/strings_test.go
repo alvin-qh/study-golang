@@ -98,17 +98,19 @@ func TestStrings_Index(t *testing.T) {
 
 // 测试字符串是否以指定的子字符串开始
 func TestStrings_HasPrefix(t *testing.T) {
-	s := "Hello,大家好"
+	s := "study.go"
 
-	b := strings.HasPrefix(s, "Hello")
+	// 测试字符串是否以 "study" 开头
+	b := strings.HasPrefix(s, "study")
 	assert.True(t, b)
 }
 
 // 测试字符串是否以指定的子字符串结束
 func TestStrings_HasSuffix(t *testing.T) {
-	s := "Hello,大家好"
+	s := "study.go"
 
-	b := strings.HasSuffix(s, "家好")
+	// 测试字符串是否以 ".go" 结尾
+	b := strings.HasSuffix(s, ".go")
 	assert.True(t, b)
 }
 

@@ -13,6 +13,7 @@ var (
 	// 定义 Zh 类别, 包含全部汉字编码范围
 	// 注意, `unicode.Range16` 和 `unicode.Range32` 中定义的编码范围要按照编码大小为顺序
 	Zh = &unicode.RangeTable{
+		// CJK 编码范围
 		R16: []unicode.Range16{
 			{Lo: 0x2E80, Hi: 0x2EFF, Stride: 1}, // CJK 部首补充
 			{Lo: 0x3000, Hi: 0x303F, Stride: 1}, // CJK 标点符号
@@ -24,6 +25,7 @@ var (
 			{Lo: 0xFA70, Hi: 0xFAD9, Stride: 1}, // 标准 CJK 文字
 			{Lo: 0xFF00, Hi: 0xFFEF, Stride: 1}, // 全角 ASCII, 全角中英文标点, 半宽片假名, 半宽平假名, 半宽韩文字母
 		},
+		// CJK 32 编码范围
 		R32: []unicode.Range32{
 			{Lo: 0x20000, Hi: 0x2A6D6, Stride: 1}, // 标准 CJK 文字
 			{Lo: 0x2F800, Hi: 0x2FA1D, Stride: 1}, // 标准 CJK 文字

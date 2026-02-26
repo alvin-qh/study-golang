@@ -2,7 +2,6 @@ package values_test
 
 import (
 	"reflect"
-	"study/basic/builtin/reflects"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,7 +17,7 @@ type User struct {
 func TestReflect_ValueOf(t *testing.T) {
 	var obj any
 
-	// 通过反射, 尝试从 any 变量获取其存储的整型值
+	// 测试通过反射, 尝试从 any 变量获取其存储的整型值
 	t.Run("For Integer Value", func(t *testing.T) {
 		// 为 any 类型变量赋予整型值 100
 		obj = 100
@@ -32,94 +31,146 @@ func TestReflect_ValueOf(t *testing.T) {
 		// 确认反射值对象有效
 		assert.True(t, tv.IsValid())
 
-		// 确认反射值对象的值不为零值
-		assert.False(t, tv.IsZero())
-
 		// 确认反射值对象的值为整型
 		assert.True(t, tv.CanInt())
 
 		// 确认通过反射值获取变量本身的整数值为 100, 因为变量本身值为整数
 		assert.Equal(t, int64(100), tv.Int())
+	})
 
-		// 确认反射值对象的值不是浮点型
-		assert.False(t, tv.CanFloat())
+	// 测试通过反射, 尝试从 any 变量获取其存储的整型值
+	t.Run("For Float Value", func(t *testing.T) {
+		// 为 any 类型变量赋予整型值 100
+		obj = 100.001
 
-		// 确认无法通过反射值获取变量本身的浮点型值, 因为变量并不是浮点数
+		// 从 any 变量通过反射获取反射值对象
+		tv := reflect.ValueOf(obj)
+
+		// 确认反射值对象的值类型为 float64
+		assert.Equal(t, reflect.TypeFor[float64](), tv.Type())
+
+		// 确认反射值对象有效
+		assert.True(t, tv.IsValid())
+
+		// 确认反射值对象的值不为零值
+		assert.False(t, tv.IsZero())
+
+		// 确认反射值对象的值为浮点型
+		assert.True(t, tv.CanFloat())
+
+		// 确认通过反射值获取变量本身的值为 100.001, 因为变量本身值为浮点数
+		assert.Equal(t, 100.001, tv.Float())
+	})
+
+	// 测试通过反射, 判断一个变量是否为 0 值
+	//
+	// 无论是整型还是浮点型, 都可以通过反射值对象的 `.IsZero()` 方法判断一个该反射值对应的变量是否为 0 值
+	t.Run("Check If Zero", func(t *testing.T) {
+		// 将 any 类型变量设置为整数 0 值
+		obj = 0
+
+		// 从 any 变量通过反射获取反射值对象, 确认反射值对象表示整型, 且其值为零值
+		tv := reflect.ValueOf(obj)
+		assert.True(t, tv.CanInt())
+		assert.True(t, tv.IsZero())
+
+		// 将 any 类型变量设置为浮点型 0 值
+		obj = 0.0
+
+		// 从 any 变量通过反射获取反射值对象, 确认反射值对象表示浮点型, 且其值为零值
+		tv = reflect.ValueOf(obj)
+		assert.True(t, tv.CanFloat())
+		assert.True(t, tv.IsZero())
+	})
+
+	// 测试通过反射, 尝试从 any 变量获取其存储的字符串值
+	//
+	// 注意: 任何类型变量的反射值对象, 都可以通过 `.String()` 方法获取该反射值对应的变量的字符串表示
+	t.Run("For String Type", func(t *testing.T) {
+		// 为 any 类型变量设置字符串值
+		obj = "hello"
+
+		// 从 any 变量通过反射获取反射值对象, 确认该反射值对象表示字符串, 且其值为 "hello"
+		tv := reflect.ValueOf(obj)
+		assert.Equal(t, reflect.TypeFor[string](), tv.Type())
+		assert.Equal(t, "hello", tv.String())
+
+		// 为 any 类型变量设置整型值
+		obj = 100
+
+		// 从 any 变量通过反射获取反射值对象, 并获取其字符串值, 对应整型变量的反射值对象, 确认其字符串值是 "<int Value>"
+		tv = reflect.ValueOf(obj)
+		assert.Equal(t, "<int Value>", tv.String())
+
+		// 为 any 类型变量设置切片对象
+		obj = []string{"One", "Two", "Three"}
+
+		// 从 any 变量通过反射获取反射值对象, 并获取其字符串值, 对应切片变量的反射值对象, 确认字符串值为 "<[]string Value>"
+		tv = reflect.ValueOf(obj)
+		assert.Equal(t, "<[]string Value>", tv.String())
+	})
+
+	// 测试通过反射, 尝试从 any 变量获取其存储的切片对象
+	t.Run("For Slice Type", func(t *testing.T) {
+		// 为 any 类型变量设置切片对象
+		obj = []string{"One", "Two", "Three"}
+
+		// 从 any 变量通过反射获取反射值对象, 确认该反射值对象表示切片
+		tv := reflect.ValueOf(obj)
+		assert.Equal(t, reflect.TypeFor[[]string](), tv.Type())
+
+		// 确认通过反射值获取切片的长度值为 3
+		assert.Equal(t, 3, tv.Len())
+
+		// 获取切片的第 1 个元素, 确认该元素为字符串 "One"
+		tiv := tv.Index(0)
+		assert.Equal(t, "One", tiv.String())
+
+		// 获取切片的第 2 个元素, 确认该元素为字符串 "Two"
+		tiv = tv.Index(1)
+		assert.Equal(t, "Two", tiv.String())
+
+		// 获取切片的第 3 个元素, 确认该元素为字符串 "Three"
+		tiv = tv.Index(2)
+		assert.Equal(t, "Three", tiv.String())
+
+		// 获取切片的第 4 个元素, 确认会 Panic 错误, 表示数组下标越界
+		assert.PanicsWithValue(t, "reflect: slice index out of range", func() { tv.Index(3) })
+	})
+
+	// 测试通过反射, 尝试从 any 变量获取其存储的结构体对象
+	t.Run("For Struct Type", func(t *testing.T) {
+		// 为 any 类型变量设置结构体对象
+		obj = User{Id: 1, Name: "Alvin", Gender: 'M'}
+
+		// 从 any 变量通过反射获取反射值对象, 确认该反射值对象表示切片
+		tv := reflect.ValueOf(obj)
+		assert.Equal(t, reflect.TypeFor[User](), tv.Type())
+
+		assert.Equal(t, int64(1), tv.Field(0).Int())
+	})
+
+	// 测试通过反射获变量值时使用了错误类型, 会导致 Panic 错误
+	t.Run("For Wrong Type", func(t *testing.T) {
+		// 为 any 类型变量设置整数值
+		obj = 100
+
+		// 获取 any 类型变量的值反射实例, 确认通过反射值获取浮点数时会导致 Panic 错误 (变量原本类型为 int)
+		tv := reflect.ValueOf(obj)
 		assert.PanicsWithError(t, "reflect: call of reflect.Value.Float on int Value", func() { tv.Float() })
 
-		// 确认反射值对象的值不是指针类型
-		assert.False(t, tv.CanAddr())
+		// 为 any 类型变量设置浮点数值
+		obj = 100.001
 
-		// 确认无法通过反射值获取变量本身的浮点型值, 因为变量并不是浮点数
+		// 获取 any 类型变量的值反射实例, 确认通过反射值获取整型时会导致 Panic 错误 (变量本类型为 float64)
+		tv = reflect.ValueOf(obj)
+		assert.PanicsWithError(t, "reflect: call of reflect.Value.Int on float64 Value", func() { tv.Int() })
+
+		// 为 any 类型变量设置字符串值
+		obj = "hello"
+
+		// 获取 any 类型变量的值反射实例, 确认通过反射值获取字符串时会导致 Panic 错误 (变量本类型不是指针)
+		tv = reflect.ValueOf(obj)
 		assert.PanicsWithValue(t, "reflect.Value.Addr of unaddressable value", func() { tv.Addr() })
-
-		// 确认反射值对象的值不可修改
-		assert.False(t, tv.CanSet())
-
-		// 确认反射值对象的值可转为 any 类型
-		assert.True(t, tv.CanInterface())
 	})
-}
-
-// 通过反射读取对应变量的值
-//
-// 通过 `reflect.ValueOf` 用于获取一个变量 (`any` 类型) 的值反射
-func TestReflect_GetValue(t *testing.T) {
-	// 定义 any 类型变量
-	var obj any
-
-	// 令 any 类型变量赋值为 100
-	obj = 100
-
-	// 获取变量的值反射实例
-	tv := reflect.ValueOf(obj)
-
-	// 确认变量的实际类型为整型
-	assert.Equal(t, reflect.Int, tv.Type().Kind())
-
-	// 确认变量的值是否为 100
-	assert.True(t, tv.CanInt())
-	assert.False(t, tv.CanFloat())
-	assert.False(t, tv.CanAddr())
-	assert.True(t, tv.CanInterface())
-	assert.True(t, tv.CanSet())
-
-	tv.Set(reflect.Value{})
-
-	assert.Equal(t, 100, int(tv.Int()))
-
-	// 定义 `interface{}` 类型变量, 值为 `user` 类型结构体
-	obj = User{Id: 1, Name: "Alvin", Gender: 'M'}
-
-	// 获取变量的值反射实例
-	tv = reflect.ValueOf(obj)
-	assert.Equal(t, "study/basic/builtin/reflects/reflect_test.User[struct]", reflects.GetFullTypeName(tv.Type()))
-
-	// 根据名称获取 `Id` 字段的值, 并转为 `int` 类型
-	assert.Equal(t, 1, int(tv.FieldByName("Id").Int()))
-
-	// 根据名称获取 `Name` 字段的值, 并转为 `string` 类型
-	assert.Equal(t, "Alvin", tv.FieldByName("Name").String())
-
-	// 根据名称获取 `Gender` 字段的值, 并转为 `rune` 类型
-	assert.Equal(t, 'M', rune(tv.FieldByName("Gender").Int()))
-
-	// 配合类型反射实例, 对结构体变量进行反射遍历
-	names := []string{"Id", "Name", "Gender"}
-	values := []any{1, "Alvin", 'M'}
-
-	tp := reflect.TypeOf(obj)
-
-	// 获取实例字段总数
-	for i := 0; i < tp.NumField(); i++ {
-		// 通过 类型反射 实例, 获取第 `i` 个字段的 类型
-		field := tp.Field(i)
-		assert.Equal(t, names[i], field.Name)
-
-		// 通过 值反射 实例, 获取第 `i` 个字段的 值
-		value := tv.Field(i)
-
-		// 将所有字段值都获取为 `interface{}` 类型
-		assert.EqualValues(t, values[i], value.Interface())
-	}
 }

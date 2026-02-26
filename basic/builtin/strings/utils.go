@@ -15,7 +15,10 @@ import (
 // - `offset`: 要增加的字节偏移量
 // 返回值: 加上偏移量后的新指针
 func PtrAdd[P ~*E, E any](ptr P, offset uintptr) P {
+	// 将指针转换为裸指针对象
 	p := unsafe.Pointer(ptr)
+
+	// 通过 `unsafe.Add` 函数将指针加上指定的偏移量, 并返回新的指针
 	return P(unsafe.Add(p, offset))
 }
 
