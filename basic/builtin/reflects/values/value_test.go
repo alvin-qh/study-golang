@@ -7,11 +7,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type Date struct {
+	Year  int
+	Month int
+	Day   int
+}
+
 // 测试用结构体
 type User struct {
-	Id     int
-	Name   string
-	Gender rune
+	Id       int
+	Name     string
+	Gender   rune
+	Birthday Date
 }
 
 func TestReflect_ValueOf(t *testing.T) {
@@ -141,13 +148,64 @@ func TestReflect_ValueOf(t *testing.T) {
 	// 测试通过反射, 尝试从 any 变量获取其存储的结构体对象
 	t.Run("For Struct Type", func(t *testing.T) {
 		// 为 any 类型变量设置结构体对象
-		obj = User{Id: 1, Name: "Alvin", Gender: 'M'}
+		obj = User{Id: 1, Name: "Alvin", Gender: 'M', Birthday: Date{1981, 3, 17}}
+
+		// 获取结构体的类型信息
+		tt := reflect.TypeFor[User]()
 
 		// 从 any 变量通过反射获取反射值对象, 确认该反射值对象表示切片
 		tv := reflect.ValueOf(obj)
 		assert.Equal(t, reflect.TypeFor[User](), tv.Type())
 
+		// 通过 .Field(n) 方法获取结构体的字段值, 确认字段值正确
+		assert.Equal(t, "Id", tt.Field(0).Name)
 		assert.Equal(t, int64(1), tv.Field(0).Int())
+
+        // 通过 .Field(n) 方法获取结构体的字段值, 确认字段值正确
+		assert.Equal(t, "Alvin", tv.Field(1).String())
+		assert.Equal(t, 'M', tv.Field(2).Interface().(rune))
+
+		// 通过 .Field(m).Field(n) 方法获取嵌套结构体的字段值, 确认字段值正确
+		assert.Equal(t, int64(1981), tv.Field(3).Field(0).Int())
+		assert.Equal(t, int64(3), tv.Field(3).Field(1).Int())
+		assert.Equal(t, int64(17), tv.Field(3).Field(2).Int())
+
+		// 通过 .FieldByName(name) 方法获取结构体的字段值, 确认字段值正确
+		assert.Equal(t, int64(1), tv.FieldByName("Id").Int())
+		assert.Equal(t, "Alvin", tv.FieldByName("Name").String())
+		assert.Equal(t, 'M', tv.FieldByName("Gender").Interface().(rune))
+
+		// 通过 .FieldByName(name1).FieldByName(name2) 方法获取嵌套结构体的字段值, 确认字段值正确
+		assert.Equal(t, int64(1981), tv.FieldByName("Birthday").FieldByName("Year").Int())
+		assert.Equal(t, int64(3), tv.FieldByName("Birthday").FieldByName("Month").Int())
+		assert.Equal(t, int64(17), tv.FieldByName("Birthday").FieldByName("Day").Int())
+
+		// 通过 .FieldByIndex({n}) 方法获取结构体的字段值, 确认字段值正确
+		assert.Equal(t, int64(1), tv.FieldByIndex([]int{0}).Int())
+		assert.Equal(t, "Alvin", tv.FieldByIndex([]int{1}).String())
+		assert.Equal(t, 'M', tv.FieldByIndex([]int{2}).Interface().(rune))
+
+		// 通过 .FieldByIndex({n1, n2}) 方法获取结构体的字段值, 确认字段值正确
+		assert.Equal(t, int64(1981), tv.FieldByIndex([]int{3, 0}).Int())
+		assert.Equal(t, int64(3), tv.FieldByIndex([]int{3, 1}).Int())
+		assert.Equal(t, int64(17), tv.FieldByIndex([]int{3, 2}).Int())
+
+		// 通过 .FieldByNameFunc(func) 方法获取属性名为 Id 的字段, 并确认字段值
+		fd := tv.FieldByNameFunc(func(name string) bool { return name == "Id" })
+		assert.Equal(t, int64(1), fd.Int())
+
+		// 通过 .FieldByNameFunc(func) 方法获取属性名为 Name 的字段, 并确认字段值
+		fd = tv.FieldByNameFunc(func(name string) bool { return name == "Name" })
+		assert.Equal(t, "Alvin", fd.String())
+
+		// 通过 .FieldByNameFunc(func) 方法获取属性名为 Gender 的字段, 并确认字段值
+		fd = tv.FieldByNameFunc(func(name string) bool { return name == "Gender" })
+		assert.Equal(t, 'M', fd.Interface().(rune))
+
+		// 通过 .FieldByNameFunc(func) 方法获取属性名为 Birthday 的字段, 并确认字段值
+		fd = tv.FieldByNameFunc(func(name string) bool { return name == "Birthday" })
+
+		tv.Fields()
 	})
 
 	// 测试通过反射获变量值时使用了错误类型, 会导致 Panic 错误

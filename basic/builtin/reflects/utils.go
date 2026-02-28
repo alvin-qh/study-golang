@@ -47,3 +47,10 @@ func SetValueByReflect(ptr any, newVal any) (err error) {
 	}
 	return
 }
+
+type StructType struct {
+	typ reflect.Type
+	val reflect.Value
+}
+
+

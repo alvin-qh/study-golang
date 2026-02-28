@@ -3,195 +3,231 @@ package structure
 import (
 	"errors"
 	"reflect"
+	"study/basic/builtin/slices"
 )
 
 // 错误定义
 var (
-	ErrInvalidType       = errors.New("invalid type, need struct")
-	ErrInvalidFieldName  = errors.New("no field found by given name")
-	ErrInvalidMethodName = errors.New("no method found by given name")
-	ErrInvalidTagName    = errors.New("no tag found by given name")
+	// 参数为无效指针错误
+	ErrInvalidPtr = errors.New("need pointer of struct object")
+
+	// 参数为无效结构体错误
+	ErrInvalidType = errors.New("invalid type, need struct")
+
+	// 找不到对应结构体字段错误
+	ErrInvalidFieldName = errors.New("no field found by given field name")
+
+	// 找不到对应结构体方法错误
+	ErrInvalidMethodName = errors.New("no method found by given method name")
+
+	// 找不到对应结构体标签错误
+	ErrInvalidTagName = errors.New("no tag found by given tag key")
 )
 
 // 定义结构体反射类型
 type Structure struct {
-	rt     reflect.Type  // 结构体类型
-	rv     reflect.Value // 结构体值
-	fields []string      // 字段名称
+	// 结构体类型
+	typ reflect.Type
+
+	// 结构体值
+	val reflect.Value
+
+	// 结构体中所有字段名称
+	fNames []string
 }
 
 // 创建结构体反射类型实例
 //
-// `t` 参数为一个实例或实例指针, 表示该实例的类型
-func New(t any) (*Structure, error) {
-	// 根据 `t` 参数获取其类型
-	rt := reflect.TypeOf(t)
-	if rt.Kind() == reflect.Pointer {
-		// 如果 `typ` 参数是指针类型, 则获取其指向的类型
-		rt = rt.Elem()
+// 参数:
+//   - `structObj`: 任意结构体实例指针
+//
+// 返回:
+//   - `*Structure`: `Structure` 类型实例指针
+//   - `error`: 如果发生错误, 则返回错误对象
+func New(structObj any) (*Structure, error) {
+	// 获取 structObj 参数的反射值实例
+	val := reflect.ValueOf(structObj)
+
+	// 如果 structObj 参数不是指针类型, 则返回错误
+	if val.Kind() != reflect.Pointer {
+		return nil, ErrInvalidPtr
 	}
 
-	// 如果 `typ` 参数不是结构体类型, 则返回错误
-	if rt.Kind() != reflect.Struct {
+	// 对反射值进行解引, 获取其指针指向的变量的反射值
+	val = val.Elem()
+
+	// 如果反射值表示的不是结构体类型, 则返回错误
+	if val.Kind() != reflect.Struct {
 		return nil, ErrInvalidType
 	}
 
-	// 根据 `t` 参数获取其结构体值
-	rv := reflect.ValueOf(t)
-	if rv.Kind() == reflect.Pointer {
-		// 如果 `t` 参数是指针类型, 则获取其指向的值
-		rv = rv.Elem()
+	// 获取反射值对应的反射类型对象
+	typ := val.Type()
+	if typ.Kind() != reflect.Struct {
+		return nil, ErrInvalidType
 	}
 
+	// 创建结构体反射类型实例并返回
 	return &Structure{
-		rt, // 设置结构体类型实例
-		rv, // 设置结构体反射值实例
+		typ, // 设置结构体类型实例
+		val, // 设置结构体反射值实例
 		nil,
 	}, nil
 }
 
 // 获取结构体类型
-func (s *Structure) Kind() reflect.Kind { return s.rt.Kind() }
+//
+// 返回:
+//   - `reflect.Kind`: 结构体类型
+func (s *Structure) Kind() reflect.Kind { return s.typ.Kind() }
 
 // 获取结构体类型名称
-func (s *Structure) Name() string { return s.rt.Name() }
+//
+// 返回:
+//   - `string`: 结构体类型名称
+func (s *Structure) Name() string { return s.typ.Name() }
 
 // 获取结构体的包路径
-func (s *Structure) PackagePath() string { return s.rt.PkgPath() }
+//
+// 返回:
+//   - `string`: 包路径
+func (s *Structure) PackagePath() string { return s.typ.PkgPath() }
 
 // 根据所给的字段名称, 获取结构体字段对象
-func (t *Structure) FindField(field string) (reflect.StructField, error) {
-	f, ok := t.rt.FieldByName(field)
-	if !ok {
-		return f, ErrInvalidFieldName
-	}
-	return f, nil
+//
+// 参数:
+//   - `fieldName`: 字段名称
+//
+// 返回:
+//   - `reflect.StructField`: 结构体字段反射对象
+//   - `bool`: 如果字段存在, 则返回 `true`, 否则返回 `false`
+func (s *Structure) FindField(fieldName string) (reflect.StructField, bool) {
+	return s.typ.FieldByNameFunc(func(name string) bool { return name == fieldName })
 }
 
 // 根据所给的字段名称, 获取结构体字段值
 //
-// 通过结构体相关 `reflect.Value` 对象的 `FieldByName` 方法可以获取到结构体自动的反射值实例
+// 参数:
+//   - `fieldName`: 字段名称
 //
-//	rv := reflect.ValueOf(&user{}).Elem()
-//	val := rv.FieldByName("Name").Interface()
-func (t *Structure) GetFieldValue(field string) (any, error) {
-	fv := t.rv.FieldByName(field)
-	if !fv.IsValid() {
+// 错误:
+//   - `error`: 如果发生错误, 则返回错误对象
+//
+// 返回:
+//   - `any`: 字段值
+func (s *Structure) GetFieldValue(fieldName string) (any, error) {
+	// 通过结构体反射值对象获取结构体字段反射值对象
+	fVal := s.val.FieldByName(fieldName)
+	if !fVal.IsValid() {
 		return nil, ErrInvalidFieldName
 	}
 
-	return fv.Interface(), nil
+	// 将字段值转为 any 类型后返回
+	return fVal.Interface(), nil
 }
 
 // 根据所给的字段名称, 设置结构体字段值
 //
-// 返回指定字段之前的值
+// 参数:
+//   - `fieldName`: 字段名称
+//   - `value`: 要设置的字段值
 //
-// 通过结构体相关 `reflect.Value` 对象的 `FieldByName` 方法可以获取到结构体自动的反射值实例
-//
-//	rv := reflect.ValueOf(&user{}).Elem()
-//	rv.FieldByName("Name").Set(reflect.ValueOf("Tom"))
-func (t *Structure) SetFieldValue(field string, vals any) (any, error) {
-	fv := t.rv.FieldByName(field)
-	if !fv.IsValid() {
+// 返回:
+//   - `any`: 字段原始值
+//   - `error`: 如果发生错误, 则返回错误对象
+func (s *Structure) SetFieldValue(fieldName string, value any) (any, error) {
+	// 通过结构体反射值对象获取结构体字段反射值对象
+	fVal := s.val.FieldByName(fieldName)
+	if !fVal.IsValid() {
 		return nil, ErrInvalidFieldName
 	}
 
-	old := fv.Interface()
-	fv.Set(reflect.ValueOf(vals))
+	// 获取字段原始值
+	old := fVal.Interface()
 
+	// 设置新字段值
+	fVal.Set(reflect.ValueOf(value))
+
+	// 返回字段原始值
 	return old, nil
 }
 
-// 获取结构体所有
+// 获取结构体所有字段名称
 //
-// 如果获取了结构体的反射类型 (`reflect.Type` 实例), 则可通过其 `NumField` 方法获取到结构体字段数量,
-// 通过 `Field` 方法获取第 n 个字段类型实例, 并通过字段类型实例的 `Name` 属性获取字段名称
-//
-//	rt := reflect.TypeOf(&user{}).Elem()
-//	n := rt.NumField()
-//	name := rt.Field(0).Name
-func (t *Structure) AllFieldNames() []string {
-	if t.fields != nil {
-		return t.fields
+// 返回:
+//   - `[]string`: 切片对象, 包括结构体下所有字段名称
+func (s *Structure) AllFieldNames() []string {
+	if s.fNames != nil {
+		return s.fNames
 	}
 
-	// 获取结构体字段数量
-	n := t.rt.NumField()
+	// 初始化切片用于存储字段名称
+	names := make([]string, 0, s.typ.NumField())
 
-	names := make([]string, 0, n)
-	// 逐个获取结构体字段名称
-	for i := range n {
-		// 获取第 i 个字段类型实例, 并通过字段类型实例的 `Name` 属性获取字段名称
-		f := t.rt.Field(i)
-		names = append(names, f.Name)
+	// 遍历结构体字段, 将名称保存在切片中
+	for field := range s.typ.Fields() {
+		names = append(names, field.Name)
 	}
 
-	t.fields = names
+	// 将名称切片进行缓存
+	s.fNames = names
+
+	// 返回字段名称切片
 	return names
 }
 
 // 获取结构体指定字段上注解的标签值
 //
-// 通过结构体的反射类型 (`reflect.Type` 实例), 可以通过 `Tag` 属性获取到结构体字段上注解的标签值
+// 参数:
+//   - `fieldName`: 字段名称
+//   - `tagKey`: 标签名称的 Key 值
 //
-//	rt := reflect.TypeOf(&user{}).Elem()
-//	tag := rt.Field(0).Tag.Get("json")
-//
-// 除了 `Get` 方法外, `Lookup` 方法可以返回标签值以及标签是否存在
-//
-//	tagVal, ok := rType.Field(0).Tag.Lookup("json")
-func (t *Structure) GetFieldTags(fields string, tag string) (string, error) {
+// 返回:
+//   - `string`: 标签值
+//   - `error`: 如果发生错误, 则返回错误对象
+func (s *Structure) GetFieldTags(fieldName string, tagKey string) (string, error) {
 	// 根据字段名获取字段类型实例
-	f, ok := t.rt.FieldByName(fields)
+	fType, ok := s.typ.FieldByName(fieldName)
 	if !ok {
 		return "", ErrInvalidFieldName
 	}
 
-	// 查找字段标签
-	tagVal, ok := f.Tag.Lookup(tag)
+	// 根据标签 Key 获取字段标签值
+	tagVal, ok := fType.Tag.Lookup(tagKey)
 	if !ok {
 		return "", ErrInvalidTagName
 	}
 
+	// 返回字段标签值
 	return tagVal, nil
 }
 
 // 根据所给的方法名执行该方法, 并返回执行结果
 //
-// 通过 `reflect.Value` 实例的 `MethodByName` 方法即可获取指定名称的结构体方法实例, 调用 `Call` 方法即可执行该方法
+// 参数:
+//   - `methodName`: 方法名称
+//   - `args`: 方法参数列表
 //
-// 注意, 有些方法是定义在结构体实例上的, 有些方法是定义在结构体实例指针上的, 因此获取结构体方法时要覆盖这两种情况
-//
-//	rv := reflect.ValueOf(&user{}).Elem()
-//	res := rVal.MethodByName("GetName").Call()
-//	res := rVal.Addr().MethodByName("GetName").Call()
-func (t *Structure) CallMethodByName(method string, args ...any) ([]any, error) {
-	// 通过反射获取指定名称的方法实例
-	m := t.rv.MethodByName(method)
+// 返回:
+//   - `any`: 调用方法的返回值
+//   - `error`: 如果发生错误, 则返回错误对象
+func (s *Structure) CallMethodByName(methodName string, args ...any) ([]any, error) {
+	// 通过方法名获取方法反射实例, 需要通过结构体反射值的地址进行获取
+	m := s.val.Addr().MethodByName(methodName)
 	if !m.IsValid() {
-		// 如果获取失败, 尝试以指针类型来获取实例的方法实例
-		m = t.rv.Addr().MethodByName(method)
-		if !m.IsValid() {
-			return nil, ErrInvalidMethodName
-		}
+		return nil, ErrInvalidMethodName
 	}
 
-	// 定义一个切片集合, 其元素类型为反射对象, 用于存储通过反射调用方法的参数
-	avs := make([]reflect.Value, 0, len(args))
-	for _, arg := range args {
-		// 将参数值按顺序加入参数切片集合中
-		avs = append(avs, reflect.ValueOf(arg))
-	}
+	// 准备函数调用参数列表, 参数列表为 `reflect.Value` 类型的切片
+	avs := slices.Map(args, func(v any) reflect.Value {
+		return reflect.ValueOf(v)
+	})
 
-	// 调用方法, 获取返回值切片
+	// 调用方法, 获取返回值切片, 内容为函数返回值的反射值类型
 	res := m.Call(avs)
 
-	// 定义一个切片集合, 用于存储通过反射调用方法的返回值
-	rvs := make([]any, 0, len(res))
-	for _, rv := range res {
-		// 从返回结果中获取反射的实际值
-		rvs = append(rvs, rv.Interface())
-	}
-	return rvs, nil
+	// 将返回值切片转为实际的值并返回
+	return slices.Map(res, func(v reflect.Value) any {
+		return v.Interface()
+	}), nil
 }
