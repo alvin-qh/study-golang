@@ -100,6 +100,144 @@ func (sm *StructMapper) FindTag(f *reflect.StructField) string {
 	return fieldNameToTagKey(f.Name)
 }
 
+func (sm *StructMapper) fromSlice(v reflect.Value) ([]any, error) {
+	// 验证参数, 如果参数 v 不是切片类型, 则返回错误
+	if v.Kind() != reflect.Slice {
+		return nil, fmt.Errorf("\"obj\" argument must be a slice")
+	}
+
+	// 获取切片的长度
+	l := v.Len()
+
+	// 创建结果切片, 长度为参数 v 表示的切片的长度
+	r := make([]any, l)
+
+	// 遍历切片的每一项, 将其设置到结果切片中
+	for i := range l {
+		// 获取切片的每一项, 并将对应值添加到结果切片中
+		r[i] = v.Index(i).Interface()
+	}
+
+	return r, nil
+}
+func (sm *StructMapper) fromStruct(v reflect.Value) (map[string]any, error) {
+	// 验证参数, 如果参数 v 不是结构体类型, 则返回错误
+	if v.Kind() != reflect.Struct {
+		return nil, fmt.Errorf("\"obj\" argument must be a struct")
+	}
+
+	// 获取结构体的类型
+	t := v.Type()
+
+	// 创建结果 map 对象
+	m := make(map[string]any)
+
+	// 遍历结构体的字段
+	for f := range t.Fields() {
+
+	}
+}
+
+func (sm *StructMapper) Encode(obj any) (map[string]any, error) {
+	v := reflect.ValueOf(obj)
+	if v.Kind() == reflect.Pointer {
+		v = v.Elem()
+	}
+
+	var r map[string]any
+
+	switch v.Kind() {
+	case reflect.Slice:
+		return sm.fromSlice(v)
+	case reflect.Struct:
+		return sm.fromStruct(v)
+	default:
+		return nil, fmt.Errorf("\"obj\" argument must be a struct or slice")
+	}
+
+	return r, nil
+}
+
+// 将指定的结构体对象设置到指定的值反射对象中
+//
+// 参数:
+//   - `v` 值反射对象
+//   - `data` 要设置的结构体对象
+//
+// 返回:
+//   - `error` 错误对象, 如果没有错误, 则返回 `nil`
+func (sm *StructMapper) assignToStruct(v reflect.Value, data map[string]any) error {
+	// 获取值对象的类型
+	t := v.Type()
+
+	// 遍历值对象的各字段
+	for f := range t.Fields() {
+		// 查找字段的 tag
+		tag := sm.FindTag(&f)
+
+		// 根据 tag 在 map 中查询目标值
+		dv, ok := data[tag]
+		if !ok {
+			continue
+		}
+
+		// 根据字段类型查找预设的转换函数
+		mapper, ok := sm.mapperFns[f.Type]
+		if ok {
+			// 对目标值进行转换
+			var err error
+			if dv, err = mapper(dv); err != nil {
+				return err
+			}
+		}
+
+		// 获取结构体字段的值反射对象
+		fv := v.Field(f.Index[0])
+
+		// 将目标值设置到结构体字段中
+		if err := sm.assign(fv, dv); err != nil {
+			return fmt.Errorf("error field \"%v\": %v", f.Name, err)
+		}
+	}
+	return nil
+}
+
+// 将 Map 对象内容解码到结构体对象中
+//
+// 该方法将 data 参数表示的 Map 对象键值对解码到 target 参数表示的结构体对象中
+//
+// 参数:
+//   - `data` 输入的 Map 对象
+//   - `target` 目标对象的指针
+//
+// 错误:
+//   - `error` 错误对象, 如果没有错误, 则返回 `nil`
+func (sm *StructMapper) Decode(data any, target any) error {
+	// 获取目标对象的值反射对象
+	rv := reflect.ValueOf(target)
+
+	// 确认目标对象必须为指针类型, 否则返回错误
+	if rv.Kind() != reflect.Pointer {
+		return fmt.Errorf("\"target\" argument must be a struct or slice pointer")
+	}
+
+	// 获取指针指向的实例值反射对象
+	rv = rv.Elem()
+
+	var err error
+
+	// 根据实例值反射对象的类型, 选择不同的方式设置值
+	switch rv.Kind() {
+	case reflect.Slice: // 当对象是切片类型时, 将 Map 中的切片内容设置到目标对象中
+		err = sm.assignToSlice(rv, data.([]any))
+	case reflect.Struct: // 当对象是结构体类型时, 将 Map 中的内容设置到目标对象中
+		err = sm.assignToStruct(rv, data.(map[string]any))
+	default: // 其它类型, 返回错误
+		err = fmt.Errorf("\"target\" argument must be a struct pointer")
+	}
+	return err
+}
+
 // 将指定的值设置到指定的值反射对象中
 //
 // 参数:
@@ -164,68 +302,4 @@ func (sm *StructMapper) assignToSlice(v reflect.Value, s []any) error {
 	// 赋值切片
 	v.Set(sv)
 	return nil
-}
-
-// 将指定的结构体对象设置到指定的值反射对象中
-func (sm *StructMapper) assignToStruct(v reflect.Value, data map[string]any) error {
-	// 获取值对象的类型
-	t := v.Type()
-
-	// 遍历值对象的各字段
-	for f := range t.Fields() {
-		// 查找字段的 tag
-		tag := sm.FindTag(&f)
-
-		// 根据 tag 在 map 中查询目标值
-		dv, ok := data[tag]
-		if !ok {
-			continue
-		}
-
-		// 根据字段类型查找预设的转换函数
-		mapper, ok := sm.mapperFns[f.Type]
-		if ok {
-			// 对目标值进行转换
-			var err error
-			if dv, err = mapper(dv); err != nil {
-				return err
-			}
-		}
-
-		// 获取结构体字段的值反射对象
-		fv := v.Field(f.Index[0])
-
-		// 将目标值设置到结构体字段中
-		if err := sm.assign(fv, dv); err != nil {
-			return fmt.Errorf("error field \"%v\": %v", f.Name, err)
-		}
-	}
-	return nil
-}
-
-// 将 Map 对象内容解码到结构体对象中
-func (m *StructMapper) Decode(data any, target any) error {
-	// 获取目标对象的值反射对象
-	rv := reflect.ValueOf(target)
-
-	// 确认目标对象必须为指针类型, 否则返回错误
-	if rv.Kind() != reflect.Pointer {
-		return fmt.Errorf("\"target\" argument must be a struct or slice pointer")
-	}
-
-	// 获取指针指向的实例值反射对象
-	rv = rv.Elem()
-
-	var err error
-
-	// 根据实例值反射对象的类型, 选择不同的方式设置值
-	switch rv.Kind() {
-	case reflect.Slice: // 当对象是切片类型时, 将 Map 中的切片内容设置到目标对象中
-		err = m.assignToSlice(rv, data.([]any))
-	case reflect.Struct: // 当对象是结构体类型时, 将 Map 中的内容设置到目标对象中
-		err = m.assignToStruct(rv, data.(map[string]any))
-	default: // 其它类型, 返回错误
-		err = fmt.Errorf("\"target\" argument must be a struct pointer")
-	}
-	return err
 }
