@@ -38,8 +38,8 @@ func TestStructMapper_findTag(t *testing.T) {
 	assert.Nil(t, err)
 
 	// 找到 user 结构体对象的 Id 字段
-	f, err := s.FindField("Id")
-	assert.Nil(t, err)
+	f, ok := s.FindField("Id")
+	assert.True(t, ok)
 
 	// 实例化 MapToStruct 对象, 以 struct 为 tag key
 	m := structmapper.New("struct")
