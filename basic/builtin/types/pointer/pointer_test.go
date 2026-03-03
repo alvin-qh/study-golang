@@ -1,6 +1,7 @@
 package pointer_test
 
 import (
+	"reflect"
 	"study/basic/builtin/types/pointer"
 	"testing"
 	"unsafe"
@@ -27,6 +28,22 @@ func TestPointer_Equality(t *testing.T) {
 
 	// 如果要比较两个指针变量是否存储相同的内存地址, 则需要使用 `assert.Same` 方法, 该方法比较的是两个指针变量的内存地址是否相同, 而非其指向的值是否相同
 	assert.NotSame(t, pn1, pn2)
+}
+
+// 测试指针的 `nil` 值
+//
+// 指针变量的 `nil` 值表示 "空指针" (而非 C 语言的 `NULL`, `NULL` 的值是 `0`, 而不是专门表示 "空指针")
+func TestPointer_Nil(t *testing.T) {
+	// 定义指针变量并声明为 `nil` 值
+	var pn *int = nil
+	assert.Nil(t, pn)
+
+	// 获取指针变量的 reflect.Value
+	value := reflect.ValueOf(pn)
+
+	// 确认指针变量的 reflect.Value 的 Kind() 是否为 reflect.Pointer，并且 IsNil() 是否返回 true
+	assert.Equal(t, reflect.Pointer, value.Kind())
+	assert.True(t, value.IsNil())
 }
 
 // 测试将指针转为 `unsafe.Pointer` 类型

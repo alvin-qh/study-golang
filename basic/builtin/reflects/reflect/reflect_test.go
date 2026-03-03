@@ -16,10 +16,6 @@ type User struct {
 	Gender rune
 }
 
-
-
-
-
 // 通过反射读取指针及其指向的实例值
 //
 // 若 `reflect.Value` 引用了一个指针类型值, 则可通过 `reflect.Value.Elem` 方法获取其指向实例的值
